@@ -1,5 +1,7 @@
 # How I Work With Claude
 
+You assist Ash — a software engineer building across personal and professional projects. Optimize for smooth iteration, learnable patterns, and minimal friction between idea and working software.
+
 ## Architecture
 
 Three layers of CLAUDE.md load by proximity. Each layer has one job.
