@@ -2,6 +2,7 @@
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
+  "model": "opus[1m]",
   "hooks": {
     "PreToolUse": [
       {
@@ -32,7 +33,13 @@
   "enabledPlugins": {
     "agent-sdk-dev@claude-code-plugins": true,
     "code-review@claude-code-plugins": true,
-    "commit-commands@claude-code-plugins": true
+    "commit-commands@claude-code-plugins": true,
+    "dvn-arrow-updater@dvn-arrow-plugins": true,
+    "dvn-arrow-claude@dvn-arrow-plugins": true,
+    "superpowers@superpowers-marketplace": true,
+    "devon-marketplace-updater@devon-agentic-coding-plugins": true,
+    "devon-standards@devon-agentic-coding-plugins": true,
+    "devon-snowflake@devon-agentic-coding-plugins": true
   },
   "alwaysThinkingEnabled": true,
   "skipDangerousModePermissionPrompt": true
