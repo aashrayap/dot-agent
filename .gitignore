@@ -29,6 +29,8 @@ mcp-needs-auth-cache.json
 settings.local.json
 /chrome/
 /projects/
+/channels/
+/image-cache/
 
 # Legacy / one-off
 /.claude-copy/

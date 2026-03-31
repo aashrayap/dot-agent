@@ -4,6 +4,17 @@
   },
   "model": "opus[1m]",
   "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmux notify --title \"Claude Code\" --body \"$CLAUDE_NOTIFICATION\""
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Read",
@@ -39,8 +50,10 @@
     "superpowers@superpowers-marketplace": true,
     "devon-marketplace-updater@devon-agentic-coding-plugins": true,
     "devon-standards@devon-agentic-coding-plugins": true,
-    "devon-snowflake@devon-agentic-coding-plugins": true
+    "devon-snowflake@devon-agentic-coding-plugins": true,
+    "imessage@claude-plugins-official": true
   },
   "alwaysThinkingEnabled": true,
+  "autoDreamEnabled": true,
   "skipDangerousModePermissionPrompt": true
 }
