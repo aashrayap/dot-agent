@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Usage: review-setup.sh [ext1 ext2 ...]
-# Detects base branch, computes diff, groups changed files by extension.
-# If extensions are provided, only includes files matching those extensions.
-
-EXTENSIONS=("$@")
+# Usage: review-setup.sh
+# No arguments. Run from within the target repo.
+# Returns: branch info, merge base, file list, diff stats, commit log, PR link.
 
 # --- Detect base branch ---
 BASE=""
@@ -32,7 +30,7 @@ if [[ -z "$BASE" ]]; then
 fi
 
 if [[ -z "$BASE" ]]; then
-  echo "ERROR: Could not detect base branch. Please specify manually."
+  echo "ERROR: Could not detect base branch."
   exit 1
 fi
 
@@ -44,66 +42,35 @@ if [[ -z "$MERGE_BASE" ]]; then
   exit 1
 fi
 
-# --- Get all changed files ---
-ALL_CHANGED=$(git diff "$MERGE_BASE"...HEAD --name-only 2>/dev/null || true)
+# --- Changed files ---
+CHANGED_FILES=$(git diff "$MERGE_BASE"...HEAD --name-only 2>/dev/null || true)
 
-if [[ -z "$ALL_CHANGED" ]]; then
+if [[ -z "$CHANGED_FILES" ]]; then
   echo "ERROR: No changed files found between $BASE and $CURRENT."
   exit 1
 fi
 
-# --- Filter by extensions if provided ---
-if [[ ${#EXTENSIONS[@]} -gt 0 ]]; then
-  CHANGED_FILES=""
-  for file in $ALL_CHANGED; do
-    ext="${file##*.}"
-    for filter_ext in "${EXTENSIONS[@]}"; do
-      # Strip leading dot if user passed ".sol" instead of "sol"
-      filter_ext="${filter_ext#.}"
-      if [[ "$ext" == "$filter_ext" ]]; then
-        CHANGED_FILES="${CHANGED_FILES}${file}"$'\n'
-        break
-      fi
-    done
-  done
-  CHANGED_FILES=$(echo "$CHANGED_FILES" | sed '/^$/d')
-
-  if [[ -z "$CHANGED_FILES" ]]; then
-    echo "ERROR: No changed files matching extensions: ${EXTENSIONS[*]}"
-    exit 1
-  fi
-else
-  CHANGED_FILES="$ALL_CHANGED"
-fi
-
 FILE_COUNT=$(echo "$CHANGED_FILES" | wc -l | tr -d ' ')
+UNIQUE_EXTS=$(echo "$CHANGED_FILES" | sed 's/.*\.//' | sort -u | tr '\n' ' ' | sed 's/ $//')
 
-# --- Group files by extension ---
-declare -A EXT_FILES
-declare -A EXT_COUNTS
-
-while IFS= read -r file; do
-  ext="${file##*.}"
-  EXT_FILES[$ext]="${EXT_FILES[$ext]:-}${file}\n"
-  EXT_COUNTS[$ext]=$(( ${EXT_COUNTS[$ext]:-0} + 1 ))
-done <<< "$CHANGED_FILES"
-
-# --- Diff stats ---
-DIFF_STAT=$(git diff "$MERGE_BASE"...HEAD --stat -- $CHANGED_FILES 2>/dev/null | tail -1)
+# --- Diff stats (counts only) ---
+DIFF_STAT=$(git diff "$MERGE_BASE"...HEAD --shortstat 2>/dev/null || echo "")
 
 # --- Commit log ---
 COMMIT_LOG=$(git log "$MERGE_BASE"...HEAD --oneline --no-merges 2>/dev/null || echo "(no commits)")
-COMMIT_COUNT=$(echo "$COMMIT_LOG" | grep -c . || echo "0")
 
-# --- Output structured context ---
+# --- PR link (if any) ---
+PR_URL=$(gh pr view --json url -q '.url' 2>/dev/null || echo "")
+
+# --- Output ---
 echo "REVIEW_CONTEXT_START"
 echo "BASE_BRANCH=$BASE"
 echo "CURRENT_BRANCH=$CURRENT"
 echo "MERGE_BASE=$MERGE_BASE"
 echo "FILE_COUNT=$FILE_COUNT"
-echo "COMMIT_COUNT=$COMMIT_COUNT"
-if [[ ${#EXTENSIONS[@]} -gt 0 ]]; then
-  echo "FILTER=${EXTENSIONS[*]}"
+echo "EXTENSIONS=$UNIQUE_EXTS"
+if [[ -n "$PR_URL" ]]; then
+  echo "PR_URL=$PR_URL"
 fi
 echo ""
 echo "## Diff Stats"
@@ -112,21 +79,6 @@ echo ""
 echo "## Commits"
 echo "$COMMIT_LOG"
 echo ""
-echo "## Changed Files by Extension"
-for ext in $(echo "${!EXT_COUNTS[@]}" | tr ' ' '\n' | sort); do
-  echo ""
-  echo "### .${ext} (${EXT_COUNTS[$ext]} files)"
-  echo -e "${EXT_FILES[$ext]}" | sed '/^$/d'
-done
-echo ""
-
-# --- Full diff (only for matched files) ---
-echo "## Full Diff"
-echo '```diff'
-git diff "$MERGE_BASE"...HEAD -- $CHANGED_FILES 2>/dev/null
-echo '```'
+echo "## Changed Files"
+echo "$CHANGED_FILES"
 echo "REVIEW_CONTEXT_END"
-
-# --- PR review threads (conditional) ---
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-"$SCRIPT_DIR/fetch-pr-context.sh"

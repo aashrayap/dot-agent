@@ -13,10 +13,10 @@ if [[ -z "$PR_JSON" ]]; then
   exit 0
 fi
 
-PR_NUMBER=$(echo "$PR_JSON" | jq -r '.number')
-PR_URL=$(echo "$PR_JSON" | jq -r '.url')
-TITLE=$(echo "$PR_JSON" | jq -r '.title')
-STATE=$(echo "$PR_JSON" | jq -r '.state')
+# Single jq call to extract all fields
+read -r PR_NUMBER PR_URL TITLE STATE < <(
+  echo "$PR_JSON" | jq -r '[.number, .url, .title, .state] | @tsv'
+)
 
 # Only process open PRs
 if [[ "$STATE" != "OPEN" ]]; then
@@ -61,7 +61,11 @@ QUERY='query($owner: String!, $repo: String!, $pr: Int!, $cursor: String) {
   }
 }'
 
-ALL_NODES="[]"
+# Accumulate pages into a temp file to avoid O(n²) re-serialization
+TMPFILE=$(mktemp)
+trap 'rm -f "$TMPFILE"' EXIT
+echo -n '' > "$TMPFILE"
+
 CURSOR=""
 
 while true; do
@@ -75,83 +79,65 @@ while true; do
     -F pr="$PR_NUMBER" \
     ${CURSOR_ARGS[@]+"${CURSOR_ARGS[@]}"})
 
-  PAGE_NODES=$(echo "$RESPONSE" | jq '.data.repository.pullRequest.reviewThreads.nodes')
-  ALL_NODES=$(echo "$ALL_NODES" "$PAGE_NODES" | jq -s '.[0] + .[1]')
+  # Single jq call: extract nodes, hasNextPage, and endCursor together
+  read -r HAS_NEXT CURSOR < <(
+    echo "$RESPONSE" | jq -r '
+      .data.repository.pullRequest.reviewThreads |
+      [.pageInfo.hasNextPage, .pageInfo.endCursor] | @tsv'
+  )
+  echo "$RESPONSE" | jq -c '.data.repository.pullRequest.reviewThreads.nodes[]' >> "$TMPFILE"
 
-  HAS_NEXT=$(echo "$RESPONSE" | jq -r '.data.repository.pullRequest.reviewThreads.pageInfo.hasNextPage')
   if [[ "$HAS_NEXT" != "true" ]]; then
     break
   fi
-  CURSOR=$(echo "$RESPONSE" | jq -r '.data.repository.pullRequest.reviewThreads.pageInfo.endCursor')
 done
 
-# Shape threads: unresolved + not outdated
-THREADS=$(echo "$ALL_NODES" | jq '
-  [.[]
-   | select(.isResolved == false and .isOutdated == false)
-   | {
-       thread_id: .id,
-       path: .path,
-       line: .line,
-       start_line: .startLine,
-       comments: [.comments.nodes[] | {
-         id: .id,
-         author: .author.login,
-         body: (.body | gsub("<details>[\\s\\S]*?</details>"; "") | gsub("\\n{3,}"; "\n\n")),
-         diff_hunk: .diffHunk,
-         created_at: .createdAt
-       }]
-     }
-  ]')
+# ── Single jq pass: filter, group, format ──────────────────────────────────
 
-THREAD_COUNT=$(echo "$THREADS" | jq 'length')
+export PR_URL TITLE PR_NUMBER
 
-if [[ "$THREAD_COUNT" -eq 0 ]]; then
-  echo ""
-  echo "PR_CONTEXT_START"
-  echo "PR_URL=$PR_URL"
-  echo "PR_TITLE=$TITLE"
-  echo "PR_NUMBER=$PR_NUMBER"
-  echo "THREAD_COUNT=0"
-  echo ""
-  echo "## PR Review Threads"
-  echo "No unresolved review threads."
-  echo "PR_CONTEXT_END"
-  exit 0
-fi
+RESULT=$(jq -s -r '
+  # Filter: unresolved + not outdated
+  [ .[] | select(.isResolved == false and .isOutdated == false) ] as $threads |
+  ($threads | length) as $count |
 
-FILE_GROUPS=$(echo "$THREADS" | jq '
-  group_by(.path)
-  | map({
+  if $count == 0 then
+    "\nPR_CONTEXT_START\n" +
+    "PR_URL=\(env.PR_URL)\n" +
+    "PR_TITLE=\(env.TITLE)\n" +
+    "PR_NUMBER=\(env.PR_NUMBER)\n" +
+    "THREAD_COUNT=0\n\n" +
+    "## PR Review Threads\n" +
+    "No unresolved review threads.\n" +
+    "PR_CONTEXT_END"
+  else
+    # Group by path
+    ($threads | group_by(.path) | map({
       path: .[0].path,
       thread_count: length,
       threads: .
-    })')
+    })) as $groups |
 
-# ── Output structured context ───────────────────────────────────────────────
+    "\nPR_CONTEXT_START\n" +
+    "PR_URL=\(env.PR_URL)\n" +
+    "PR_TITLE=\(env.TITLE)\n" +
+    "PR_NUMBER=\(env.PR_NUMBER)\n" +
+    "THREAD_COUNT=\($count)\n\n" +
+    "## PR Review Threads (\($count) unresolved)\n\n" +
+    ($groups | map(
+      "### `\(.path)` (\(.thread_count) thread(s))\n" +
+      (.threads | map(
+        "#### Thread \(.id)\n" +
+        "**Line:** \(.line // "file-level")\n" +
+        (.comments.nodes | map(
+          "> **@\(.author.login)** (\(.createdAt)):\n" +
+          "> \(.body | gsub("<details>[\\s\\S]*?</details>"; "") | gsub("\\n{3,}"; "\n\n") | gsub("\n"; "\n> "))\n" +
+          (if .diffHunk then "\n```diff\n\(.diffHunk)\n```\n" else "" end)
+        ) | join("\n"))
+      ) | join("\n---\n\n"))
+    ) | join("\n")) +
+    "\nPR_CONTEXT_END"
+  end
+' "$TMPFILE")
 
-echo ""
-echo "PR_CONTEXT_START"
-echo "PR_URL=$PR_URL"
-echo "PR_TITLE=$TITLE"
-echo "PR_NUMBER=$PR_NUMBER"
-echo "THREAD_COUNT=$THREAD_COUNT"
-echo ""
-echo "## PR Review Threads ($THREAD_COUNT unresolved)"
-echo ""
-
-echo "$FILE_GROUPS" | jq -r '
-  .[] |
-  "### `\(.path)` (\(.thread_count) thread(s))\n" +
-  (.threads | map(
-    "#### Thread \(.thread_id)\n" +
-    "**Line:** \(.line // "file-level")\n" +
-    (.comments | map(
-      "> **@\(.author)** (\(.created_at)):\n" +
-      "> \(.body | gsub("\n"; "\n> "))\n" +
-      (if .diff_hunk then "\n```diff\n\(.diff_hunk)\n```\n" else "" end)
-    ) | join("\n"))
-  ) | join("\n---\n\n"))
-'
-
-echo "PR_CONTEXT_END"
+echo "$RESULT"
