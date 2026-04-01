@@ -48,5 +48,6 @@
   "enabledPlugins": {},
   "alwaysThinkingEnabled": true,
   "autoDreamEnabled": false,
-  "autoMemoryEnabled": false
+  "autoMemoryEnabled": false,
+  "showThinkingSummaries": true
 }
