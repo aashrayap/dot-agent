@@ -22,7 +22,8 @@
       "mcp__ios-simulator__ui_describe_all",
       "mcp__ios-simulator__ui_tap",
       "mcp__ios-simulator__ui_swipe",
-      "mcp__pencil"
+      "mcp__pencil",
+      "Bash(~/.claude/skills/spec-new-feature/scripts/new-feature-setup.sh:*)"
     ],
     "defaultMode": "default"
   },

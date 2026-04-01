@@ -1,18 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Usage: new-feature-setup.sh <kebab-name> <description...>
+# Usage: new-feature-setup.sh <kebab-name>
 # Creates docs/<name>/ with template files if it doesn't exist,
 # or reports current status for resumption.
 
-if [[ $# -lt 2 ]]; then
-  echo "ERROR: Usage: /spec-new-feature <kebab-name> <description...>"
-  echo "Example: /spec-new-feature test-website we want a test website for proof verification"
+if [[ $# -lt 1 ]]; then
+  echo "ERROR: Usage: /spec-new-feature <kebab-name>"
+  echo "Example: /spec-new-feature test-website"
   exit 1
 fi
 
-NAME="$1"; shift
-DESC="$*"
+NAME="$1"
 TODAY=$(date +%Y-%m-%d)
 
 # Validate kebab-case
@@ -26,7 +25,7 @@ fi
 if [[ "$NAME" != *-* ]]; then
   echo "ERROR: '$NAME' must contain at least one hyphen (e.g. 'my-feature')."
   echo "A single word likely means you forgot to set a name."
-  echo "Usage: /spec-new-feature <kebab-name> <description...>"
+  echo "Usage: /spec-new-feature <kebab-name>"
   exit 1
 fi
 
@@ -36,11 +35,10 @@ if [[ -n "$EXISTING_DIR" ]]; then
   DIR="$EXISTING_DIR"
   echo "FEATURE_DIR=$DIR"
   echo "FEATURE_NAME=$NAME"
-  echo "DESCRIPTION=$DESC"
   echo "MODE=resume"
   echo ""
   echo "Current status:"
-  for f in 01_spec.md 02_findings.md 03_plan.md 04_tasks.md; do
+  for f in 01_spec.md 02_questions.md 03_findings.md 04_plan.md 05_tasks.md; do
     if [[ -f "$DIR/$f" ]]; then
       status=$(head -5 "$DIR/$f" | grep -m1 'status:' | sed 's/.*status: *//' || echo "unknown")
       echo "  ${f}: ${status}"
@@ -61,7 +59,7 @@ feature: $NAME
 created: $TODAY
 ---
 
-# Feature: $DESC
+# Feature: $NAME
 
 ## Brief
 - **What:**
@@ -102,14 +100,30 @@ created: $TODAY
 -
 EOF
 
-cat > "$DIR/02_findings.md" << EOF
+cat > "$DIR/02_questions.md" << EOF
 ---
 status: pending
 feature: $NAME
 created: $TODAY
 ---
 
-# Investigation Findings: $DESC
+# Investigation Questions
+
+## Codebase Questions
+
+## External Questions
+
+## Convention Questions
+EOF
+
+cat > "$DIR/03_findings.md" << EOF
+---
+status: pending
+feature: $NAME
+created: $TODAY
+---
+
+# Investigation Findings: $NAME
 
 ## Codebase Findings
 
@@ -126,14 +140,14 @@ created: $TODAY
 ## Unresolved
 EOF
 
-cat > "$DIR/03_plan.md" << EOF
+cat > "$DIR/04_plan.md" << EOF
 ---
 status: pending
 feature: $NAME
 created: $TODAY
 ---
 
-# Technical Plan: $DESC
+# Technical Plan: $NAME
 
 ## Relevant Principles
 
@@ -155,25 +169,25 @@ created: $TODAY
 |------|--------|-------------|
 EOF
 
-cat > "$DIR/04_tasks.md" << EOF
+cat > "$DIR/05_tasks.md" << EOF
 ---
 status: pending
 feature: $NAME
 created: $TODAY
 ---
 
-# Tasks: $DESC
+# Tasks: $NAME
 
 ## Execution Order
 EOF
 
 echo "FEATURE_DIR=$DIR"
 echo "FEATURE_NAME=$NAME"
-echo "DESCRIPTION=$DESC"
 echo "MODE=new"
 echo ""
 echo "Created $DIR/"
-echo "  01_spec.md     (draft)"
-echo "  02_findings.md (pending)"
-echo "  03_plan.md     (pending)"
-echo "  04_tasks.md    (pending)"
+echo "  01_spec.md      (draft)"
+echo "  02_questions.md (pending)"
+echo "  03_findings.md  (pending)"
+echo "  04_plan.md      (pending)"
+echo "  05_tasks.md     (pending)"
