@@ -1,17 +1,7 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
-      "Bash(bunx shadcn@latest add:*)",
-      "Bash(bun run build:*)",
-      "Bash(bun run lint:*)",
-      "Bash(bunx tsc:*)",
-      "Bash(bunx prettier:*)",
-      "Bash(ls:*)",
-      "Bash(forge build:*)",
-      "Bash(bunx expo install:*)",
-      "Bash(bun test:*)",
-      "mcp__context7__resolve-library-id",
-      "mcp__context7__query-docs",
       "mcp__ide__getDiagnostics",
       "mcp__playwright-extension__browser_navigate",
       "mcp__playwright-extension__browser_take_screenshot",
@@ -23,7 +13,10 @@
       "mcp__ios-simulator__ui_tap",
       "mcp__ios-simulator__ui_swipe",
       "mcp__pencil",
-      "Bash(~/.claude/skills/spec-new-feature/scripts/new-feature-setup.sh:*)"
+      "Bash(~/.claude/skills/spec-new-feature/scripts/new-feature-setup.sh:*)",
+      "mcp__figma-desktop__get_design_context",
+      "mcp__figma-desktop__get_screenshot",
+      "mcp__claude_ai_Notion__notion-fetch"
     ],
     "defaultMode": "default"
   },
@@ -45,7 +38,10 @@
     "command": "~/.claude/statusline-enhanced.sh",
     "padding": 0
   },
-  "enabledPlugins": {},
+  "enabledPlugins": {
+    "gopls-lsp@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true
+  },
   "alwaysThinkingEnabled": true,
   "autoDreamEnabled": false,
   "autoMemoryEnabled": false,
