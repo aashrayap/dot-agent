@@ -51,3 +51,5 @@ settings.local.json
 *.swo
 *~
 .#*
+
+keybindings.json

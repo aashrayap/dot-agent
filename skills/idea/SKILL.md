@@ -7,6 +7,7 @@ description: >
   one, work on technical architecture, or generate a presentation artifact.
   Sub-commands: (none), new, exec, present.
 argument-hint: <idea-name | "new" | idea-name "exec" | idea-name "present">
+disable-model-invocation: true
 ---
 
 # Idea Skill

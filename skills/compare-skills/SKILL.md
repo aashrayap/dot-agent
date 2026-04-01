@@ -1,6 +1,7 @@
 ---
 name: compare-skills
 description: Compare two skills side-by-side to find divergences and cross-pollination opportunities
+disable-model-invocation: true
 ---
 
 # Compare Skills

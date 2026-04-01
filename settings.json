@@ -1,8 +1,31 @@
 {
-  "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  "permissions": {
+    "allow": [
+      "Bash(bunx shadcn@latest add:*)",
+      "Bash(bun run build:*)",
+      "Bash(bun run lint:*)",
+      "Bash(bunx tsc:*)",
+      "Bash(bunx prettier:*)",
+      "Bash(ls:*)",
+      "Bash(forge build:*)",
+      "Bash(bunx expo install:*)",
+      "Bash(bun test:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs",
+      "mcp__ide__getDiagnostics",
+      "mcp__playwright-extension__browser_navigate",
+      "mcp__playwright-extension__browser_take_screenshot",
+      "mcp__claude_ai_Context7__resolve-library-id",
+      "WebFetch(domain:docs.expo.dev)",
+      "mcp__ios-simulator__get_booted_sim_id",
+      "mcp__ios-simulator__screenshot",
+      "mcp__ios-simulator__ui_describe_all",
+      "mcp__ios-simulator__ui_tap",
+      "mcp__ios-simulator__ui_swipe",
+      "mcp__pencil"
+    ],
+    "defaultMode": "default"
   },
-  "model": "opus[1m]",
   "hooks": {
     "Notification": [
       {
@@ -14,46 +37,14 @@
           }
         ]
       }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Read",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude-code-docs/claude-docs-helper.sh hook-check"
-          }
-        ]
-      },
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/check-harness-update.sh"
-          }
-        ]
-      }
     ]
   },
   "statusLine": {
     "type": "command",
-    "command": "~/.claude/statusline-enhanced.sh",
-    "padding": 0
+    "command": "jq -r '\"[\\(.model.display_name)] \\(.context_window.used_percentage // 0)% context\"'",
   },
-  "enabledPlugins": {
-    "agent-sdk-dev@claude-code-plugins": true,
-    "code-review@claude-code-plugins": true,
-    "commit-commands@claude-code-plugins": true,
-    "dvn-arrow-updater@dvn-arrow-plugins": true,
-    "dvn-arrow-claude@dvn-arrow-plugins": true,
-    "superpowers@superpowers-marketplace": true,
-    "devon-marketplace-updater@devon-agentic-coding-plugins": true,
-    "devon-standards@devon-agentic-coding-plugins": true,
-    "devon-snowflake@devon-agentic-coding-plugins": true,
-    "imessage@claude-plugins-official": true
-  },
+  "enabledPlugins": {},
   "alwaysThinkingEnabled": true,
-  "autoDreamEnabled": true,
-  "skipDangerousModePermissionPrompt": true
+  "autoDreamEnabled": false,
+  "autoMemoryEnabled": false
 }

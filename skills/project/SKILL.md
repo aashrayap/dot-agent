@@ -6,6 +6,7 @@ description: >
   enter a specific project, update context, or hand off a task to /spec-new-feature.
   Sub-commands: (none), new, update, complete-task, complete-milestone.
 argument-hint: <project-name | "new" | project-name "update">
+disable-model-invocation: true
 ---
 
 # Project Skill
