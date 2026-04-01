@@ -1,6 +1,7 @@
 ---
 name: feature-interview
 description: Interactive feature interview that audits current state, surfaces requirements through structured questions, locks decisions, writes a spec, and executes autonomously with fresh-context subagents. Run before any non-trivial feature work.
+disable-model-invocation: true
 ---
 
 # Feature Interview

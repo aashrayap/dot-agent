@@ -1,6 +1,7 @@
 ---
 name: compare
 description: Compare two skills, workflows, configs, or any structured files side-by-side. Produces a concise diff-focused analysis.
+disable-model-invocation: true
 ---
 
 # Compare

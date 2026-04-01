@@ -1,11 +1,15 @@
+# dot-claude
+
+Shared Claude Code configuration: skills, settings, and hooks.
 
 ## Setup
 
-From the `src/` directory, run these to symlink shared skills:
+Symlink shared skills into your project's `.claude/skills/`:
 
 ```sh
-ln -s ../../../dot-claude/skills/idea .claude/skills/idea
-ln -s ../../../dot-claude/skills/pr-respond .claude/skills/pr-respond
-ln -s ../../../dot-claude/skills/project .claude/skills/project
-ln -s ../../../dot-claude/skills/spec-new-feature .claude/skills/spec-new-feature
+ln -s ~/.claude/skills/<skill-name> <project>/.claude/skills/<skill-name>
 ```
+
+## Personal files
+
+To keep files locally without pushing to the repo, add them under the `# Ash` (or your name) section in `.gitignore`.

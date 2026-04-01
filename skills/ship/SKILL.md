@@ -1,6 +1,8 @@
 ---
-allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git diff:*), Bash(git commit:*), Bash(git push:*), Bash(git branch:*), Bash(git log:*)
+name: ship
 description: Stage all changes, commit with a good message, and push
+allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git diff:*), Bash(git commit:*), Bash(git push:*), Bash(git branch:*), Bash(git log:*)
+disable-model-invocation: true
 ---
 
 Stage all changes, generate a conventional commit message from the diff, commit, and push to the current branch.

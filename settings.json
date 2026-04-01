@@ -1,8 +1,25 @@
 {
-  "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "mcp__ide__getDiagnostics",
+      "mcp__playwright-extension__browser_navigate",
+      "mcp__playwright-extension__browser_take_screenshot",
+      "mcp__claude_ai_Context7__resolve-library-id",
+      "WebFetch(domain:docs.expo.dev)",
+      "mcp__ios-simulator__get_booted_sim_id",
+      "mcp__ios-simulator__screenshot",
+      "mcp__ios-simulator__ui_describe_all",
+      "mcp__ios-simulator__ui_tap",
+      "mcp__ios-simulator__ui_swipe",
+      "mcp__pencil",
+      "Bash(~/.claude/skills/spec-new-feature/scripts/new-feature-setup.sh:*)",
+      "mcp__figma-desktop__get_design_context",
+      "mcp__figma-desktop__get_screenshot",
+      "mcp__claude_ai_Notion__notion-fetch"
+    ],
+    "defaultMode": "default"
   },
-  "model": "opus[1m]",
   "hooks": {
     "Notification": [
       {
@@ -14,26 +31,6 @@
           }
         ]
       }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Read",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude-code-docs/claude-docs-helper.sh hook-check"
-          }
-        ]
-      },
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/check-harness-update.sh"
-          }
-        ]
-      }
     ]
   },
   "statusLine": {
@@ -42,18 +39,11 @@
     "padding": 0
   },
   "enabledPlugins": {
-    "agent-sdk-dev@claude-code-plugins": true,
-    "code-review@claude-code-plugins": true,
-    "commit-commands@claude-code-plugins": true,
-    "dvn-arrow-updater@dvn-arrow-plugins": true,
-    "dvn-arrow-claude@dvn-arrow-plugins": true,
-    "superpowers@superpowers-marketplace": true,
-    "devon-marketplace-updater@devon-agentic-coding-plugins": true,
-    "devon-standards@devon-agentic-coding-plugins": true,
-    "devon-snowflake@devon-agentic-coding-plugins": true,
-    "imessage@claude-plugins-official": true
+    "gopls-lsp@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true
   },
   "alwaysThinkingEnabled": true,
-  "autoDreamEnabled": true,
-  "skipDangerousModePermissionPrompt": true
+  "autoDreamEnabled": false,
+  "autoMemoryEnabled": false,
+  "showThinkingSummaries": true
 }

@@ -10,7 +10,7 @@ Orchestration agent: feature from idea to implementation across L1 → L2 → L3
 
 ## Context
 
-!`.claude/skills/spec-new-feature/scripts/new-feature-setup.sh "$0"`
+!`~/.claude/skills/spec-new-feature/scripts/new-feature-setup.sh $0`
 
 User description: $ARGUMENTS
 
@@ -21,6 +21,7 @@ Read artifact files in the feature directory shown above to determine current ph
 - **The spec is the product, the code is the build artifact.** Agents amplify both good and bad specifications.
 - **Humans gate around uncertainty, not between phases.** Handle complexity autonomously. Escalate uncertainty. Clean output → flow to next phase automatically.
 - **Known complexity is fine; unknown paths must be flagged.** If you know exactly *what* to do but not *how to write the code*, that's fine — proceed. If you're not confident on the *exact path* to accomplish something (tooling, pipelines, infra), flag it for human confirmation before it becomes a task.
+- **Research decontamination.** Investigation subagents must NOT know what the user wants to build. They receive only factual questions about the codebase — no feature name, no user stories, no desired outcomes. This prevents confirmation bias: agents report what exists, not what supports the plan.
 
 ## Rules
 
@@ -61,11 +62,12 @@ For ALL documentation and package/library questions, use Context7 MCP tools EXCL
 | Condition                                       | Phase                  |
 | ----------------------------------------------- | ---------------------- |
 | `01_spec.md`: `draft`                              | L1 — Articulate        |
-| `01_spec.md`: `approved`, `02_findings.md`: `pending` | L2 — Investigate       |
-| `02_findings.md`: `complete`, `03_plan.md`: `pending` | L3 — Decide            |
-| `02_findings.md`: `complete`, `03_plan.md`: `draft`   | L3 — Review with human |
-| `03_plan.md`: `approved`, `04_tasks.md`: `pending`    | L4 — Decompose         |
-| `04_tasks.md`: `approved`                          | Execute                |
+| `01_spec.md`: `approved`, `02_questions.md`: `pending` | L2 — Formulate Questions |
+| `02_questions.md`: `draft`, `03_findings.md`: `pending` | L2 — Investigate (dispatch subagents) |
+| `03_findings.md`: `complete`, `04_plan.md`: `pending` | L3 — Decide            |
+| `03_findings.md`: `complete`, `04_plan.md`: `draft`   | L3 — Review with human |
+| `04_plan.md`: `approved`, `05_tasks.md`: `pending`    | L4 — Decompose         |
+| `05_tasks.md`: `approved`                          | Execute                |
 
 ---
 
@@ -83,11 +85,19 @@ For ALL documentation and package/library questions, use Context7 MCP tools EXCL
 
 ## L2 — Investigate
 
-**Owner:** AI (autonomous) | **Output:** `02_findings.md`
+**Owner:** AI (autonomous) | **Output:** `02_questions.md`, `03_findings.md`
 
-1. **Formulate Questions** — From spec: existing code per story, data models/APIs/services, conventions, external integrations, build tooling/code generation pipelines.
-2. **Dispatch** — Parallel Codebase Investigation subagents (one per area) + External Research subagents for third-party APIs. If the feature depends on generated code (proto, GraphQL, codegen) or build tooling, dispatch a dedicated subagent for the generation/build pipeline.
-3. **Synthesize** — Fill `02_findings.md` using Q&A format (`**Q:** → **A:** with file paths`).
+**⚠️ DECONTAMINATION RULE:** Investigation subagents must NOT receive the spec, feature name, user stories, or desired outcomes. They receive only `02_questions.md` and their assigned focus area. This is the core mechanism for preventing confirmation bias.
+
+1. **Formulate Questions** — Read `01_spec.md` and generate neutral, factual questions about the codebase: existing code in relevant areas, data models/APIs/services, conventions, external integrations, build tooling/code generation pipelines. Strip all feature intent — questions must be answerable without knowing what is being built. Write to `02_questions.md` with `status: draft`.
+
+   **Good question:** "How does the notifications service dispatch messages? What transports exist?"
+   **Bad question:** "Can the notifications service support our new bulk-alert feature?" ← leaks intent
+
+   Each question must be **specific and falsifiable** — answerable by reading 1-3 files with a concrete answer. If a question requires "read everything and summarize," split it.
+
+2. **Dispatch** — Parallel Codebase Investigation subagents (one per area) + External Research subagents for third-party APIs. Each subagent receives ONLY `02_questions.md` + its assigned question numbers. **Do NOT pass spec content, feature descriptions, or user stories to any investigation subagent.** If the feature depends on generated code (proto, GraphQL, codegen) or build tooling, dispatch a dedicated subagent for the generation/build pipeline.
+3. **Synthesize** — Fill `03_findings.md` using Q&A format (`**Q:** → **A:** with file paths`).
 4. **Confidence check** — For every finding, ask: *"Do we know the exact path to accomplish this, or are we assuming?"* If a finding says "may exist", "should work", or "needs verification" — it is **unresolved**, not resolved. Do not present uncertain paths as known. Flag them for further investigation or human input.
 5. **Check gaps:**
    - Spec gaps → loop to L1, tell human what's missing
@@ -99,47 +109,66 @@ For ALL documentation and package/library questions, use Context7 MCP tools EXCL
 
 One per area, parallel. Use `subagent_type: "Explore"`, `model: "sonnet"`.
 
+**⚠️ DECONTAMINATION:** Do NOT include feature name, spec content, user stories, or desired outcomes in this prompt. The subagent receives only questions and a focus directory.
+
 ```
 {Subagent Tooling Block}
 {Context7 Block}
 
-Investigate codebase for feature: {summary from spec Brief}
-Stories: {titles + key AC} | Focus area: {service/directory}
-Known unknowns: {from spec Risks} | Assumptions to verify: {from spec Risks}
+Answer the following questions about the codebase. Focus area: {service/directory}
 
-Tasks: Map relevant files/patterns. Identify existing capabilities and gaps. Document data models (paths, fields, relationships). Document conventions (canonical vs deprecated). Note external deps. Verify/disprove assumptions. Answer unknowns with evidence. Read README.md files in relevant directories — build tooling, generation pipelines, and setup workflows are often documented there rather than in code.
+Questions (from 02_questions.md):
+{paste only the assigned question numbers and text}
 
-Rules: Include file paths for every claim. Distinguish canonical vs deprecated patterns. Flag surprises prominently. Do NOT suggest implementations — just report what exists. If you cannot fully verify how something works (e.g., a build pipeline, code generation step, or infra dependency), explicitly say so — do NOT report it as resolved.
+For each question, provide:
+- **Answer**: direct answer in 1-3 sentences
+- **Evidence**: file paths with line numbers
+- **Confidence**: high | medium | low
+- **Conflicts**: contradictions found, or "none"
+- **Open**: what couldn't be determined, or "none"
 
-Output structured as: area, relevant_files, existing_capabilities, gaps, data_models, conventions, external_deps, assumptions_verified, unknowns_resolved, surprises.
+Additionally report:
+- **Patterns Found**: conventions/patterns observed in the focus area with file references and occurrence counts
+- **Surprises**: anything unexpected or noteworthy
+
+Rules: Include file paths for every claim. Distinguish canonical vs deprecated patterns. Flag surprises prominently. Do NOT suggest implementations — just report what exists. If you cannot fully verify how something works (e.g., a build pipeline, code generation step, or infra dependency), explicitly say so — do NOT report it as resolved. Read README.md files in relevant directories — build tooling, generation pipelines, and setup workflows are often documented there rather than in code.
 ```
 
 ### External Research Subagent
 
 Use `subagent_type: "general-purpose"` for third-party APIs/services.
 
+**⚠️ DECONTAMINATION:** Do NOT include feature name or desired outcomes. The subagent receives only the technical questions about the API/service.
+
 ```
 {Subagent Tooling Block}
 {Context7 Block}
 
-Research {API/service} for feature: {context}
-Questions: {from spec unknowns}
+Answer the following questions about {API/service name}:
+{paste only the assigned question numbers and text from 02_questions.md}
 
 Find: current docs, endpoints, auth, rate limits, request/response shapes, SDK compatibility (Bun/TypeScript), gotchas.
 
-Rules: Only verified info from official docs. Flag UNVERIFIED claims. Include source URLs.
+For each question, provide:
+- **Answer**: direct answer in 1-3 sentences
+- **Evidence**: documentation URLs or source references
+- **Confidence**: high | medium | low
+- **Conflicts**: contradictions found, or "none"
+- **Open**: what couldn't be determined, or "none"
 
-Output structured as: subject, documentation_urls, api_details, sdk, gotchas, unverified.
+Rules: Only verified info from official docs. Flag UNVERIFIED claims. Include source URLs. Do NOT suggest how to use the API for any particular purpose — just document what it does and how it works.
+
+Output structured as: subject, documentation_urls, per_question_answers, gotchas, unverified.
 ```
 
 ---
 
 ## L3 — Design Decisions
 
-**Owner:** Human at uncertainty, AI otherwise | **Output:** `03_plan.md`
+**Owner:** Human at uncertainty, AI otherwise | **Output:** `04_plan.md`
 
 1. **Gather Principles** — Dispatch an Explore subagent (`model: "sonnet"`) to find and read all CLAUDE.md and README.md files within the working directory and its subdirectories (use `Glob` with `**/CLAUDE.md` and `**/README.md`). NEVER read these files from parent directories. Return relevant principles, conventions, and documented workflows.
-2. **Draft Decisions** — For each design choice in `03_plan.md`, fill in: Finding (what investigation revealed), Options, Decision (chosen option), Principle (which project principle guided it), Scope (affected files/areas).
+2. **Draft Decisions** — For each design choice in `04_plan.md`, fill in: Finding (what investigation revealed), Options, Decision (chosen option), Principle (which project principle guided it), Scope (affected files/areas).
 3. **Human Checkpoint** — Present decisions. Human intervenes when: principles conflict, no precedent exists, or decision forces spec change (→ loop L1). Clear answer from findings + principles → proceed unless human objects. **If the human disagrees or raises questions needing codebase evidence, dispatch a subagent to investigate before responding** — never explore the codebase yourself.
 4. **Technical Design** — Synthesize approach, data model changes, API contracts, file-level change map.
 5. **Gate** — Human must approve. Update `status: approved`. Do NOT proceed to L4 until approved.
@@ -148,13 +177,13 @@ Output structured as: subject, documentation_urls, api_details, sdk, gotchas, un
 
 ## L4 — Decompose into Tasks
 
-**Owner:** AI (autonomous) | **Output:** `04_tasks.md`
+**Owner:** AI (autonomous) | **Output:** `05_tasks.md`
 
-1. Read 03_plan.md, 01_spec.md, 02_findings.md.
+1. Read 04_plan.md, 01_spec.md, 03_findings.md.
 2. Group work into parallel waves. Minimize waves respecting dependencies.
 3. Write task specs. Each task gets:
    - **Implement:** files to create/modify, behavior to add (specific enough to code from)
-   - **Relevant Decisions:** inlined from 03_plan.md (agent does NOT read 03_plan.md)
+   - **Relevant Decisions:** inlined from 04_plan.md (agent does NOT read 04_plan.md)
    - **Interface Contract:** what downstream tasks consume (file paths, function signatures, types)
    - **Acceptance Criteria:** subset from 01_spec.md mapped to this task
    - **Verify:** copy-pasteable commands (`cd <app-dir> && bunx tsc --noEmit && bun run lint`)
@@ -169,31 +198,31 @@ Use `subagent_type: "general-purpose"`.
 
 ```
 Decompose into tasks for feature: {name}
-Plan: {03_plan.md content} | Spec: {01_spec.md content} | Findings: {02_findings.md content}
+Plan: {04_plan.md content} | Spec: {01_spec.md content} | Findings: {03_findings.md content}
 
 Group into parallel waves. Each task self-contained with: inlined decisions, exact file paths, mapped AC, copy-pasteable verify commands (bun/tsc), explicit boundaries. Every file belongs to exactly one task. Type changes in earliest wave.
 
 Rules: Interface contracts specify exact function signatures/types. Verification commands are copy-pasteable. Boundaries must include "Never" items.
 
-Output complete 04_tasks.md content.
+Output complete 05_tasks.md content.
 ```
 
 ---
 
 ## Execute
 
-After 04_tasks.md approved, execute wave by wave:
+After 05_tasks.md approved, execute wave by wave:
 
 1. **Per wave** — One agent per task, parallel. Do NOT use `isolation: "worktree"` — run all agents directly on the main branch. Task decomposition guarantees no file conflicts (every file belongs to exactly one task), so worktrees add cherry-pick overhead without benefit.
 2. **Agent prompt:**
    ```
    {Subagent Tooling Block}
    Implement task for feature "{name}".
-   Task spec: {full task content from 04_tasks.md}
+   Task spec: {full task content from 05_tasks.md}
    Rules: Implement exactly what spec describes. Follow CLAUDE.md conventions. Run verify commands via Bash. Fix failures and re-verify. If spec doesn't cover something, STOP and report. Do NOT modify files outside task scope.
    ```
 3. **Between waves** — Full `tsc --noEmit` + `lint` + `test` across affected apps.
 4. **Retries** — Agent fails after 2-3 attempts → escalate to human (usually a spec gap).
-5. **Track** — Update checkboxes in 04_tasks.md.
+5. **Track** — Update checkboxes in 05_tasks.md.
 
 ---
