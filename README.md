@@ -2,13 +2,10 @@
 
 Shared Claude Code configuration: skills, settings, and hooks.
 
-## Setup
+## Config
 
-Symlink shared skills into your project's `.claude/skills/`:
-
-```sh
-ln -s ~/.claude/skills/<skill-name> <project>/.claude/skills/<skill-name>
-```
+- `settings.json` — shared config for both Ash and Sushant (committed to repo)
+- `settings.local.json` — personal overrides, not committed (already gitignored)
 
 ## Personal files
 
