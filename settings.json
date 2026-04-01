@@ -14,6 +14,7 @@
       "mcp__ios-simulator__ui_swipe",
       "mcp__pencil",
       "Bash(~/.claude/skills/spec-new-feature/scripts/new-feature-setup.sh:*)",
+      "Bash(~/.claude/skills/review/scripts/review-setup.sh:*)",
       "mcp__figma-desktop__get_design_context",
       "mcp__figma-desktop__get_screenshot",
       "mcp__claude_ai_Notion__notion-fetch"
