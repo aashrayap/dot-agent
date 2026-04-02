@@ -56,7 +56,7 @@ fi
 # Harness update check (reads last fetch result, no network call)
 HARNESS_DISPLAY=""
 if [ -d "$HOME/.claude/.git" ]; then
-    BEHIND=$(cd "$HOME/.claude" && git rev-list HEAD..origin/main --count 2>/dev/null)
+    BEHIND=$(cd "$HOME/.claude" && git rev-list main..origin/main --count 2>/dev/null)
     if [ -n "$BEHIND" ] && [ "$BEHIND" -gt 0 ]; then
         HARNESS_DISPLAY="${C_YELLOW}⬆ ${BEHIND}${C_RESET}"
     fi
