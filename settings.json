@@ -44,7 +44,7 @@
     "typescript-lsp@claude-plugins-official": true
   },
   "alwaysThinkingEnabled": true,
-  "autoDreamEnabled": false,
   "autoMemoryEnabled": false,
+  "autoDreamEnabled": false,
   "showThinkingSummaries": true
 }
