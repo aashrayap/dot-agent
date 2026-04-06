@@ -22,19 +22,6 @@
     ],
     "defaultMode": "default"
   },
-  "hooks": {
-    "Notification": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cmux notify --title \"Claude Code\" --body \"$CLAUDE_NOTIFICATION\""
-          }
-        ]
-      }
-    ]
-  },
   "statusLine": {
     "type": "command",
     "command": "~/.claude/statusline-enhanced.sh",
