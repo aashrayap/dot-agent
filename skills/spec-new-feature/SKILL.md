@@ -168,7 +168,7 @@ Output structured as: subject, documentation_urls, per_question_answers, gotchas
 **Owner:** Human at uncertainty, AI otherwise | **Output:** `04_plan.md`
 
 1. **Gather Principles** — Dispatch an Explore subagent (`model: "sonnet"`) to find and read all CLAUDE.md and README.md files within the working directory and its subdirectories (use `Glob` with `**/CLAUDE.md` and `**/README.md`). NEVER read these files from parent directories. Return relevant principles, conventions, and documented workflows.
-2. **Draft Decisions** — For each design choice in `04_plan.md`, fill in: Finding (what investigation revealed), Options, Decision (chosen option), Principle (which project principle guided it), Scope (affected files/areas).
+2. **Draft Decisions** — For each design choice in `04_plan.md`, fill in: Finding (what investigation revealed), Options, Decision (chosen option), Principle (which project principle guided it), Scope (affected files/areas). **Every file reference in a decision MUST use the full path from the repo root** (e.g., `test/tools/GlobalGuardian/GlobalGuardian.t.sol`, not just `GlobalGuardian.t.sol`). The decomposition agent is a pure-synthesis agent with no filesystem access — it cannot resolve ambiguous paths.
 3. **Human Checkpoint** — Present decisions. Human intervenes when: principles conflict, no precedent exists, or decision forces spec change (→ loop L1). Clear answer from findings + principles → proceed unless human objects. **If the human disagrees or raises questions needing codebase evidence, dispatch a subagent to investigate before responding** — never explore the codebase yourself.
 4. **Technical Design** — Synthesize approach, data model changes, API contracts, file-level change map.
 5. **Gate** — Human must approve. Update `status: approved`. Do NOT proceed to L4 until approved.
@@ -177,35 +177,24 @@ Output structured as: subject, documentation_urls, per_question_answers, gotchas
 
 ## L4 — Decompose into Tasks
 
-**Owner:** AI (autonomous) | **Output:** `05_tasks.md`
+**Owner:** AI (orchestrator directly) | **Output:** `05_tasks.md`
+
+The orchestrator performs decomposition directly — do NOT delegate to a subagent. The orchestrator has accumulated context through L1–L3 (human feedback, investigation nuance, design rationale) that cannot be faithfully serialized into a subagent prompt. Path accuracy and task structure depend on this context.
 
 1. Read 04_plan.md, 01_spec.md, 03_findings.md.
-2. Group work into parallel waves. Minimize waves respecting dependencies.
-3. Write task specs. Each task gets:
+2. **Extract shared dependencies** — Before grouping waves, identify any utilities, mocks, helpers, or types that multiple tasks will need (e.g., mock contracts, test fixtures, shared types). These MUST go in Wave 1 as explicit deliverables. Every downstream task must reference them by exact import path — never leave it to agents to reinvent independently.
+3. **Verify paths** — For any file path you're uncertain about, dispatch a quick Explore subagent (`model: "sonnet"`) to confirm the path exists and is correct before including it in a task spec. Do not guess paths from memory.
+4. Group work into parallel waves. Minimize waves respecting dependencies.
+5. Write task specs. Each task gets:
    - **Implement:** files to create/modify, behavior to add (specific enough to code from)
    - **Relevant Decisions:** inlined from 04_plan.md (agent does NOT read 04_plan.md)
    - **Interface Contract:** what downstream tasks consume (file paths, function signatures, types)
    - **Acceptance Criteria:** subset from 01_spec.md mapped to this task
    - **Verify:** copy-pasteable commands (`cd <app-dir> && bunx tsc --noEmit && bun run lint`)
    - **Boundaries:** Always / Ask first / Never
-4. **Self-containment test:** Could an agent implement each task with ONLY the task spec + CLAUDE.md? If not, inline missing context.
-5. If a task needs an unresolved design decision → loop to L3.
-6. Present to human. Execute on approval.
-
-### Task Decomposition Subagent
-
-Use `subagent_type: "general-purpose"`.
-
-```
-Decompose into tasks for feature: {name}
-Plan: {04_plan.md content} | Spec: {01_spec.md content} | Findings: {03_findings.md content}
-
-Group into parallel waves. Each task self-contained with: inlined decisions, exact file paths, mapped AC, copy-pasteable verify commands (bun/tsc), explicit boundaries. Every file belongs to exactly one task. Type changes in earliest wave.
-
-Rules: Interface contracts specify exact function signatures/types. Verification commands are copy-pasteable. Boundaries must include "Never" items.
-
-Output complete 05_tasks.md content.
-```
+6. **Self-containment test:** Could an agent implement each task with ONLY the task spec + CLAUDE.md? If not, inline missing context.
+7. If a task needs an unresolved design decision → loop to L3.
+8. Present to human. Execute on approval.
 
 ---
 

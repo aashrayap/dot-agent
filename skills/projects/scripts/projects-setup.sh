@@ -108,7 +108,14 @@ flowchart TB
     %% Color-code nodes by milestone via style directives.
 \`\`\`
 
-### Definitions
+## Available Sessions
+
+## Blocked Sessions
+
+## Completed
+
+| Session | Completed | Ref |
+|---------|-----------|-----|
 EOF
 
 printf "# Audit Log: %s\n\n## %s\n\nProject created.\n\n" "$SLUG" "$NOW" > "$AUDIT_LOG"
