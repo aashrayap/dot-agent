@@ -58,6 +58,7 @@ After creation, tell the user to:
 2. Install Obsidian Web Clipper, set default folder to `wiki/raw/`
 3. Set attachment folder to `wiki/raw/assets/`
 4. Bind "Download all remote images" to a hotkey
+5. Optionally install agent-browser (`npm install -g agent-browser && agent-browser install`) for CLI-based scraping
 
 ---
 
@@ -68,6 +69,13 @@ Process a raw source into the wiki.
 ### Input
 
 A file or folder path in `raw/`. If the user just says "ingest this" without a path, check `raw/` for recently modified files and suggest them.
+
+If the user provides a URL instead of a file path, use agent-browser to scrape it:
+```
+agent-browser open <url>
+agent-browser get text "article"
+```
+Save the output to `raw/<slugified-title>.md`, then proceed with normal ingest.
 
 ### Steps
 
