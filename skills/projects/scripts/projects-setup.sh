@@ -103,7 +103,9 @@ Sessions are scoped units of work picked up via \`/spec-new-feature\`. Each sess
 
 \`\`\`mermaid
 flowchart TB
-    %% No subgraphs — arrows determine depth. Color-code nodes by milestone.
+    %% Group by batch level in invisible subgraphs (b0, b1, ...) with direction LR.
+    %% Style each: style b0 fill:none,stroke:none
+    %% Color-code nodes by milestone via style directives.
 \`\`\`
 
 ### Definitions

@@ -69,9 +69,19 @@ The script scaffolded empty project files. Use any description the user included
 2. Identify blockers and constraints (external dependencies, access needs, unknowns).
 3. Break all work into sessions with explicit dependencies. Each session should name: what it accomplishes, which milestone(s) it contributes to, and which other sessions must complete first.
 4. Build the **Dependency Graph** flowchart under `### Dependency Graph`. This is the primary visualization — it encodes all three variables: dependencies (arrows), batchable sessions (same level), and milestones (color). Rules:
-   - Use `flowchart TB` (top-to-bottom). No subgraphs — Mermaid automatically places nodes at the correct depth based on arrows.
+   - Use `flowchart TB` (top-to-bottom).
+   - **Force vertical ordering with invisible subgraphs.** Dagre does NOT respect topological depth — it minimizes edge length, so unblocked nodes get pulled down next to their distant children. The only reliable fix is subgraphs. Group sessions by batch level into subgraphs with `direction LR`, then style them invisible:
+     ```
+     subgraph b0[" "]
+         direction LR
+         s01([S01 Upgrade safety])
+         s02([S02 1P secrets])
+     end
+     style b0 fill:none,stroke:none
+     ```
+     Name subgraphs `b0`, `b1`, `b2`, etc. by batch level. Batch 0 = no dependencies (top row). Batch 1 = depends only on batch-0 nodes. And so on.
    - Node format: `sXX([SXX Short name])` — rounded rectangle, max 20 chars.
-   - Draw dependency arrows: `s02 --> s04`. Nodes with no mutual dependencies will naturally render on the same level.
+   - Draw dependency arrows between nodes: `s02 --> s04`. **Use transitive reduction** — only draw direct edges. If A → B → C, don't draw A → C; the dependency is already implied through B. This keeps the graph clean. (Session definitions still list all dependencies so each session is self-contained for pickup.)
    - Color-code each node by milestone using `style` directives at the bottom. Assign one color per milestone, matching the emoji in the milestones table:
      - 🟦 Blue: `fill:#60a5fa,stroke:#1e40af,color:#1e3a5f`
      - 🟪 Purple: `fill:#c084fc,stroke:#6b21a8,color:#3b0764`
