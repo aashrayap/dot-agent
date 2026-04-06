@@ -35,5 +35,6 @@
   "autoMemoryEnabled": false,
   "autoDreamEnabled": false,
   "showThinkingSummaries": true,
-  "effortLevel": "high"
+  "effortLevel": "high",
+  "skipDangerousModePermissionPrompt": true
 }
