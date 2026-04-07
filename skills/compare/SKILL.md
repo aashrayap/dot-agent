@@ -1,12 +1,12 @@
 ---
 name: compare
-description: Compare two skills, workflows, configs, or any structured files side-by-side. Produces a concise diff-focused analysis.
+description: Compare two files or skills side-by-side. Produces a diff-focused analysis with divergences, shared DNA, and steal lists.
 disable-model-invocation: true
 ---
 
 # Compare
 
-Generic comparison of two files. Works on skills, CLAUDE.mds, configs, workflows — anything structured.
+Side-by-side comparison of two files. Works on skills, CLAUDE.mds, configs, workflows — anything structured.
 
 ## Commands
 
@@ -15,19 +15,27 @@ Generic comparison of two files. Works on skills, CLAUDE.mds, configs, workflows
 /compare <file1> <file2> -o <output>      — compare and write to a file
 ```
 
+Arguments can be file paths or **skill names**. If an argument matches a skill directory in `~/.claude/skills/<name>/SKILL.md`, resolve it automatically.
+
+Examples:
+- `/compare feature-interview spec-new-feature` — resolves both to SKILL.md paths
+- `/compare feature-interview /tmp/other-skill.md` — mixed resolution
+- `/compare ./config-a.yaml ./config-b.yaml` — plain file paths
+
 ## Process
 
-1. Read both files in full.
-2. Identify the type of content (skill, config, markdown doc, code) and adapt section headers accordingly.
-3. Generate comparison using the output format below.
-4. If `-o` specified, write to that path. Otherwise, output directly.
-5. Append an entry to the history file (see History section).
+1. **Resolve inputs** — for each argument, check if `~/.claude/skills/<arg>/SKILL.md` exists. If yes, use that path. Otherwise treat as a file path.
+2. Read both files in full.
+3. Identify the type of content (skill, config, markdown doc, code) and adapt section headers accordingly.
+4. Generate comparison using the output format below.
+5. If `-o` specified, write to that path. Otherwise, output directly.
+6. Append an entry to the history file (see History section).
 
 ## Output Format
 
 ```markdown
 Last compared: YYYY-MM-DD
-Sources: <file1 basename>, <file2 basename>
+Sources: <file1 basename> (<line count>), <file2 basename> (<line count>)
 
 # Compare: <file1 name> vs <file2 name>
 
@@ -47,6 +55,8 @@ Sources: <file1 basename>, <file2 basename>
 ## Steal List
 [Max 3 per side. Concrete things each should consider adopting from the other.]
 ```
+
+**When comparing skills**: the Structure Map should include a Phase/Step Map showing each skill's phases side-by-side with what each does.
 
 ## History
 
@@ -76,4 +86,4 @@ The skill maintains a history log at `~/.claude/collab/compare-history.md`. This
 - Use exact section/phase/function names from each file so the reader can cross-reference
 - Bullet or table format only — no prose paragraphs
 - Max lines per section: Philosophy 1 per file, Key Divergences 5, Shared DNA 3, Steal List 3 per side
-- Infer names from file basenames (e.g., `ash.md` → "Ash", `bryce-feature-interview.md` → "Bryce")
+- Infer names from file basenames (e.g., `ash.md` → "Ash", `feature-interview` → "Feature Interview")
