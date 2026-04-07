@@ -22,6 +22,20 @@
     ],
     "defaultMode": "default"
   },
+  "model": "opus[1m]",
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmux notify --title \"Claude Code\" --body \"$CLAUDE_NOTIFICATION\""
+          }
+        ]
+      }
+    ]
+  },
   "statusLine": {
     "type": "command",
     "command": "~/.claude/statusline-enhanced.sh",
@@ -29,11 +43,36 @@
   },
   "enabledPlugins": {
     "gopls-lsp@claude-plugins-official": true,
-    "typescript-lsp@claude-plugins-official": true
+    "typescript-lsp@claude-plugins-official": true,
+    "devon-azure@devon-agentic-coding-plugins": true,
+    "devon-snowflake@devon-agentic-coding-plugins": true,
+    "dvn-arrow-claude@dvn-arrow-plugins": true,
+    "codex@openai-codex": true
+  },
+  "extraKnownMarketplaces": {
+    "devon-agentic-coding-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "DevonEnergyEnterprise/agentic-coding-toolkit"
+      }
+    },
+    "dvn-arrow-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "DevonEnergyEnterprise/dvn-arrow-plugins"
+      }
+    },
+    "openai-codex": {
+      "source": {
+        "source": "github",
+        "repo": "openai/codex-plugin-cc"
+      }
+    }
   },
   "alwaysThinkingEnabled": true,
+  "effortLevel": "high",
   "autoMemoryEnabled": false,
   "autoDreamEnabled": false,
   "showThinkingSummaries": true,
-  "effortLevel": "high"
+  "skipDangerousModePermissionPrompt": true
 }
