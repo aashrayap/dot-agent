@@ -52,6 +52,22 @@ backup_optional_file() {
   fi
 }
 
+localize_codex_rules() {
+  local dst="$CODEX_DST/rules"
+  local backup_dir="$BACKUP_ROOT/.codex/rules"
+
+  if [[ -L "$dst" ]]; then
+    mkdir -p "$backup_dir"
+    cp -R "$dst/." "$backup_dir/"
+    rm "$dst"
+    mkdir -p "$dst"
+    cp -R "$backup_dir/." "$dst/"
+    return
+  fi
+
+  mkdir -p "$dst"
+}
+
 # Claude shared payload
 backup_and_link "$CLAUDE_SRC/CLAUDE.md" "$CLAUDE_DST/CLAUDE.md" ".claude/CLAUDE.md"
 backup_and_link "$CLAUDE_SRC/README.md" "$CLAUDE_DST/README.md" ".claude/README.md"
@@ -65,7 +81,6 @@ done
 
 # Codex shared payload
 backup_and_link "$CODEX_SRC/AGENTS.md" "$CODEX_DST/AGENTS.md" ".codex/AGENTS.md"
-backup_and_link "$CODEX_SRC/rules" "$CODEX_DST/rules" ".codex/rules"
 backup_and_link "$CODEX_SRC/config.shared.toml" "$CODEX_DST/config.shared.toml" ".codex/config.shared.toml"
 backup_and_link "$CODEX_SRC/config.work.toml" "$CODEX_DST/config.work.toml" ".codex/config.work.toml"
 backup_and_link "$CODEX_SRC/config.personal.toml" "$CODEX_DST/config.personal.toml" ".codex/config.personal.toml"
@@ -79,9 +94,7 @@ done
 backup_optional_dir "$CLAUDE_DST/.git" ".claude/.git"
 backup_optional_dir "$CODEX_DST/.git" ".codex/.git"
 
-# Remove stale machine-local files that would shadow shared symlinks if present.
-backup_optional_file "$CLAUDE_DST/settings.json.bak.20260407140205" ".claude/settings.json.bak.20260407140205"
-
+localize_codex_rules
 "$CODEX_DST/install.sh" "$PROFILE"
 
 echo "Linked shared .claude and .codex payloads from $REPO_ROOT"
