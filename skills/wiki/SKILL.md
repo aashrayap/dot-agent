@@ -70,12 +70,41 @@ Process a raw source into the wiki.
 
 A file or folder path in `raw/`. If the user just says "ingest this" without a path, check `raw/` for recently modified files and suggest them.
 
-If the user provides a URL instead of a file path, use agent-browser to scrape it:
+If the user provides a URL instead of a file path, detect the source type:
+
+**YouTube URLs** (`youtube.com`, `youtu.be`):
+
+Write and run a Python script that:
+1. Uses `yt-dlp` to extract the video title and subtitles (auto-generated or manual)
+2. Parses the VTT/SRT output — strips timestamps, deduplicates repeated lines, joins into clean paragraphs
+3. Writes a markdown file to `raw/<slugified-title>.md` with a header like:
+   ```
+   # <Video Title>
+
+   Source: YouTube transcript (<YYYY-MM-DD>)
+   URL: <original-url>
+
+   ---
+
+   <cleaned transcript text>
+   ```
+4. Prints the output path so ingest can continue
+
+Do NOT use browser tools for YouTube. The script must do all the work programmatically via `yt-dlp` (already installed). Prefer `--write-auto-sub --sub-lang en --skip-download` flags. Clean the VTT aggressively:
+- Strip all timestamps and VTT formatting tags
+- Deduplicate repeated lines (auto-subs repeat heavily)
+- Decode HTML entities (`&gt;` → `>`, `&amp;` → `&`, etc.)
+- Break paragraphs on speaker turns (`>>`) first, then sub-split long monologues every ~5 sentences
+- Do NOT use mechanical fixed-length paragraph breaks — respect natural conversation flow
+
+**All other URLs** — use agent-browser to scrape:
 ```
 agent-browser open <url>
 agent-browser get text "article"
 ```
-Save the output to `raw/<slugified-title>.md`, then proceed with normal ingest.
+Save the output to `raw/<slugified-title>.md`.
+
+In both cases, proceed with normal ingest after saving to `raw/`.
 
 ### Steps
 
