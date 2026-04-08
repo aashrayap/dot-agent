@@ -1,4 +1,5 @@
 name = "spec-new-feature"
 targets = ["claude", "codex"]
-claude_entry = "SKILL.md"
+default_entry = "SKILL.md"
+claude_entry = "claude/SKILL.md"
 codex_entry = "codex/SKILL.md"
