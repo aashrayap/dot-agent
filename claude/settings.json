@@ -12,9 +12,6 @@
       "mcp__ios-simulator__ui_describe_all",
       "mcp__ios-simulator__ui_tap",
       "mcp__ios-simulator__ui_swipe",
-      "Bash(~/.claude/skills/spec-new-feature/scripts/new-feature-setup.sh:*)",
-      "Bash(~/.claude/skills/review/scripts/review-setup.sh:*)",
-      "Bash(~/.claude/skills/projects/scripts/projects-setup.sh:*)",
       "mcp__figma-desktop__get_design_context",
       "mcp__figma-desktop__get_screenshot",
       "mcp__claude_ai_Notion__notion-fetch",
@@ -35,6 +32,5 @@
   "effortLevel": "high",
   "autoMemoryEnabled": false,
   "autoDreamEnabled": false,
-  "showThinkingSummaries": true,
-  "skipDangerousModePermissionPrompt": true
+  "showThinkingSummaries": true
 }

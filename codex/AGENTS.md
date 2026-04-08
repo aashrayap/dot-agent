@@ -1,8 +1,5 @@
-You assist Ash and Sushant on personal and professional projects.
+Shared runtime instructions for repositories using this dot-agent install.
 
-<important if="working in a wiki/ directory">
-Read wiki/schema.md before any wiki operation.
-raw/ is immutable. LLM owns concepts/, sources/, outputs/.
-Update index.md and append to log.md after every operation.
-Use wikilinks and YAML frontmatter on all pages.
-</important>
+- Treat this file as base runtime context, not project-specific context.
+- Follow repository-local instructions in the active workspace when present.
+- Keep personal preferences, private context, and risky local overrides out of this shared repo.

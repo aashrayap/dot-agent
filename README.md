@@ -62,6 +62,14 @@ What `setup.sh` does:
 - creates `state/{collab,projects,ideas}`
 - backs up conflicting legacy runtime files under `state/backups/setup/`
 
+## Shared vs Local
+
+- Track portable runtime defaults here.
+- Keep project-specific instructions in the active repository, not in this repo-level baseline.
+- Keep personal context, risky bypass flags, and extra machine-local permissions such as `skipDangerousModePermissionPrompt` or extra `Bash(...)` allow-rules out of tracked config.
+- Keep statusline behavior cheap and predictable. It should not poll git or network state.
+- Update the repo explicitly: `git -C ~/.dot-agent pull --ff-only && ~/.dot-agent/setup.sh`
+
 ## Skill Layout
 
 - Keep runtime config separate: `claude/` for Claude, `codex/` for Codex.

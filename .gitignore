@@ -40,9 +40,6 @@ settings.local.json
 /audio/
 .project-analysis-cache.json
 
-# Hook state
-.last-update-check
-
 # System files
 .DS_Store
 *.log
