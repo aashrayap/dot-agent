@@ -1,20 +1,11 @@
 ---
 name: spec-new-feature
-description: Full feature workflow for Claude Code with artifact bootstrap, approved research questions, decontaminated investigation, design decisions, task breakdown, and execution.
-disable-model-invocation: true
+description: Full feature workflow — spec, research, design, tasks, execute.
 ---
 
 # Spec New Feature
 
-Use this for non-trivial feature work that needs a spec, decontaminated research, design decisions, task breakdown, and optional execution.
-
-## Context
-
-!`~/.claude/skills/spec-new-feature/scripts/new-feature-setup.sh $0`
-
-User description: $ARGUMENTS
-
-Read the reported feature directory and artifact statuses. Resume from the first artifact that is still `pending` or `draft`.
+Non-trivial feature work through spec, decontaminated research, design decisions, task breakdown, and optional execution.
 
 ## Artifact Contract
 
@@ -24,16 +15,7 @@ Read the reported feature directory and artifact statuses. Resume from the first
 - `04_design.md` — design decisions, principles, file map, unresolved risks
 - `05_tasks.md` — execution-ready task breakdown
 
-## Rules
-
-- Do not explore the codebase before drafting `02_questions.md`.
-- Questions must be specific and falsifiable.
-- The question list is a checkpoint. Stop for approval before research unless the user clearly asks to continue without pausing.
-- Keep research decontaminated. Investigation windows should receive only the approved questions and their assigned focus, never the spec, feature name, or desired solution.
-- No code in `01_spec.md`, `02_questions.md`, `03_research.md`, or `04_design.md`.
-- Read `CLAUDE.md` and `README.md` files from the working directory and its subdirectories before finalizing `04_design.md`.
-- Keep uncertainty visible. Low-confidence findings, conflicting evidence, or unknown execution paths stay open until resolved.
-- Use fresh research windows when needed. Each research window should own a narrow set of questions and return evidence, confidence, conflicts, and open items.
+Each artifact tracks `status` in YAML frontmatter: `pending` → `draft` → `approved`/`complete`.
 
 ## Phase Detection
 
@@ -49,73 +31,25 @@ Read the reported feature directory and artifact statuses. Resume from the first
 | `05_tasks.md`: `draft` | L4 — Task Review |
 | `05_tasks.md`: `approved` | Execute |
 
-## L1 — Draft `01_spec.md`
+## Invariants
 
-1. Capture the goal, users, workflows, acceptance criteria, boundaries, risks, and dependencies.
-2. Keep it problem-first. Do not turn it into implementation notes.
-3. Challenge ambiguity before moving on: unclear success criteria, missing constraints, external unknowns, migration risks.
-4. Stop for approval. Update status to `approved`.
+- Research decontamination: investigation receives only the approved questions, never the spec, feature name, or desired solution.
+- Questions must be specific and falsifiable.
+- No code in `01_spec.md`, `02_questions.md`, `03_research.md`, or `04_design.md`.
+- The question list is a checkpoint — stop for approval before research unless the user explicitly asks to continue.
+- Keep uncertainty visible until explicitly resolved.
+- Read `CLAUDE.md` and `README.md` files from the working directory before finalizing `04_design.md`.
 
-## L2 — Draft `02_questions.md`
+## Question Categories
 
-1. Read `01_spec.md` and write neutral questions that can be answered without knowing the desired solution.
-2. Group questions into `Codebase`, `Docs`, `Patterns`, `External`, and `Cross-Ref`.
-3. Keep questions narrow enough to answer with targeted reads.
-4. Ask for approval. Update status to `approved` before research unless the user explicitly asks to keep going.
+Group questions in `02_questions.md` by source: `Codebase`, `Docs`, `Patterns`, `External`, `Cross-Ref`.
 
 Good question: `Where is the retry policy defined, and which services currently use it?`
 
 Bad question: `Can the current retry policy support our new bulk sync flow?`
 
-## L2 — Produce `03_research.md`
+## Research Output
 
-1. Treat `02_questions.md` as the only research input.
-2. Classify each question to one source type:
-   - `codebase`
-   - `docs`
-   - `patterns`
-   - `external`
-   - `cross-ref`
-3. Use separate research windows when helpful, but keep each one decontaminated and narrowly scoped.
-4. For every question, capture:
-   - `Answer`
-   - `Confidence`
-   - `Evidence`
-   - `Conflicts`
-   - `Open`
-5. Merge the outputs into:
-   - `Flagged Items`
-   - `Findings`
-   - `Patterns Found`
-   - `Core Docs Summary`
-   - `Open Questions`
-6. Mark `03_research.md` as `complete` only when the unknowns are explicit.
+For every question, capture: `Answer`, `Confidence`, `Evidence`, `Conflicts`, `Open`.
 
-## L3 — Draft `04_design.md`
-
-1. Combine the approved spec, the research findings, and the repo’s documented principles.
-2. For each design choice, record:
-   - decision
-   - options considered
-   - rationale
-   - relevant principles
-   - affected files or areas
-3. Add a concise file map and keep unresolved risks visible.
-4. Stop for approval. Update status to `approved`.
-
-## L4 — Draft `05_tasks.md`
-
-1. Break the design into execution-ready tasks with exact files, dependencies, verify commands, and acceptance criteria.
-2. Group parallel-safe work into waves.
-3. Inline enough context that an implementation window can execute the task without re-reading the whole design.
-4. Stop for approval. Update status to `approved`.
-
-## Execute
-
-If the user asks to execute:
-
-1. Follow task dependencies and only parallelize file-disjoint work.
-2. Run verify commands after each task or wave.
-3. Stop if implementation reveals a design gap the plan did not resolve.
-
----
+Merge into: `Flagged Items`, `Findings`, `Patterns Found`, `Core Docs Summary`, `Open Questions`.
