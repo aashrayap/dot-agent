@@ -26,7 +26,8 @@
   },
   "enabledPlugins": {
     "gopls-lsp@claude-plugins-official": true,
-    "typescript-lsp@claude-plugins-official": true
+    "typescript-lsp@claude-plugins-official": true,
+    "codex@openai-codex": true
   },
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
