@@ -1,3 +1,0 @@
-name = "audit"
-targets = ["claude", "codex"]
-default_entry = "SKILL.md"

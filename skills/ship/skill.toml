@@ -1,3 +1,0 @@
-name = "ship"
-targets = ["claude", "codex"]
-default_entry = "SKILL.md"

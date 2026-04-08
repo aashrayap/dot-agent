@@ -102,6 +102,13 @@ cleanup_legacy_path() {
   fi
 }
 
+cleanup_removed_skill() {
+  local skill_name="$1"
+
+  cleanup_legacy_path "$CLAUDE_DST/skills/$skill_name" ".claude/skills/$skill_name"
+  cleanup_legacy_path "$CODEX_DST/skills/$skill_name" ".codex/skills/$skill_name"
+}
+
 read_scalar() {
   local key="$1"
   local file="$2"
@@ -260,6 +267,10 @@ cleanup_legacy_paths() {
   cleanup_legacy_path "$CODEX_DST/config.shared.toml" ".codex/config.shared.toml"
   cleanup_legacy_path "$CODEX_DST/config.work.toml" ".codex/config.work.toml"
   cleanup_legacy_path "$CODEX_DST/config.personal.toml" ".codex/config.personal.toml"
+
+  for removed_skill in audit cmux qa remove-slop ship; do
+    cleanup_removed_skill "$removed_skill"
+  done
 }
 
 cleanup_legacy_paths

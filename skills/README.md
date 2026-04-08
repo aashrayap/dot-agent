@@ -10,7 +10,7 @@ The canonical repo root is `~/.dot-agent/`. Mutable outputs belong under
 Portable skills can keep a single root `SKILL.md`:
 
 ```text
-skills/remove-slop/
+skills/explain/
 ├── SKILL.md
 └── skill.toml
 ```
