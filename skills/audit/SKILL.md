@@ -5,7 +5,7 @@ description: Codebase health scan. Finds dead files, stale docs, orphaned code, 
 
 # Audit
 
-Read-only codebase health scan. Outputs findings to conversation + versioned report.
+Read-only codebase health scan. Outputs findings to conversation plus a concise audit report.
 
 ## Triggers
 
@@ -25,14 +25,16 @@ Scan each layer bottom-up. For each layer, check references bidirectionally (doe
 
 ### L0: Core Docs
 
-Files: `CLAUDE.md`, `docs/*.md`, `.claude/skills/*/SKILL.md`, `.claude/prompts/*.md`, memory `MEMORY.md`
+Files: `README.md`, `claude/CLAUDE.md`, `codex/AGENTS.md`, `skills/*/SKILL.md`, `skills/*/skill.toml`, `docs/*.md`, memory `MEMORY.md`
 
 Checks:
 - Do file paths referenced in docs still exist?
 - Do data schemas in docs match actual data files?
 - Do routes/pages listed in docs match actual source files?
-- Do skills listed in `CLAUDE.md` match actual skill directories?
-- Are there shipped specs in `docs/specs/` that should be archived or deleted?
+- Do skill manifests match actual skill entry files?
+- Do runtime docs reference valid shared state locations (`~/.dot-agent/state/...`)?
+- Are there completed planning artifacts in `docs/artifacts/` or `docs/specs/` that should be archived or deleted?
+- Do `CLAUDE.md`, `AGENTS.md`, and `README.md` contradict each other on layout or workflow?
 - Does `MEMORY.md` contain claims that contradict current code?
 
 ### L1: Core Data
@@ -100,7 +102,7 @@ Checks:
 ## Rules
 
 - Read-only. Never delete, edit, or create files (except the audit report).
-- Use `Glob` and `Grep` tools, not shell commands, for file discovery.
+- Prefer native file-discovery and content-search tools when available. Otherwise use fast local search (`rg`, targeted reads) rather than slow broad shell scans.
 - Cross-reference bidirectionally: check both "is this used?" and "does this reference valid things?"
 - Skip files that are obviously active (e.g., page files linked in nav with live API calls).
 - Compare against previous audits in `docs/audits/` to note recurring findings or resolved items.

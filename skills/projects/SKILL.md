@@ -12,7 +12,7 @@ disable-model-invocation: true
 
 ## Context
 
-!`~/.claude/skills/projects/scripts/projects-setup.sh "$0" "$1"`
+Run `~/.dot-agent/skills/projects/scripts/projects-setup.sh "$1"` first.
 
 Read the project file and AUDIT_LOG at the paths shown above to determine current state.
 
@@ -21,6 +21,8 @@ Read the project file and AUDIT_LOG at the paths shown above to determine curren
 **project.md** — active state: goal, scope, blockers, milestones, dependency graph, available/blocked sessions, and completed table. The scaffolded template shows the expected structure and formats.
 
 **AUDIT_LOG.md** — historical record: what changed each session, decisions made, and why.
+
+Projects live under `~/.dot-agent/state/projects/` so both Claude and Codex on the same machine share the same project state.
 
 This skill tracks _what_, _when_, and _what's blocking_. Technical details and codebase exploration are `/spec-new-feature`'s job.
 
@@ -135,6 +137,6 @@ Verify all contributing sessions are resolved (done or descoped). Mark the miles
 
 <important if="user wants to pick up a session or hand off to spec-new-feature">
 
-The session must have no unfinished dependencies. Assemble a curated context block with: **Project Goal**, **This Session** (what it accomplishes, which milestone(s)), **What's Already Shipped** (completed sessions, PR numbers + key outcomes), **Blockers & Constraints**, **Relevant Decisions** (from AUDIT_LOG). Curate, don't dump. Present and ask if ready to invoke `/spec-new-feature`.
+The session must have no unfinished dependencies. Assemble a curated context block with: **Project Goal**, **This Session** (what it accomplishes, which milestone(s)), **What's Already Shipped** (completed sessions, PR numbers + key outcomes), **Blockers & Constraints**, **Relevant Decisions** (from AUDIT_LOG). Curate, don't dump. Present the context block and ask whether to invoke `/spec-new-feature <session-slug>`.
 
 </important>

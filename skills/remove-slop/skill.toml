@@ -1,0 +1,3 @@
+name = "remove-slop"
+targets = ["claude", "codex"]
+default_entry = "SKILL.md"

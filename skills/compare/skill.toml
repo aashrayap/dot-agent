@@ -1,0 +1,3 @@
+name = "compare"
+targets = ["claude", "codex"]
+default_entry = "SKILL.md"

@@ -1,0 +1,23 @@
+[projects."__HOME__"]
+trust_level = "trusted"
+
+[projects."__HOME__/.claude"]
+trust_level = "trusted"
+
+[projects."__HOME__/Documents/cc-arrow/dvn-arrow-plugins"]
+trust_level = "trusted"
+
+[projects."__HOME__/Documents/data-science/GenAI_Workflows"]
+trust_level = "trusted"
+
+[projects."__HOME__/Documents/toolkit-dsc"]
+trust_level = "trusted"
+
+[projects."__HOME__/Documents/toolkit-dsc/Toolkit.Web"]
+trust_level = "trusted"
+
+[projects."__HOME__/Documents/2026/prodops-ai"]
+trust_level = "trusted"
+
+[projects."__HOME__/Documents/2026/toolkit-dsc"]
+trust_level = "trusted"

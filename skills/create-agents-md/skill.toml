@@ -1,0 +1,3 @@
+name = "create-agents-md"
+targets = ["codex"]
+codex_entry = "codex/SKILL.md"
