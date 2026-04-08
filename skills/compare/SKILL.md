@@ -15,16 +15,19 @@ Side-by-side comparison of two files. Works on skills, CLAUDE.mds, configs, work
 /compare <file1> <file2> -o <output>      — compare and write to a file
 ```
 
-Arguments can be file paths or **skill names**. If an argument matches a skill directory in `~/.claude/skills/<name>/SKILL.md`, resolve it automatically.
+Arguments can be file paths or **skill names**. If an argument matches a skill directory in `~/.dot-agent/skills/<name>/`, resolve it automatically using that skill's entrypoint.
 
 Examples:
-- `/compare feature-interview spec-new-feature` — resolves both to SKILL.md paths
-- `/compare feature-interview /tmp/other-skill.md` — mixed resolution
+- `/compare review spec-new-feature` — resolves both to SKILL.md paths
+- `/compare review /tmp/other-skill.md` — mixed resolution
 - `/compare ./config-a.yaml ./config-b.yaml` — plain file paths
 
 ## Process
 
-1. **Resolve inputs** — for each argument, check if `~/.claude/skills/<arg>/SKILL.md` exists. If yes, use that path. Otherwise treat as a file path.
+1. **Resolve inputs** — for each argument:
+   - If `~/.dot-agent/skills/<arg>/skill.toml` exists, resolve the runtime-appropriate entry (`claude_entry` or `codex_entry`) or fall back to `default_entry`.
+   - Else if `~/.dot-agent/skills/<arg>/SKILL.md` exists, use that path.
+   - Otherwise treat the argument as a file path.
 2. Read both files in full.
 3. Identify the type of content (skill, config, markdown doc, code) and adapt section headers accordingly.
 4. Generate comparison using the output format below.
@@ -60,7 +63,7 @@ Sources: <file1 basename> (<line count>), <file2 basename> (<line count>)
 
 ## History
 
-The skill maintains a history log at `~/.claude/collab/compare-history.md`. This file tracks every comparison run and how the inputs evolved over time.
+The skill maintains a history log at `~/.dot-agent/state/collab/compare-history.md`. This file tracks every comparison run and how the inputs evolved over time.
 
 **On every run**, append an entry to the history file (create it if it doesn't exist):
 
@@ -77,7 +80,7 @@ The skill maintains a history log at `~/.claude/collab/compare-history.md`. This
 - "Delta from last run" captures what changed between iterations: new sections added, divergences resolved, steal list items adopted
 - If a steal list item from a prior run now appears in the adopter's file, mark it as adopted
 - Keep entries append-only — never edit or remove old entries
-- If the history file exceeds 50 entries, archive entries older than 6 months to `~/.claude/collab/compare-history-archive.md`
+- If the history file exceeds 50 entries, archive entries older than 6 months to `~/.dot-agent/state/collab/compare-history-archive.md`
 
 ## Rules
 
@@ -86,4 +89,4 @@ The skill maintains a history log at `~/.claude/collab/compare-history.md`. This
 - Use exact section/phase/function names from each file so the reader can cross-reference
 - Bullet or table format only — no prose paragraphs
 - Max lines per section: Philosophy 1 per file, Key Divergences 5, Shared DNA 3, Steal List 3 per side
-- Infer names from file basenames (e.g., `ash.md` → "Ash", `feature-interview` → "Feature Interview")
+- Infer names from file basenames (e.g., `ash.md` → "Ash", `spec-new-feature` → "Spec New Feature")

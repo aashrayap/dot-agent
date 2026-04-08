@@ -1,0 +1,4 @@
+name = "review"
+targets = ["claude", "codex"]
+claude_entry = "SKILL.md"
+codex_entry = "codex/SKILL.md"

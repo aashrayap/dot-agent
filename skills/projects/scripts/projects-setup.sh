@@ -7,7 +7,10 @@ set -euo pipefail
 
 TODAY=$(date +%Y-%m-%d)
 NOW=$(date +"%Y-%m-%d %H:%M:%S")
-PROJECTS_DIR=".claude/projects"
+DOT_AGENT_HOME="${DOT_AGENT_HOME:-$HOME/.dot-agent}"
+DOT_AGENT_STATE_HOME="${DOT_AGENT_STATE_HOME:-$DOT_AGENT_HOME/state}"
+PROJECTS_DIR="${DOT_AGENT_STATE_HOME}/projects"
+mkdir -p "$PROJECTS_DIR"
 
 # --- Helpers ---
 

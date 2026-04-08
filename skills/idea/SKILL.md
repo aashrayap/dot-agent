@@ -33,10 +33,10 @@ Idea names are matched fuzzily against existing slugs. If ambiguous, ask.
 
 ## Storage
 
-All ideas live in `.claude/ideas/`. Each idea has a single folder with a single doc:
+All ideas live in `~/.dot-agent/state/ideas/`. Each idea has a single folder with a single doc:
 
 ```
-.claude/ideas/
+~/.dot-agent/state/ideas/
 ├── social-trading/
 │   └── idea.md
 ├── creator-markets/
@@ -44,7 +44,7 @@ All ideas live in `.claude/ideas/`. Each idea has a single folder with a single 
 └── ...
 ```
 
-If `.claude/ideas/` doesn't exist, create it on first use.
+If `~/.dot-agent/state/ideas/` doesn't exist, create it on first use.
 
 Slugs: lowercase, hyphens for spaces, no special characters.
 
@@ -160,7 +160,7 @@ spiked, researched, or decided before implementation. Specific and actionable.>
 
 ## List Ideas (`/idea` with no args)
 
-1. Scan `.claude/ideas/*/idea.md` using Glob.
+1. Scan `~/.dot-agent/state/ideas/*/idea.md` using the runtime's file discovery tools.
 2. For each idea doc, read the frontmatter `status` and `last_touched`, the title, and the Summary section (first sentence).
 3. Present:
 
@@ -196,7 +196,7 @@ Enter an idea name to refine, or "new" to start a new one.
 
 4. **Leave Technical Architecture empty.** Just the section headers with a note: "Technical architecture not yet developed. Use `/idea <name> exec` to start."
 
-5. **Write the doc.** Create `.claude/ideas/<slug>/idea.md` with `status: incubating`, `started: <today>`, `last_touched: <today>`. The Raw Log section preserves the original input verbatim.
+5. **Write the doc.** Create `~/.dot-agent/state/ideas/<slug>/idea.md` with `status: incubating`, `started: <today>`, `last_touched: <today>`. The Raw Log section preserves the original input verbatim.
 
 6. **Clarifying questions.** Enter the clarifying loop (see below). Focus on concept questions — product mechanics, user experience, positioning.
 
@@ -347,7 +347,7 @@ key decisions needed, timeline to first deliverable.>
 ```
 
 4. **Present to the user.** Show the generated document. Ask if they want to adjust anything.
-5. **Save the presentation** as `.claude/ideas/<slug>/presentation.md` alongside the idea doc.
+5. **Save the presentation** as `~/.dot-agent/state/ideas/<slug>/presentation.md` alongside the idea doc.
 6. **Update status** to `ready` (or `presented` if the user confirms they've shared it).
 
 ### Guidelines
@@ -365,10 +365,10 @@ Used after creating or extending an idea (concept mode) and during exec mode (te
 
 ### Mechanics
 
-1. Ask 1-2 targeted questions using AskUserQuestion. Each question should have:
-   - 2-3 suggested answers as options
+1. Ask 1-2 targeted questions at a time. When the runtime supports structured options, offer 2-3 suggested answers plus:
    - **"Skip"** — "Skip this question, ask me another"
    - **"Done"** — "Stop asking questions and finish"
+   Otherwise, ask the question plainly and let the user answer free-form.
 
 2. If the user answers:
    - Incorporate the answer into the idea doc (update relevant sections)
@@ -414,5 +414,5 @@ Used after creating or extending an idea (concept mode) and during exec mode (te
 - **Open Questions should be specific and actionable.** "How does pricing work?" is too vague. "Should creators set their own contract prices, or should prices be algorithmically determined by demand?" is actionable.
 - **Key Insights should feel like takeaways.** Not restated features — genuine non-obvious observations that make the idea compelling.
 - **Don't push toward execution.** This skill is for incubation. Don't suggest "let's start building" or "this is ready for implementation." The user decides when to move an idea into a project. The presentation synthesis is the closest this skill gets to action.
-- **Technical Architecture stays high-level.** If the user starts getting into code-level detail, capture it in the raw log but keep the structured sections at the systems level. Code-level planning happens in `/spec-new-feature` via `/project`.
+- **Technical Architecture stays high-level.** If the user starts getting into code-level detail, capture it in the raw log but keep the structured sections at the systems level. Code-level planning happens in `/spec-new-feature`, usually after the idea graduates into `/projects`.
 - **Ideas can sit for months.** The doc format is designed to be re-entered after a long break. The Summary + last few Raw Log entries should be enough to get back up to speed.

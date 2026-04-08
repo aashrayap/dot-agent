@@ -14,7 +14,7 @@ Open a new cmux workspace (tab) for each specified todo, running the given skill
 /cmux <skill> <todo-id> [todo-id...]
 ```
 
-**Example:** `/cmux /feature-interview 58 59 60`
+**Example:** `/cmux /spec-new-feature 58 59 60`
 
 ## Instructions
 

@@ -31,7 +31,7 @@ settings.local.json
 /projects/
 /channels/
 /image-cache/
-/state/
+/skills/datadog/
 
 # Legacy / one-off
 /.claude-copy/
