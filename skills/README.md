@@ -29,7 +29,7 @@ skills/review/
 Codex-only skills keep only a Codex wrapper:
 
 ```text
-skills/create-pr/
+skills/create-agents-md/
 ├── codex/
 │   └── SKILL.md
 └── skill.toml

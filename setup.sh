@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROFILE="${1:-work}"
+if [[ $# -gt 0 ]]; then
+  echo "ERROR: setup.sh takes no arguments"
+  echo "Usage: ./setup.sh"
+  exit 1
+fi
+
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EXPECTED_DOT_AGENT_HOME="$HOME/.dot-agent"
 if [[ "$REPO_ROOT" != "$EXPECTED_DOT_AGENT_HOME" ]]; then
@@ -10,7 +15,7 @@ if [[ "$REPO_ROOT" != "$EXPECTED_DOT_AGENT_HOME" ]]; then
   echo "Clone or move the repo, then rerun setup:"
   echo "  git clone https://github.com/aashrayap/dot-agent.git $EXPECTED_DOT_AGENT_HOME"
   echo "  cd $EXPECTED_DOT_AGENT_HOME"
-  echo "  ./setup.sh $PROFILE"
+  echo "  ./setup.sh"
   exit 1
 fi
 
@@ -123,37 +128,6 @@ link_claude_payload() {
   backup_and_link "$CLAUDE_SRC/statusline-enhanced.sh" "$CLAUDE_DST/statusline-enhanced.sh" ".claude/statusline-enhanced.sh"
 }
 
-render_codex_config() {
-  local shared_file="$CODEX_SRC/config.shared.toml"
-  local profile_file="$CODEX_SRC/config.${PROFILE}.toml"
-  local target_file="$CODEX_DST/config.toml"
-  local tmp_file
-
-  if [[ ! -f "$profile_file" ]]; then
-    echo "ERROR: Missing Codex profile: $profile_file"
-    exit 1
-  fi
-
-  tmp_file="$(mktemp)"
-  trap 'rm -f "$tmp_file"' RETURN
-
-  sed "s|__HOME__|$HOME|g" "$shared_file" >"$tmp_file"
-  printf '\n' >>"$tmp_file"
-  sed "s|__HOME__|$HOME|g" "$profile_file" >>"$tmp_file"
-
-  if [[ -f "$target_file" ]] && cmp -s "$tmp_file" "$target_file"; then
-    rm -f "$tmp_file"
-    trap - RETURN
-    return
-  fi
-
-  backup_path "$target_file" ".codex/config.toml"
-  mkdir -p "$(dirname "$target_file")"
-  mv "$tmp_file" "$target_file"
-  chmod 600 "$target_file"
-  trap - RETURN
-}
-
 ensure_codex_rules() {
   local dst_dir="$CODEX_DST/rules"
   local tmp_dir
@@ -173,10 +147,7 @@ ensure_codex_rules() {
 
 link_codex_payload() {
   backup_and_link "$CODEX_SRC/AGENTS.md" "$CODEX_DST/AGENTS.md" ".codex/AGENTS.md"
-  backup_and_link "$CODEX_SRC/config.shared.toml" "$CODEX_DST/config.shared.toml" ".codex/config.shared.toml"
-  backup_and_link "$CODEX_SRC/config.work.toml" "$CODEX_DST/config.work.toml" ".codex/config.work.toml"
-  backup_and_link "$CODEX_SRC/config.personal.toml" "$CODEX_DST/config.personal.toml" ".codex/config.personal.toml"
-  render_codex_config
+  backup_and_link "$CODEX_SRC/config.toml" "$CODEX_DST/config.toml" ".codex/config.toml"
   ensure_codex_rules
 }
 
@@ -284,6 +255,11 @@ cleanup_legacy_paths() {
   cleanup_legacy_path "$CLAUDE_DST/collab" ".claude/collab"
   cleanup_legacy_path "$CLAUDE_DST/skills/feature-interview" ".claude/skills/feature-interview"
   cleanup_legacy_path "$CODEX_DST/skills/feature-interview" ".codex/skills/feature-interview"
+  cleanup_legacy_path "$CODEX_DST/skills/create-pr" ".codex/skills/create-pr"
+  cleanup_legacy_path "$CODEX_DST/skills/dvn-web-libraries" ".codex/skills/dvn-web-libraries"
+  cleanup_legacy_path "$CODEX_DST/config.shared.toml" ".codex/config.shared.toml"
+  cleanup_legacy_path "$CODEX_DST/config.work.toml" ".codex/config.work.toml"
+  cleanup_legacy_path "$CODEX_DST/config.personal.toml" ".codex/config.personal.toml"
 }
 
 cleanup_legacy_paths
@@ -292,7 +268,7 @@ link_codex_payload
 link_skills
 
 echo "Linked Claude config into $CLAUDE_DST"
-echo "Linked Codex config into $CODEX_DST using profile '$PROFILE'"
+echo "Linked Codex config into $CODEX_DST"
 echo "Shared state home is $DOT_AGENT_STATE_HOME"
 if [[ -d "$BACKUP_ROOT" ]]; then
   echo "Backups stored in $BACKUP_ROOT"

@@ -34,9 +34,6 @@ After `./setup.sh`, the machine-level layout is:
 │   └── skills/
 └── .codex/          # Codex runtime install
     ├── AGENTS.md
-    ├── config.shared.toml
-    ├── config.work.toml
-    ├── config.personal.toml
     ├── config.toml
     ├── rules/
     └── skills/
@@ -51,18 +48,16 @@ git clone https://github.com/aashrayap/dot-agent.git ~/.dot-agent
 cd ~/.dot-agent
 ```
 
-Then choose a profile explicitly:
+Then run setup:
 
 ```bash
-./setup.sh work
-./setup.sh personal
+./setup.sh
 ```
 
 What `setup.sh` does:
 
 - symlinks Claude repo config into `~/.claude/`
 - symlinks Codex repo config into `~/.codex/`
-- renders `~/.codex/config.toml` from the shared file plus the selected profile
 - links skills into each runtime based on `skill.toml`
 - creates `state/{collab,projects,ideas}`
 - backs up conflicting legacy runtime files under `state/backups/setup/`

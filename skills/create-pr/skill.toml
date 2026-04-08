@@ -1,3 +1,0 @@
-name = "create-pr"
-targets = ["codex"]
-codex_entry = "codex/SKILL.md"

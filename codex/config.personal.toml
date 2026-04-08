@@ -1,8 +1,0 @@
-# Add personal-machine trust entries here.
-#
-# Examples:
-# [projects."__HOME__"]
-# trust_level = "trusted"
-#
-# [projects."__HOME__/Documents/personal-project"]
-# trust_level = "trusted"
