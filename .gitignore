@@ -56,5 +56,4 @@ settings.local.json
 keybindings.json
 
 # Ash (personal, not shared)
-check-harness-update.sh
 commands/docs.md

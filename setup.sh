@@ -3,7 +3,18 @@ set -euo pipefail
 
 PROFILE="${1:-work}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DOT_AGENT_HOME="${DOT_AGENT_HOME:-$REPO_ROOT}"
+EXPECTED_DOT_AGENT_HOME="$HOME/.dot-agent"
+if [[ "$REPO_ROOT" != "$EXPECTED_DOT_AGENT_HOME" ]]; then
+  echo "ERROR: dot-agent must live at $EXPECTED_DOT_AGENT_HOME"
+  echo "Current repo root: $REPO_ROOT"
+  echo "Clone or move the repo, then rerun setup:"
+  echo "  git clone https://github.com/aashrayap/dot-agent.git $EXPECTED_DOT_AGENT_HOME"
+  echo "  cd $EXPECTED_DOT_AGENT_HOME"
+  echo "  ./setup.sh $PROFILE"
+  exit 1
+fi
+
+DOT_AGENT_HOME="$REPO_ROOT"
 DOT_AGENT_STATE_HOME="${DOT_AGENT_STATE_HOME:-$DOT_AGENT_HOME/state}"
 CLAUDE_SRC="$REPO_ROOT/claude"
 CODEX_SRC="$REPO_ROOT/codex"
@@ -50,6 +61,31 @@ backup_and_link() {
   backup_path "$dst" "$rel"
   mkdir -p "$(dirname "$dst")"
   ln -s "$src" "$dst"
+}
+
+copy_dir_contents() {
+  local src_dir="$1"
+  local dst_dir="$2"
+
+  mkdir -p "$dst_dir"
+  cp -R "$src_dir"/. "$dst_dir"
+}
+
+sync_dir_from_temp() {
+  local tmp_dir="$1"
+  local dst_dir="$2"
+  local rel="$3"
+
+  if [[ -d "$dst_dir" && ! -L "$dst_dir" ]] \
+    && [[ -z "$(find "$dst_dir" -type l -print -quit)" ]] \
+    && diff -qr "$tmp_dir" "$dst_dir" >/dev/null 2>&1; then
+    rm -rf "$tmp_dir"
+    return
+  fi
+
+  backup_path "$dst_dir" "$rel"
+  mkdir -p "$(dirname "$dst_dir")"
+  mv "$tmp_dir" "$dst_dir"
 }
 
 cleanup_legacy_path() {
@@ -120,19 +156,19 @@ render_codex_config() {
 
 ensure_codex_rules() {
   local dst_dir="$CODEX_DST/rules"
-  mkdir -p "$dst_dir"
+  local tmp_dir
+
+  tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/dot-agent-codex-rules.XXXXXX")"
 
   for src_file in "$CODEX_SRC"/rules/*; do
     local name
-    local dst_file
 
     [[ -e "$src_file" ]] || continue
     name="$(basename "$src_file")"
-    dst_file="$dst_dir/$name"
-    if [[ ! -e "$dst_file" ]]; then
-      cp "$src_file" "$dst_file"
-    fi
+    cp "$src_file" "$tmp_dir/$name"
   done
+
+  sync_dir_from_temp "$tmp_dir" "$dst_dir" ".codex/rules"
 }
 
 link_codex_payload() {
@@ -142,6 +178,40 @@ link_codex_payload() {
   backup_and_link "$CODEX_SRC/config.personal.toml" "$CODEX_DST/config.personal.toml" ".codex/config.personal.toml"
   render_codex_config
   ensure_codex_rules
+}
+
+install_codex_skill_runtime() {
+  local skill_dir="$1"
+  local entry="$2"
+  local dst_root="$3"
+  local rel_prefix="$4"
+  local source="$skill_dir/$entry"
+  local source_parent
+  local tmp_dir
+  local dst_dir
+
+  source_parent="$(dirname "$source")"
+  tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/dot-agent-codex-skill.XXXXXX")"
+  dst_dir="$dst_root/skills/$(basename "$skill_dir")"
+
+  if [[ "$source_parent" == "$skill_dir" ]]; then
+    cp "$source" "$tmp_dir/SKILL.md"
+  else
+    copy_dir_contents "$source_parent" "$tmp_dir"
+    if [[ ! -f "$tmp_dir/SKILL.md" ]]; then
+      echo "WARN: Codex skill payload for $(basename "$skill_dir") did not produce SKILL.md"
+      rm -rf "$tmp_dir"
+      return
+    fi
+  fi
+
+  for shared_dir in scripts assets references shared; do
+    if [[ -e "$skill_dir/$shared_dir" ]]; then
+      copy_dir_contents "$skill_dir/$shared_dir" "$tmp_dir/$shared_dir"
+    fi
+  done
+
+  sync_dir_from_temp "$tmp_dir" "$dst_dir" "$rel_prefix"
 }
 
 link_skill_runtime() {
@@ -182,6 +252,11 @@ link_skill_runtime() {
   source="$skill_dir/$entry"
   if [[ ! -f "$source" ]]; then
     echo "WARN: Missing ${runtime} skill entry for $skill_name: $source"
+    return
+  fi
+
+  if [[ "$runtime" == "codex" ]]; then
+    install_codex_skill_runtime "$skill_dir" "$entry" "$dst_root" "$rel_prefix"
     return
   fi
 

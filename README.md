@@ -2,7 +2,7 @@
 
 Shared agent configuration for Claude Code and Codex.
 
-Clone this repo as `~/.dot-agent/`. The repo is the shared, versioned source of truth. Runtime installs still live in `~/.claude/` and `~/.codex/`. Mutable skill artifacts live under the gitignored `state/` subtree inside `~/.dot-agent/`.
+Clone this repo as `~/.dot-agent/`. The repo is the shared, versioned source of truth. Runtime installs still live in `~/.claude/` and `~/.codex/`. Mutable skill artifacts live under the gitignored `state/` subtree inside `~/.dot-agent/`. `setup.sh` fails fast unless the repo lives at that canonical path.
 
 ## Repo Layout
 
@@ -44,15 +44,17 @@ After `./setup.sh`, the machine-level layout is:
 
 ## Setup
 
-Run:
+Clone the repo into the canonical local path:
 
 ```bash
-./setup.sh
+git clone https://github.com/aashrayap/dot-agent.git ~/.dot-agent
+cd ~/.dot-agent
 ```
 
-Optional Codex profile:
+Then choose a profile explicitly:
 
 ```bash
+./setup.sh work
 ./setup.sh personal
 ```
 

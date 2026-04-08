@@ -53,10 +53,11 @@ if [[ "$PCT" =~ ^[0-9]+$ ]] && [ "$PCT" -gt 0 ]; then
     fi
 fi
 
-# Harness update check (reads last fetch result, no network call)
+# Harness update check against the canonical dot-agent repo.
 HARNESS_DISPLAY=""
-if [ -d "$HOME/.claude/.git" ]; then
-    BEHIND=$(cd "$HOME/.claude" && git rev-list main..origin/main --count 2>/dev/null)
+DOT_AGENT_REPO="${DOT_AGENT_HOME:-$HOME/.dot-agent}"
+if [ -d "$DOT_AGENT_REPO/.git" ]; then
+    BEHIND=$(cd "$DOT_AGENT_REPO" && git rev-list HEAD..origin/main --count 2>/dev/null)
     if [ -n "$BEHIND" ] && [ "$BEHIND" -gt 0 ]; then
         HARNESS_DISPLAY="${C_YELLOW}⬆ ${BEHIND}${C_RESET}"
     fi

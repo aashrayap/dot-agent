@@ -1,3 +1,0 @@
-name = "dvn-web-libraries"
-targets = ["codex"]
-codex_entry = "codex/SKILL.md"

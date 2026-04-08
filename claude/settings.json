@@ -32,8 +32,9 @@
     "typescript-lsp@claude-plugins-official": true
   },
   "alwaysThinkingEnabled": true,
+  "effortLevel": "high",
   "autoMemoryEnabled": false,
   "autoDreamEnabled": false,
   "showThinkingSummaries": true,
-  "effortLevel": "high"
+  "skipDangerousModePermissionPrompt": true
 }
