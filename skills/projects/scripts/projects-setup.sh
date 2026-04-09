@@ -2,12 +2,20 @@
 set -euo pipefail
 
 # Usage:
-#   projects-setup.sh              → dashboard (list all projects)
-#   projects-setup.sh <slug>       → return existing project info, or scaffold if new
+#   projects-setup.sh                        → dashboard (list all projects)
+#   projects-setup.sh <slug> <action>        → resolve project + requested action
+#
+# Actions (required when a slug is provided):
+#   new    — scaffold a brand-new project
+#   update — anything else (view, progress report, completion, restructure, status);
+#            the skill figures out intent from the user's raw message
+#
+# Details live in the user's raw message — this script does not parse them.
 
 TODAY=$(date +%Y-%m-%d)
 NOW=$(date +"%Y-%m-%d %H:%M:%S")
 PROJECTS_DIR=".claude/projects"
+VALID_ACTIONS="new update"
 
 # --- Helpers ---
 
@@ -50,20 +58,49 @@ if [[ ! "$SLUG" =~ ^[a-z][a-z0-9]*(-[a-z0-9]+)*$ ]]; then
   exit 1
 fi
 
+# Action is required when a slug is provided
+if [[ $# -lt 2 || -z "${2:-}" ]]; then
+  echo "ERROR: Missing action."
+  echo "Usage: /projects $SLUG <new|update> [details...]"
+  exit 1
+fi
+
+ACTION="$2"
+
+# Validate action
+if ! echo " $VALID_ACTIONS " | grep -q " $ACTION "; then
+  echo "ERROR: Unknown action '$ACTION'."
+  echo "Valid actions: $VALID_ACTIONS"
+  exit 1
+fi
+
 PROJECT_DIR="${PROJECTS_DIR}/${SLUG}"
 PROJECT_FILE="${PROJECT_DIR}/project.md"
 AUDIT_LOG="${PROJECT_DIR}/AUDIT_LOG.md"
 
 # --- EXISTS: return project info ---
 if [[ -f "$PROJECT_FILE" ]]; then
+  if [[ "$ACTION" == "new" ]]; then
+    echo "ERROR: Project '$SLUG' already exists."
+    echo "Use a different slug, or run with an action other than 'new'."
+    exit 1
+  fi
   echo "PROJECT_DIR=$PROJECT_DIR"
   echo "PROJECT_SLUG=$SLUG"
   echo "PROJECT_FILE=$PROJECT_FILE"
   echo "AUDIT_LOG=$AUDIT_LOG"
+  echo "ACTION=$ACTION"
   echo "MODE=existing"
   echo ""
   print_status "$PROJECT_FILE"
   exit 0
+fi
+
+# --- Project doesn't exist ---
+if [[ "$ACTION" != "new" ]]; then
+  echo "ERROR: Project '$SLUG' does not exist."
+  echo "Create it with: /projects $SLUG new <goal + scope description>"
+  exit 1
 fi
 
 # --- NEW: scaffold and return project info ---
@@ -80,24 +117,24 @@ last_touched: $TODAY
 
 ## Goal
 
-## Scope
+<!-- 1-2 sentences. Outcome delivered to users/leadership, not implementation tactics. -->
 
-**In scope:**
--
+## Out of scope
 
-**Out of scope:**
--
+<!-- Only items someone might assume are in scope but aren't. Delete this section if nothing fits. -->
 
 ## Blockers & Constraints
 
 ## Milestones
+
+<!-- M# identifiers numbered in expected completion order based on the dependency graph. Renumber if blockers shift the order. -->
 
 | # | Milestone | Status |
 |---|-----------|--------|
 
 ## Sessions
 
-Sessions are scoped units of work picked up via \`/spec-new-feature\`. Each session has dependencies — only unblocked sessions can be started.
+Scoped units of work picked up via \`/spec-new-feature\`. Sessions with no \`Blocked on:\` line are ready to pick up. The dependency graph shows remaining work only.
 
 ### Dependency Graph
 
@@ -107,10 +144,6 @@ flowchart TB
     %% Style each: style b0 fill:none,stroke:none
     %% Color-code nodes by milestone via style directives.
 \`\`\`
-
-## Available Sessions
-
-## Blocked Sessions
 
 ## Completed
 
@@ -124,6 +157,7 @@ echo "PROJECT_DIR=$PROJECT_DIR"
 echo "PROJECT_SLUG=$SLUG"
 echo "PROJECT_FILE=$PROJECT_FILE"
 echo "AUDIT_LOG=$AUDIT_LOG"
+echo "ACTION=new"
 echo "MODE=new"
 echo ""
 echo "Scaffolded $PROJECT_FILE"

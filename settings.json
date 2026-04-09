@@ -1,5 +1,10 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
       "mcp__ide__getDiagnostics",
@@ -18,7 +23,10 @@
       "mcp__figma-desktop__get_design_context",
       "mcp__figma-desktop__get_screenshot",
       "mcp__claude_ai_Notion__notion-fetch",
-      "mcp__pencil"
+      "mcp__pencil",
+      "Bash(~/.claude/skills/daily-review/scripts/daily-review-setup.py:*)",
+      "Bash(~/.claude/skills/daily-review/scripts/fetch-last-day-sessions.py:*)",
+      "Bash(~/.claude/skills/daily-review/scripts/inspect-session.py:*)"
     ],
     "defaultMode": "default"
   },
@@ -32,8 +40,8 @@
     "typescript-lsp@claude-plugins-official": true
   },
   "alwaysThinkingEnabled": true,
+  "effortLevel": "medium",
   "autoMemoryEnabled": false,
   "autoDreamEnabled": false,
-  "showThinkingSummaries": true,
-  "effortLevel": "high"
+  "showThinkingSummaries": true
 }

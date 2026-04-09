@@ -32,8 +32,9 @@ Read artifact files in the feature directory shown above to determine current ph
 - Tell the human which phase you're starting and why.
 - No code in L1–L3. Implementation details belong in L4 task specs only.
 - Read CLAUDE.md and README.md files before L3 — only from the working directory and its subdirectories. NEVER traverse parent directories to find these files.
-- **Tooling:** Include the Subagent Tooling Block (below) verbatim at the TOP of every subagent prompt that interacts with the filesystem (Explore, External Research, Execute). Omit it for pure-synthesis subagents whose inputs are inlined (e.g., Task Decomposition).
+- **Tooling:** Include the Subagent Tooling Block (below) verbatim at the TOP of every Explore and External Research subagent prompt. Omit it for named Execute agents — `task-implementor` and `gating-agent` have their tools configured via their agent definitions, not inlined in the prompt.
 - **Model override:** All Explore subagents MUST use `model: "sonnet"`. Haiku does not reliably follow tool-usage instructions and falls back to Bash for file operations, causing permission spam.
+- **Thoroughness level:** All Explore subagents MUST be dispatched at `"very thorough"` thoroughness — comprehensive analysis across multiple locations and naming conventions. State this explicitly in every Explore prompt.
 - **Package/library research:** Include Context7 instruction (below) in every External Research subagent prompt.
 
 ### Subagent Tooling Block
@@ -107,7 +108,7 @@ For ALL documentation and package/library questions, use Context7 MCP tools EXCL
 
 ### Codebase Investigation Subagent
 
-One per area, parallel. Use `subagent_type: "Explore"`, `model: "sonnet"`.
+One per area, parallel. Use `subagent_type: "Explore"`, `model: "sonnet"`, thoroughness `"very thorough"`.
 
 **⚠️ DECONTAMINATION:** Do NOT include feature name, spec content, user stories, or desired outcomes in this prompt. The subagent receives only questions and a focus directory.
 
@@ -167,7 +168,7 @@ Output structured as: subject, documentation_urls, per_question_answers, gotchas
 
 **Owner:** Human at uncertainty, AI otherwise | **Output:** `04_plan.md`
 
-1. **Gather Principles** — Dispatch an Explore subagent (`model: "sonnet"`) to find and read all CLAUDE.md and README.md files within the working directory and its subdirectories (use `Glob` with `**/CLAUDE.md` and `**/README.md`). NEVER read these files from parent directories. Return relevant principles, conventions, and documented workflows.
+1. **Gather Principles** — Dispatch an Explore subagent (`model: "sonnet"`, thoroughness `"very thorough"`) to find and read all CLAUDE.md and README.md files within the working directory and its subdirectories (use `Glob` with `**/CLAUDE.md` and `**/README.md`). NEVER read these files from parent directories. Return relevant principles, conventions, and documented workflows.
 2. **Draft Decisions** — For each design choice in `04_plan.md`, fill in: Finding (what investigation revealed), Options, Decision (chosen option), Principle (which project principle guided it), Scope (affected files/areas). **Every file reference in a decision MUST use the full path from the repo root** (e.g., `test/tools/GlobalGuardian/GlobalGuardian.t.sol`, not just `GlobalGuardian.t.sol`). The decomposition agent is a pure-synthesis agent with no filesystem access — it cannot resolve ambiguous paths.
 3. **Human Checkpoint** — Present decisions. Human intervenes when: principles conflict, no precedent exists, or decision forces spec change (→ loop L1). Clear answer from findings + principles → proceed unless human objects. **If the human disagrees or raises questions needing codebase evidence, dispatch a subagent to investigate before responding** — never explore the codebase yourself.
 4. **Technical Design** — Synthesize approach, data model changes, API contracts, file-level change map.
@@ -183,7 +184,7 @@ The orchestrator performs decomposition directly — do NOT delegate to a subage
 
 1. Read 04_plan.md, 01_spec.md, 03_findings.md.
 2. **Extract shared dependencies** — Before grouping waves, identify any utilities, mocks, helpers, or types that multiple tasks will need (e.g., mock contracts, test fixtures, shared types). These MUST go in Wave 1 as explicit deliverables. Every downstream task must reference them by exact import path — never leave it to agents to reinvent independently.
-3. **Verify paths** — For any file path you're uncertain about, dispatch a quick Explore subagent (`model: "sonnet"`) to confirm the path exists and is correct before including it in a task spec. Do not guess paths from memory.
+3. **Verify paths** — For any file path you're uncertain about, dispatch an Explore subagent (`model: "sonnet"`, thoroughness `"very thorough"`) to confirm the path exists and is correct before including it in a task spec. Do not guess paths from memory.
 4. Group work into parallel waves. Minimize waves respecting dependencies.
 5. Write task specs. Each task gets:
    - **Implement:** files to create/modify, behavior to add (specific enough to code from)
@@ -192,7 +193,7 @@ The orchestrator performs decomposition directly — do NOT delegate to a subage
    - **Acceptance Criteria:** subset from 01_spec.md mapped to this task
    - **Verify:** copy-pasteable commands (`cd <app-dir> && bunx tsc --noEmit && bun run lint`)
    - **Boundaries:** Always / Ask first / Never
-6. **Self-containment test:** Could an agent implement each task with ONLY the task spec + CLAUDE.md? If not, inline missing context.
+6. **Self-containment test:** Could an agent implement each task with ONLY the task spec? If not, inline missing context.
 7. If a task needs an unresolved design decision → loop to L3.
 8. Present to human. Execute on approval.
 
@@ -200,18 +201,18 @@ The orchestrator performs decomposition directly — do NOT delegate to a subage
 
 ## Execute
 
-After 05_tasks.md approved, execute wave by wave:
+Wave by wave. Two named agents, never inlined:
+- `task-implementor` — Read/Edit/Write/Glob/Grep/LSP. No Bash. LSP diagnostics are its only validation signal.
+- `gating-agent` — Bash/LSP/Read/Grep/Glob/Context7/browser-testing. Cannot edit.
 
-1. **Per wave** — One agent per task, parallel. Do NOT use `isolation: "worktree"` — run all agents directly on the main branch. Task decomposition guarantees no file conflicts (every file belongs to exactly one task), so worktrees add cherry-pick overhead without benefit.
-2. **Agent prompt:**
-   ```
-   {Subagent Tooling Block}
-   Implement task for feature "{name}".
-   Task spec: {full task content from 05_tasks.md}
-   Rules: Implement exactly what spec describes. Follow CLAUDE.md conventions. Run verify commands via Bash. Fix failures and re-verify. If spec doesn't cover something, STOP and report. Do NOT modify files outside task scope.
-   ```
-3. **Between waves** — Full `tsc --noEmit` + `lint` + `test` across affected apps.
-4. **Retries** — Agent fails after 2-3 attempts → escalate to human (usually a spec gap).
-5. **Track** — Update checkboxes in 05_tasks.md.
+Run on main (no worktrees — decomposition guarantees no file conflicts).
+
+**Per wave:**
+1. Dispatch all tasks in the wave in parallel as `task-implementor`. Each prompt carries ONLY its scoped task section and nothing else. Decomposition already inlined the relevant AC and decisions. Rule: *stop and report if the task spec is unclear — do not guess, do not expand scope beyond the task.*
+2. Once all implementers return, dispatch ONE `gating-agent` over the union of changed files. Prompt carries the wave's task specs and the file list (no `01_spec.md` — each task spec already inlines its AC). It runs scoped build/test/browser checks and returns one of:
+   - `{status: "pass"}` → check all wave task boxes in `05_tasks.md`, advance.
+   - `{status: "fail", issues: [{file, line, problem, suggested_fix}, ...]}` → re-dispatch the affected `task-implementor`(s) with only their issues, scoped to original files. Re-gate the wave.
+   - `{status: "unknown_blocker", ...}` → escalate to human.
+3. Retry cap: 2 consecutive wave-gate failures → escalate (usually a spec gap).
 
 ---
