@@ -7,9 +7,19 @@ if [[ $# -gt 0 ]]; then
   exit 1
 fi
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 EXPECTED_DOT_AGENT_HOME="$HOME/.dot-agent"
-if [[ "$REPO_ROOT" != "$EXPECTED_DOT_AGENT_HOME" ]]; then
+COMMON_GIT_DIR="$(git -C "$REPO_ROOT" rev-parse --git-common-dir 2>/dev/null || true)"
+if [[ -n "$COMMON_GIT_DIR" && "$COMMON_GIT_DIR" != /* ]]; then
+  COMMON_GIT_DIR="$(cd "$REPO_ROOT/$COMMON_GIT_DIR" && pwd -P)"
+fi
+
+CANONICAL_REPO_ROOT=""
+if [[ -n "$COMMON_GIT_DIR" ]]; then
+  CANONICAL_REPO_ROOT="$(cd "$COMMON_GIT_DIR/.." && pwd -P)"
+fi
+
+if [[ "$REPO_ROOT" != "$EXPECTED_DOT_AGENT_HOME" && "$CANONICAL_REPO_ROOT" != "$EXPECTED_DOT_AGENT_HOME" ]]; then
   echo "ERROR: dot-agent must live at $EXPECTED_DOT_AGENT_HOME"
   echo "Current repo root: $REPO_ROOT"
   echo "Clone or move the repo, then rerun setup:"
@@ -19,11 +29,12 @@ if [[ "$REPO_ROOT" != "$EXPECTED_DOT_AGENT_HOME" ]]; then
   exit 1
 fi
 
-DOT_AGENT_HOME="$REPO_ROOT"
+DOT_AGENT_HOME="$EXPECTED_DOT_AGENT_HOME"
+DOT_AGENT_SOURCE_ROOT="$REPO_ROOT"
 DOT_AGENT_STATE_HOME="${DOT_AGENT_STATE_HOME:-$DOT_AGENT_HOME/state}"
-CLAUDE_SRC="$REPO_ROOT/claude"
-CODEX_SRC="$REPO_ROOT/codex"
-SKILLS_SRC="$REPO_ROOT/skills"
+CLAUDE_SRC="$DOT_AGENT_SOURCE_ROOT/claude"
+CODEX_SRC="$DOT_AGENT_SOURCE_ROOT/codex"
+SKILLS_SRC="$DOT_AGENT_SOURCE_ROOT/skills"
 CLAUDE_DST="$HOME/.claude"
 CODEX_DST="$HOME/.codex"
 BACKUP_ROOT="$DOT_AGENT_STATE_HOME/backups/setup/$(date +%Y%m%d%H%M%S)"
@@ -280,6 +291,7 @@ link_skills
 
 echo "Linked Claude config into $CLAUDE_DST"
 echo "Linked Codex config into $CODEX_DST"
+echo "Source config came from $DOT_AGENT_SOURCE_ROOT"
 echo "Shared state home is $DOT_AGENT_STATE_HOME"
 if [[ -d "$BACKUP_ROOT" ]]; then
   echo "Backups stored in $BACKUP_ROOT"
