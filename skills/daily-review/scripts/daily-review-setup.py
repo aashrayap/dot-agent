@@ -28,9 +28,9 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-SCRIPTS_DIR = Path(__file__).resolve().parent
-FETCH_SCRIPT = SCRIPTS_DIR / "fetch-last-day-sessions.py"
-INSPECT_SCRIPT = SCRIPTS_DIR / "inspect-session.py"
+SCRIPTS_DIR = "~/.claude/skills/daily-review/scripts"
+FETCH_SCRIPT = f"{SCRIPTS_DIR}/fetch-last-day-sessions.py"
+INSPECT_SCRIPT = f"{SCRIPTS_DIR}/inspect-session.py"
 
 PROJECTS_DIR = Path(
     os.environ.get("CLAUDE_PROJECTS_DIR", Path.home() / ".claude" / "projects")

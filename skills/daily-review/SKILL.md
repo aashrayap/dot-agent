@@ -20,13 +20,13 @@ The injected setup is intentionally tiny — just the cwds with activity in the 
 
 !`~/.claude/skills/daily-review/scripts/daily-review-setup.py $1`
 
-The block above injects `FETCH_SCRIPT`, `INSPECT_SCRIPT`, and `WINDOW_HOURS` as **reference labels**, plus the list of cwds with activity. Nothing is persisted to disk.
+The block above injects `FETCH_SCRIPT`, `INSPECT_SCRIPT`, and `WINDOW_HOURS` as **reference labels** (using `~` paths), plus the list of cwds with activity. Nothing is persisted to disk.
 
 ## Command protocol (read before calling any script)
 
 The Bash allow-list matches **literal command prefixes**. Every call — from main context *or* subagent — must use one of these exact shapes:
 
-- **`FETCH_SCRIPT` and `INSPECT_SCRIPT` are labels, not env vars.** Substitute the absolute path literally. Subagents run in a fresh shell with no inherited env.
+- **Use `~` paths, not absolute paths.** The Bash allow-list uses `~/.claude/…` patterns. If you expand `~` to `/Users/…`, the permission check fails. Always call scripts with their `~/.claude/…` prefix.
 - **No pipes, redirects, chaining, or `bash -c` wrapping.** Run the script as the sole command in the Bash call and parse stdout.
 - **Never pass `--out`.** These scripts stream to stdout when `--out` is omitted.
 - **Project slugs start with `-`**, so `--project` MUST use the `=` form: `--project=<slug>` (not `--project <slug>` — argparse rejects that because it reads the slug as a flag).
@@ -51,8 +51,8 @@ Each agent's prompt must include verbatim:
 - **Assigned project slug** (exact directory name from the setup listing).
 - **The command-protocol constraints above.**
 - **Instructions:**
-  1. First, run `<FETCH_SCRIPT absolute path> --hours <WINDOW_HOURS> --project=<slug>` as a single Bash call (note the `=`, required because slugs start with `-`). Parse stdout as JSON. This returns the real cwd, per-session numeric stats (agent_seconds, human_seconds, turn_count, tool errors, subagent count, parallel activity), and a per-turn list for context.
-  2. For every session with `turn_count >= 2`, run `<INSPECT_SCRIPT absolute path> --session-id <uuid>` as a single Bash call and parse stdout for full prompts, tool sequences with durations, and the subagent tree.
+  1. First, run `~/.claude/skills/daily-review/scripts/fetch-last-day-sessions.py --hours <WINDOW_HOURS> --project=<slug>` as a single Bash call (note the `=`, required because slugs start with `-`). Parse stdout as JSON. This returns the real cwd, per-session numeric stats (agent_seconds, human_seconds, turn_count, tool errors, subagent count, parallel activity), and a per-turn list for context.
+  2. For every session with `turn_count >= 2`, run `~/.claude/skills/daily-review/scripts/inspect-session.py --session-id <uuid>` as a single Bash call and parse stdout for full prompts, tool sequences with durations, and the subagent tree.
   3. Skip sessions with `turn_count < 2` (one-turn stubs, abandoned openings) — note the count in your report but do not inspect them.
 - **Report template** (agent returns in under 500 words):
 
@@ -103,7 +103,7 @@ Read every agent's report. Build the project list:
 For each clustered project, make **one** Bash call:
 
 ```
-<FETCH_SCRIPT absolute path> --hours <WINDOW_HOURS> --session-ids <id1>,<id2>,... --no-turns
+~/.claude/skills/daily-review/scripts/fetch-last-day-sessions.py --hours <WINDOW_HOURS> --session-ids <id1>,<id2>,... --no-turns
 ```
 
 `--no-turns` is required — the per-turn list is noise for the orchestrator and blows out context. Parse stdout as JSON and read:
