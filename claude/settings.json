@@ -29,6 +29,19 @@
     "typescript-lsp@claude-plugins-official": true,
     "codex@openai-codex": true
   },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/skills/ingest-semi/scripts/guard_parent_2026_wiki_commit.py"
+          }
+        ]
+      }
+    ]
+  },
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
   "autoMemoryEnabled": false,
