@@ -23,10 +23,10 @@
       "mcp__figma-desktop__get_design_context",
       "mcp__figma-desktop__get_screenshot",
       "mcp__claude_ai_Notion__notion-fetch",
-      "mcp__pencil",
       "Bash(~/.claude/skills/daily-review/scripts/daily-review-setup.py:*)",
       "Bash(~/.claude/skills/daily-review/scripts/fetch-last-day-sessions.py:*)",
-      "Bash(~/.claude/skills/daily-review/scripts/inspect-session.py:*)"
+      "Bash(~/.claude/skills/daily-review/scripts/inspect-session.py:*)",
+      "mcp__pencil"
     ],
     "defaultMode": "default"
   },
