@@ -1,0 +1,3 @@
+name = "execution-review"
+targets = ["codex"]
+codex_entry = "codex/SKILL.md"
