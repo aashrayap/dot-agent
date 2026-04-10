@@ -1,6 +1,6 @@
 ---
 name: wiki
-description: "Manage an LLM knowledge base — scaffold, ingest sources, query, lint. Karpathy-pattern: raw sources → compiled wiki → query/output."
+description: "Manage an LLM knowledge base — scaffold, ingest sources, rebuild index state, query, lint. Karpathy-pattern: raw sources → compiled wiki → query/output."
 ---
 
 # Wiki
@@ -11,6 +11,7 @@ LLM-maintained knowledge base. Raw sources are compiled into interlinked markdow
 
 - `/wiki init` — scaffold a new wiki directory
 - `/wiki ingest <file-or-folder>` — process a raw source into the wiki
+- `/wiki rebuild-index` — generate machine-readable page graph and backlinks
 - `/wiki query <question>` — research and answer from wiki content
 - `/wiki lint` — health check the wiki
 
@@ -45,7 +46,7 @@ wiki/
 
 **schema.md** — write the full wiki conventions:
 - Three layers: raw (immutable) → wiki (LLM-owned) → schema (co-evolved)
-- Page format: YAML frontmatter (title, tags, sources, created, updated) + markdown body + "See also" wikilinks
+- Page format: YAML frontmatter (title, tags, sources, created, updated; add `source_created` on source-derived pages when known) + markdown body + "See also" wikilinks
 - Naming: lowercase hyphenated filenames, one concept per page
 - Directory roles: raw/ = source documents, concepts/ = compiled knowledge, sources/ = per-source summaries, outputs/ = filed query results
 
@@ -111,18 +112,20 @@ In both cases, proceed with normal ingest after saving to `raw/`.
 1. Read the source document(s) and any referenced images
 2. Summarize key takeaways — present to user for discussion before proceeding
 3. After user confirms direction:
-   - Create `sources/<name>.md` — summary page with frontmatter
+   - Create `sources/<name>.md` — summary page with frontmatter including `source_created` when the source exposes a publication or creation date
    - Create or update relevant `concepts/*.md` pages — extract ideas, entities, claims
    - Add `[[wikilinks]]` cross-references between all touched pages
    - Note connections to existing wiki content and cross-repo links where relevant
 4. Update `index.md` with new/changed pages
-5. Append entry to `log.md`: `## [YYYY-MM-DD] ingest | <source title>`
+5. Re-run `/wiki rebuild-index`
+6. Append entry to `log.md`: `## [YYYY-MM-DD] ingest | <source title>`
 
 ### Rules
 
 - Never modify files in `raw/`
 - One source at a time unless user explicitly requests batch
 - Every page gets YAML frontmatter: title, tags, sources, created, updated
+- Source-derived pages should also include `source_created` when known from the source material; don't guess missing dates
 - Flag contradictions with existing wiki content — don't silently overwrite
 - Prefer updating existing concept pages over creating near-duplicates
 
@@ -134,13 +137,20 @@ Research a question using wiki content.
 
 ### Steps
 
-1. Read `index.md` to find relevant pages
-2. Read relevant concept and source pages
-3. Synthesize answer with `[[wikilinks]]` citations to wiki pages
-4. Present answer in conversation
-5. Ask user: "File this to outputs?" If yes:
+1. Run:
+
+```bash
+python3 ~/.dot-agent/skills/wiki/scripts/query_wiki.py --wiki <wiki-path> "<question>"
+```
+
+2. Read `_index.json` and `_backlinks.json` if present; otherwise fall back to `index.md`
+3. Read the top-ranked concept and source pages from the query helper
+4. Synthesize answer with `[[wikilinks]]` citations to wiki pages
+5. Present answer in conversation
+6. Ask user: "File this to outputs?" If yes:
    - Write `outputs/<descriptive-name>.md` with frontmatter
    - Update `index.md`
+   - Re-run `/wiki rebuild-index`
    - Append to `log.md`
 
 ### Output Formats
@@ -150,6 +160,38 @@ Choose based on the question:
 - **Comparison table** — for "X vs Y" questions
 - **Marp slides** — if user asks for presentation format
 - **matplotlib/chart** — if user asks for visualization
+
+---
+
+## /wiki rebuild-index
+
+Generate machine-readable state files for query and lint.
+
+Run:
+
+```bash
+python3 ~/.dot-agent/skills/wiki/scripts/rebuild_index.py <wiki-path>
+```
+
+If already inside the repo that owns the wiki, the path can be omitted and the script will auto-discover the wiki root.
+
+### Files written
+
+- `_index.json` — page metadata, summaries, tags, sources, outlinks
+- `_backlinks.json` — reverse link map for every local page
+- `_lint.json` — current orphan pages and dead local links
+
+### When to run
+
+- After any ingest that creates or updates wiki pages
+- After filing a query result to `outputs/`
+- Before `/wiki lint` if the graph state may be stale
+
+### Rules
+
+- Never modify `raw/`
+- Keep `index.md` as the human-readable catalog
+- Treat `_index.json`, `_backlinks.json`, and `_lint.json` as generated state
 
 ---
 
@@ -168,6 +210,12 @@ Health check the wiki.
 
 ### Output
 
+Run `/wiki rebuild-index` first if `_lint.json` is missing or stale, then run:
+
+```bash
+python3 ~/.dot-agent/skills/wiki/scripts/lint_wiki.py --wiki <wiki-path>
+```
+
 Report findings in conversation. Suggest specific fixes. Only apply fixes with user approval.
 
 Append to `log.md`: `## [YYYY-MM-DD] lint | <N> findings`
@@ -179,7 +227,8 @@ Append to `log.md`: `## [YYYY-MM-DD] lint | <N> findings`
 - Read `schema.md` at the start of every operation
 - Never modify `raw/` files
 - Always update `index.md` after any page creation or modification
+- Re-run `/wiki rebuild-index` after any page creation or modification
 - Always append to `log.md` after any operation
 - Use `[[wikilinks]]` for all cross-references (Obsidian-compatible)
-- YAML frontmatter on every wiki page (title, tags, sources, created, updated)
+- YAML frontmatter on every wiki page (title, tags, sources, created, updated; add `source_created` on source-derived pages when known)
 - Filenames: lowercase, hyphenated (e.g., `bottleneck-rotation.md`)
