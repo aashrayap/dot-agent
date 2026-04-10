@@ -7,10 +7,7 @@ set -euo pipefail
 #
 # Actions (required when a slug is provided):
 #   new    — scaffold a brand-new project
-#   update — anything else (view, progress report, completion, restructure, status);
-#            the skill figures out intent from the user's raw message
-#
-# Details live in the user's raw message — this script does not parse them.
+#   update — anything else (view, progress, completion, restructure)
 
 TODAY=$(date +%Y-%m-%d)
 NOW=$(date +"%Y-%m-%d %H:%M:%S")
@@ -82,7 +79,7 @@ AUDIT_LOG="${PROJECT_DIR}/AUDIT_LOG.md"
 if [[ -f "$PROJECT_FILE" ]]; then
   if [[ "$ACTION" == "new" ]]; then
     echo "ERROR: Project '$SLUG' already exists."
-    echo "Use a different slug, or run with an action other than 'new'."
+    echo "Use a different slug, or run with 'update'."
     exit 1
   fi
   echo "PROJECT_DIR=$PROJECT_DIR"
@@ -99,57 +96,80 @@ fi
 # --- Project doesn't exist ---
 if [[ "$ACTION" != "new" ]]; then
   echo "ERROR: Project '$SLUG' does not exist."
-  echo "Create it with: /projects $SLUG new <goal + scope description>"
+  echo "Create it with: /projects $SLUG new <goal description>"
   exit 1
 fi
 
 # --- NEW: scaffold and return project info ---
 mkdir -p "$PROJECT_DIR"
 
-cat > "$PROJECT_FILE" << EOF
+cat > "$PROJECT_FILE" << 'TEMPLATE'
 ---
 status: active
-started: $TODAY
-last_touched: $TODAY
+started: DATE_PLACEHOLDER
+last_touched: DATE_PLACEHOLDER
 ---
 
-# ${SLUG}
+# SLUG_PLACEHOLDER
 
-## Goal
+<!-- 1-2 sentence goal. Outcome delivered, not implementation. -->
 
-<!-- 1-2 sentences. Outcome delivered to users/leadership, not implementation tactics. -->
+## Plan
 
-## Out of scope
+<!--
+Nested TODO list. Milestones contain sessions. Format:
 
-<!-- Only items someone might assume are in scope but aren't. Delete this section if nothing fits. -->
+- [ ] **M1 — Milestone Name** 🟦
+  - [ ] S01 — Session name
+    - Blocked on: [S02](#s02)
+    - Blocking: [S03](#s03)
+  - [ ] S02 — Session name
+    - Blocking: [S01](#s01), [S03](#s03)
+  - [x] S03 — Done session — [PR #12](...)
+- [x] **M2 — Other Milestone** 🟩
+  - [x] S04 — Done — [DEF-123](...)
 
-## Blockers & Constraints
+Rules:
+- [x] marks completion. Check milestone when all its sessions are done.
+- Append ref (PR, ticket) to completed sessions.
+- Blocked on / Blocking as sub-bullets. Omit if empty.
+- On completion: remove blocker/blocking lines, update other sessions accordingly.
 
-## Milestones
+Milestone emoji color key: 🟦 🟪 🟧 🟩 🟥 🟨 (reuse if >6).
+-->
 
-<!-- M# identifiers numbered in expected completion order based on the dependency graph. Renumber if blockers shift the order. -->
+## Dependencies
 
-| # | Milestone | Status |
-|---|-----------|--------|
+<!--
+Mermaid flowchart TB — remaining work only. Remove completed sessions entirely.
+Group by batch level in invisible subgraphs. Transitive reduction only.
 
-## Sessions
+Color-code nodes by milestone:
+  🟦 fill:#60a5fa,stroke:#1e40af,color:#1e3a5f
+  🟪 fill:#c084fc,stroke:#6b21a8,color:#3b0764
+  🟧 fill:#fb923c,stroke:#9a3412,color:#431407
+  🟩 fill:#4ade80,stroke:#166534,color:#052e16
+  🟥 fill:#f87171,stroke:#991b1b,color:#450a0a
+  🟨 fill:#facc15,stroke:#854d0e,color:#422006
 
-Scoped units of work picked up via \`/spec-new-feature\`. Sessions with no \`Blocked on:\` line are ready to pick up. The dependency graph shows remaining work only.
+Example:
+  subgraph b0[" "]
+      direction LR
+      s01([S01 Short name])
+      s02([S02 Short name])
+  end
+  style b0 fill:none,stroke:none
+  style s01 fill:#60a5fa,stroke:#1e40af,color:#1e3a5f
+-->
 
-### Dependency Graph
-
-\`\`\`mermaid
+```mermaid
 flowchart TB
-    %% Group by batch level in invisible subgraphs (b0, b1, ...) with direction LR.
-    %% Style each: style b0 fill:none,stroke:none
-    %% Color-code nodes by milestone via style directives.
-\`\`\`
+```
+TEMPLATE
 
-## Completed
-
-| Session | Completed | Ref |
-|---------|-----------|-----|
-EOF
+# Replace placeholders
+sed -i '' "s/DATE_PLACEHOLDER/$TODAY/g" "$PROJECT_FILE"
+sed -i '' "s/SLUG_PLACEHOLDER/$SLUG/g" "$PROJECT_FILE"
 
 printf "# Audit Log: %s\n\n## %s\n\nProject created.\n\n" "$SLUG" "$NOW" > "$AUDIT_LOG"
 
