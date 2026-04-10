@@ -272,7 +272,9 @@ link_skills() {
 cleanup_legacy_paths() {
   cleanup_legacy_path "$CLAUDE_DST/collab" ".claude/collab"
   cleanup_legacy_path "$CLAUDE_DST/skills/feature-interview" ".claude/skills/feature-interview"
+  cleanup_legacy_path "$CLAUDE_DST/skills/improve-claude-md" ".claude/skills/improve-claude-md"
   cleanup_legacy_path "$CODEX_DST/skills/feature-interview" ".codex/skills/feature-interview"
+  cleanup_legacy_path "$CODEX_DST/skills/improve-claude-md" ".codex/skills/improve-claude-md"
   cleanup_legacy_path "$CODEX_DST/skills/create-pr" ".codex/skills/create-pr"
   cleanup_legacy_path "$CODEX_DST/skills/dvn-web-libraries" ".codex/skills/dvn-web-libraries"
   cleanup_legacy_path "$CODEX_DST/config.shared.toml" ".codex/config.shared.toml"
