@@ -2,10 +2,15 @@
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 
 
-FOCUS_FILE = Path.home() / ".dot-agent" / "state" / "collab" / "focus.md"
+DOT_AGENT_HOME = Path(os.environ.get("DOT_AGENT_HOME", str(Path.home() / ".dot-agent"))).expanduser()
+DOT_AGENT_STATE_HOME = Path(
+    os.environ.get("DOT_AGENT_STATE_HOME", str(DOT_AGENT_HOME / "state"))
+).expanduser()
+FOCUS_FILE = DOT_AGENT_STATE_HOME / "collab" / "focus.md"
 
 
 def parse_args() -> argparse.Namespace:
@@ -19,10 +24,10 @@ def parse_args() -> argparse.Namespace:
     set_parser.add_argument("--date", required=True)
     set_parser.add_argument("--current", required=True)
     set_parser.add_argument("--why", required=True)
-    set_parser.add_argument("--now", action="append", default=[])
-    set_parser.add_argument("--next", dest="next_items", action="append", default=[])
-    set_parser.add_argument("--later", action="append", default=[])
-    set_parser.add_argument("--blocker", action="append", default=[])
+    set_parser.add_argument("--now", action="append")
+    set_parser.add_argument("--next", dest="next_items", action="append")
+    set_parser.add_argument("--later", action="append")
+    set_parser.add_argument("--blocker", action="append")
 
     park = subparsers.add_parser("park", help="Move an item to later/parking lot")
     park.add_argument("--date", required=True)
@@ -93,6 +98,12 @@ def normalize_list(items: list[str]) -> list[str]:
     return cleaned or ["None"]
 
 
+def maybe_replace_list_section(lines: list[str], header: str, items: list[str] | None) -> list[str]:
+    if items is None:
+        return lines
+    return replace_section_body(lines, header, [f"- {item}" for item in normalize_list(items)])
+
+
 def main() -> int:
     args = parse_args()
     if args.action == "show":
@@ -108,10 +119,10 @@ def main() -> int:
         old_focus = current_focus(lines)
         lines = update_last_touched(lines, args.date)
         lines = replace_section_body(lines, "## Current Focus", [args.current])
-        lines = replace_section_body(lines, "## Now", [f"- {item}" for item in normalize_list(args.now)])
-        lines = replace_section_body(lines, "## Next", [f"- {item}" for item in normalize_list(args.next_items)])
-        lines = replace_section_body(lines, "## Later / Parking Lot", [f"- {item}" for item in normalize_list(args.later)])
-        lines = replace_section_body(lines, "## Blockers", [f"- {item}" for item in normalize_list(args.blocker)])
+        lines = maybe_replace_list_section(lines, "## Now", args.now)
+        lines = maybe_replace_list_section(lines, "## Next", args.next_items)
+        lines = maybe_replace_list_section(lines, "## Later / Parking Lot", args.later)
+        lines = maybe_replace_list_section(lines, "## Blockers", args.blocker)
         if old_focus != args.current:
             start, end = section_bounds(lines, "## Recent Shifts")
             row = f"| {args.date} | {old_focus} | {args.current} | {args.why} |"
