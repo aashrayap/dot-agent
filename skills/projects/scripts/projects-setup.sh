@@ -181,12 +181,15 @@ last_touched: $TODAY
 
 ## Sessions
 
-Sessions are scoped units of work picked up via \`/spec-new-feature\`. Each session has dependencies — only unblocked sessions can be started.
+Sessions are delivery slices picked up via \`/spec-new-feature\` or direct execution.
+Create a session only when it deserves its own completion row, dependency edge, or handoff.
+Keep \`## Available Sessions\` to one clear next slice when possible.
 
-### Dependency Graph
+### Dependency Graph (Optional)
 
 \`\`\`mermaid
 flowchart TB
+    %% Add this only when 3+ live slices or real sequencing make a graph useful.
     %% Group by batch level in invisible subgraphs (b0, b1, ...) with direction LR.
     %% Style each: style b0 fill:none,stroke:none
     %% Color-code nodes by milestone via style directives.

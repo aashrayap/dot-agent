@@ -151,6 +151,8 @@ Use this when the user asks what they should work on now, what matters next, or 
 
 Use this whenever the user is moving from "what should I focus on?" toward "what task am I starting?".
 
+- If the question is day-start triage across active projects, use `morning-sync`.
+- If the user does not yet have a coordination workspace for a multi-repo effort, use `init-epic` before trying to route into tracked project execution.
 - Stay in `focus` when the user is still choosing a workstream, trimming WIP, parking items, or correcting the control surface.
 - Tell the user to invoke `projects <slug>` when all of these are true:
   - `focus-handoff.py` reports `PROJECT_READY=yes`
