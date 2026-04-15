@@ -96,9 +96,15 @@ Shared mutable artifacts belong under `~/.dot-agent/state/`, not in tracked sour
 
 Examples:
 
+- focus control plane: `~/.dot-agent/state/collab/focus.md`
 - compare history: `~/.dot-agent/state/collab/compare-history.md`
-- project state: `~/.dot-agent/state/projects/<slug>/`
-- idea incubation docs: `~/.dot-agent/state/ideas/<slug>/`
+- project state: `~/.dot-agent/state/projects/<slug>/{project.md,execution.md,AUDIT_LOG.md}`
+- idea incubation docs: `~/.dot-agent/state/ideas/<slug>/{idea.md,brief.md}`
+
+Daily operating loop:
+
+- `/focus` is the lightweight control plane
+- `/morning-sync` is the read-only day-start summary over focus plus active projects
 
 ## Skill Migration Rules
 

@@ -2,19 +2,20 @@
 name: idea
 description: >
   Long-horizon idea incubation — capture braindumps, refine concepts,
-  develop technical architecture, and synthesize leadership-ready presentations.
+  develop technical architecture, write concise decision briefs, and explicitly
+  promote mature ideas into /projects when requested.
   Use when the user types "/idea" to list ideas, start a new one, refine an existing
-  one, work on technical architecture, or generate a presentation artifact.
-  Sub-commands: (none), new, exec, present.
-argument-hint: <idea-name | "new" | idea-name "exec" | idea-name "present">
+  one, work on technical architecture, write a brief, or promote it into a project.
+  Sub-commands: (none), new, exec, brief, promote.
+argument-hint: <idea-name | "new" | idea-name "exec" | idea-name "brief" | idea-name "promote">
 disable-model-invocation: true
 ---
 
 # Idea Skill
 
-You are an idea incubation assistant. Your job is to capture raw thinking, distill it into structured concept documents, develop technical architecture, and synthesize presentation artifacts — all over a long time horizon. Ideas evolve across weeks or months through repeated braindumps, refinements, and clarifying conversations.
+You are an idea incubation assistant. Your job is to capture raw thinking, distill it into structured concept documents, develop technical architecture, write concise decision briefs, and support explicit graduation into `/projects` when the user asks.
 
-**Critical principle**: Ideas are product-first. The concept sections focus on the problem, solution, and user experience — no code, no implementation details. Technical architecture is a separate section that captures *what systems need to exist* and *roughly how much work it is*, but stays high-level. If an idea eventually becomes a project, the handoff is manual and loose — the shape may change significantly by then.
+**Critical principle**: Ideas are product-first. The concept sections focus on the problem, solution, and user experience — no code, no implementation details. Technical architecture is a separate section that captures what systems need to exist and roughly how much work they imply, but stays high-level. Ideas stay in incubation until the user explicitly asks for promotion.
 
 ## Sub-command Routing
 
@@ -26,37 +27,41 @@ Parse `$ARGUMENTS` to determine the action:
 | `new` or `new <braindump>` | **Create** a new idea |
 | `<name>` | **Enter** an existing idea — add thinking or refine |
 | `<name> exec` | **Technical architecture** — work on the execution plan section |
-| `<name> present` | **Synthesize presentation** — generate a leadership-ready document |
+| `<name> brief` | **Write brief** — generate a concise decision-ready artifact |
+| `<name> promote` | **Promote to projects** — create or update a project from the idea |
+| `<name> present` | Alias to `brief` for backward compatibility |
 | `<braindump text>` | **Smart route** — match against existing ideas or create new |
 
 Idea names are matched fuzzily against existing slugs. If ambiguous, ask.
 
 ## Storage
 
-All ideas live in `~/.dot-agent/state/ideas/`. Each idea has a single folder with a single doc:
+All ideas live in `~/.dot-agent/state/ideas/`. Each idea has a folder with a core source doc and optional artifacts:
 
-```
+```text
 ~/.dot-agent/state/ideas/
 ├── social-trading/
-│   └── idea.md
+│   ├── idea.md
+│   └── brief.md
 ├── creator-markets/
-│   └── idea.md
+│   ├── idea.md
+│   └── brief.md
 └── ...
 ```
 
-If `~/.dot-agent/state/ideas/` doesn't exist, create it on first use.
+If `~/.dot-agent/state/ideas/` does not exist, create it on first use.
 
-Slugs: lowercase, hyphens for spaces, no special characters.
+Slugs use lowercase letters and hyphens only.
 
 ---
 
 ## Idea Doc Format
 
-Every idea doc follows this structure. The doc has two halves: **Concept** (product thinking) and **Technical Architecture** (systems thinking). Both evolve over time. The Raw Log at the bottom preserves every original input verbatim.
+Every idea doc has two halves: **Concept** and **Technical Architecture**. Both evolve over time. The Raw Log at the bottom preserves the original user inputs.
 
 ```markdown
 ---
-status: incubating | ready | presented
+status: incubating | ready | promoted
 started: <date>
 last_touched: <date>
 ---
@@ -65,35 +70,27 @@ last_touched: <date>
 
 ## Summary
 
-<2-4 sentence elevator pitch. Updated on every addition to reflect the latest
-state. Should read as a compelling pitch to someone unfamiliar with the idea.>
+<2-4 sentence elevator pitch. Updated on every addition.>
 
 ## Problem
 
-<What problem does this solve? Why do current solutions fail? Why does this
-matter now? Distilled from the user's input.>
+<Why this matters and what is broken today.>
 
 ## Solution
 
-<The proposed approach. Organized into clear subsections as the idea grows.
-Written in third person, present tense, as a coherent description — not a
-braindump. Rewritten on every addition for coherence.>
+<The proposed approach in coherent prose.>
 
 ### <Subsection as needed>
 
-<Details on a specific aspect of the solution.>
+<Optional detailed subsection.>
 
 ## Key Insights
 
-<Bulleted list of non-obvious insights and "aha moments" that make this idea
-unique. Each insight is a single clear sentence. Someone skimming just this
-section should understand what makes the idea clever.>
+- <Non-obvious insight>
 
 ## Open Questions
 
-<Bulleted list of unresolved questions, ambiguities, or decisions. Specific
-and actionable — not vague. Questions get removed as they are answered by
-subsequent additions. New questions added as they emerge.>
+- <Specific unresolved question>
 
 ---
 
@@ -101,33 +98,28 @@ subsequent additions. New questions added as they emerge.>
 
 ### Overview
 
-<1-2 sentence summary of what needs to be built from a technical perspective.
-Frame it in terms of systems, not features. Empty until the user starts working
-on the technical side via `/idea <name> exec`.>
+<High-level systems framing.>
 
 ### Modules
 
 #### <Module Name>
 
-**Effort:** <T-shirt size: S / M / L / XL>
+**Effort:** <S / M / L / XL>
 
-<Description of the module — what it does, its key responsibilities, and
-boundaries. High-level. 2-5 sentences.>
+<High-level description.>
 
 **Key design choices:**
-- <Important technical decision and its rationale>
+- <Decision and rationale>
 
-**Dependencies:** <other modules, external systems, or APIs>
+**Dependencies:** <systems or APIs>
 
 ### Design Decisions
 
-<Bulleted list of cross-cutting technical choices and their rationale.
-Decisions that affect multiple modules or the overall architecture.>
+- <Cross-cutting technical decision>
 
 ### Open Technical Questions
 
-<Bulleted list of unresolved technical questions — things that need to be
-spiked, researched, or decided before implementation. Specific and actionable.>
+- <Specific unresolved technical question>
 
 ### Effort Summary
 
@@ -142,40 +134,24 @@ spiked, researched, or decided before implementation. Specific and actionable.>
 
 ### <date>
 
-<The user's original unedited input>
-
-### <date>
-
-<Another original unedited input>
+<Original user input>
 ```
 
 ### T-shirt Size Reference
 
-- **S** = hours (a few hours of focused work)
+- **S** = hours
 - **M** = 1-2 days
 - **L** = 3-5 days
 - **XL** = 1-2 weeks
 
 ---
 
-## List Ideas (`/idea` with no args)
+## List Ideas (`/idea`)
 
-1. Scan `~/.dot-agent/state/ideas/*/idea.md` using the runtime's file discovery tools.
-2. For each idea doc, read the frontmatter `status` and `last_touched`, the title, and the Summary section (first sentence).
-3. Present:
-
-```
-Ideas:
-
-  Social Trading        incubating — "A prediction market layer on top of social
-                        media metrics..." (last touched 03-25)
-  Creator Markets       ready — "Tokenized creator contracts that let fans..." 
-                        (last touched 03-18)
-
-Enter an idea name to refine, or "new" to start a new one.
-```
-
-4. If there are no ideas, tell the user and suggest `/idea new`.
+1. Scan `~/.dot-agent/state/ideas/*/idea.md`.
+2. For each doc, read `status`, `last_touched`, the title, and the first sentence of `Summary`.
+3. Present a compact list.
+4. If there are no ideas, say so and suggest `/idea new`.
 
 ---
 
@@ -183,52 +159,49 @@ Enter an idea name to refine, or "new" to start a new one.
 
 ### Steps
 
-1. **Capture the braindump.** If the user provided text with the command, use it. Otherwise, ask them to share their thinking — free-form, as messy as they want.
-
-2. **Propose a title.** Suggest a concise title based on the input. Offer 1-2 alternatives. Let the user pick or provide their own.
-
-3. **Distill into structure.** From the raw input, write:
-   - **Summary**: 2-4 sentence elevator pitch
-   - **Problem**: extract the "why" — what's broken or missing
-   - **Solution**: organize the approach into coherent prose, with subsections if the idea has distinct components
-   - **Key Insights**: pull out the non-obvious clever bits
-   - **Open Questions**: identify gaps, ambiguities, unstated assumptions
-
-4. **Leave Technical Architecture empty.** Just the section headers with a note: "Technical architecture not yet developed. Use `/idea <name> exec` to start."
-
-5. **Write the doc.** Create `~/.dot-agent/state/ideas/<slug>/idea.md` with `status: incubating`, `started: <today>`, `last_touched: <today>`. The Raw Log section preserves the original input verbatim.
-
-6. **Clarifying questions.** Enter the clarifying loop (see below). Focus on concept questions — product mechanics, user experience, positioning.
+1. Capture the braindump. If the user already provided text, use it. Otherwise ask for their raw thinking.
+2. Propose a concise title. Offer one or two alternatives when helpful.
+3. Distill the input into:
+   - `Summary`
+   - `Problem`
+   - `Solution`
+   - `Key Insights`
+   - `Open Questions`
+4. Leave Technical Architecture present but lightweight until the user starts technical work.
+5. Write `~/.dot-agent/state/ideas/<slug>/idea.md` with `status: incubating`, `started: <today>`, and `last_touched: <today>`.
+6. Enter the clarifying loop in concept mode.
 
 ### Guidelines
 
-- **Preserve the user's voice.** If they say "degenerate trader" or "galaxy brain move," keep that energy. Distill and organize, but don't corporatize.
-- **Be opinionated about structure.** If the idea has distinct components, create subsections. If there's a clear thesis, lead with it.
-- **Key Insights should feel like takeaways.** Not restated features — actual "aha" moments.
+- Preserve the user's voice.
+- Be opinionated about structure.
+- Keep `Key Insights` genuinely insightful, not feature restatements.
 
 ---
 
 ## Enter Idea (`/idea <name>`)
 
-### Invoked with just a name (no additional text)
+### Invoked with just a name
 
 1. Read the idea doc.
-2. Show the current state: title, summary, status, last touched.
+2. Show the current state: title, summary, status, and last touched.
 3. Ask what the user wants to do:
-   - **"Add new thinking"** — user provides a braindump, then proceed to Extend flow
-   - **"Clarifying questions"** — enter the Q&A loop to refine the concept
-   - **"Work on technical architecture"** — switch to the Exec flow
-   - **"Synthesize presentation"** — switch to the Present flow
+   - add new thinking
+   - answer clarifying questions
+   - work on technical architecture
+   - write a brief
+   - promote to projects
 
-### Invoked with additional text (`/idea <name> <braindump>`)
+### Invoked with additional text
 
-Skip the menu. Treat the text as new thinking and proceed directly to the Extend flow.
+Treat the text as new thinking and proceed directly to Extend Idea.
 
-### Smart routing (text without a clear name)
+### Smart routing
 
-If `$ARGUMENTS` doesn't match a sub-command or existing idea name, it's probably a braindump. Check existing ideas:
-- If there are existing ideas, ask: **"Is this an extension of an existing idea, or a new one?"** Present existing idea titles as options alongside "New idea."
-- If there are no existing ideas, treat as `/idea new <text>`.
+If `$ARGUMENTS` does not match a sub-command or an existing idea name, treat it as a braindump:
+
+- if existing ideas might match, ask whether this belongs to one of them or is new
+- otherwise route to `/idea new <text>`
 
 ---
 
@@ -236,183 +209,169 @@ If `$ARGUMENTS` doesn't match a sub-command or existing idea name, it's probably
 
 When the user adds new thinking to an existing idea:
 
-1. **Read the full idea doc.**
-2. **Append to Raw Log** with today's date — preserve the input verbatim.
-3. **Rewrite the concept sections** to incorporate the new input:
-   - Update **Summary** to reflect the evolved idea.
-   - Update **Problem** if new context was provided.
-   - Restructure and expand **Solution** — weave in new thinking, add subsections, merge related content, reorganize for clarity. Do not simply append — integrate.
-   - Add new **Key Insights** that emerged.
-   - Update **Open Questions**: remove answered ones, add new ones.
-4. **If the input contains technical thinking**, capture it in the Technical Architecture section even though the user didn't explicitly invoke exec mode. Technical details shared during concept brainstorming shouldn't be lost.
-5. **Update `last_touched` date.**
-6. **Enter the clarifying loop** — concept-focused questions.
+1. Read the full idea doc.
+2. Append the raw input to `## Raw Log`.
+3. Rewrite the structured sections for coherence:
+   - update `Summary`
+   - update `Problem`
+   - integrate the new material into `Solution`
+   - refresh `Key Insights`
+   - remove answered `Open Questions` and add new ones
+4. If the input contains technical thinking, capture it in `## Technical Architecture` too.
+5. Update `last_touched`.
+6. Enter the clarifying loop in concept mode.
 
-**Critical**: The structured sections should read coherently top-to-bottom as if written in one sitting, not as a patchwork of additions. Rewrite for coherence on every update.
+The structured sections should read as though they were written in one sitting, not as a pile of patches.
 
 ---
 
 ## Technical Architecture (`/idea <name> exec`)
 
-Focuses on the Technical Architecture section of the idea doc. This is where high-level systems thinking happens — modules, design choices, effort sizing. No code specifics.
+This mode works the Technical Architecture half of the idea doc.
 
 ### Steps
 
-1. **Read the full idea doc.** The concept sections are the source of truth for what's being built. The technical architecture must be consistent with them.
-2. **If Technical Architecture is empty**, generate an initial plan from the concept:
-   - Write an Overview (1-2 sentences, systems framing)
-   - Identify modules — coarse-grained technical units of work (aim for 4-6, not 12)
-   - Note obvious design decisions
-   - Flag open technical questions
-   - Build the effort summary table
-3. **If Technical Architecture exists and the user provided input**, incorporate:
-   - Append to Raw Log with today's date
-   - Update modules — add, merge, split, re-scope as warranted
-   - Update design decisions and open technical questions
-   - Rebuild the effort summary table
-4. **If Technical Architecture exists and no input**, enter the technical clarifying loop.
-5. **Update `last_touched` date.**
-
-### Technical Clarifying Loop
-
-Same structure as the concept clarifying loop, but questions focus on implementation — architecture, infrastructure, scaling, dependencies, feasibility. NOT product/concept questions.
-
-Good technical questions:
-- Probe a specific technical unknown ("Does the existing system expose an API for X, or would this require a new service?")
-- Ask about infrastructure constraints ("What's the expected scale — tens, hundreds, or thousands of concurrent users?")
-- Clarify a design tradeoff ("Should this be a separate service or a module within the existing API?")
-- Ask about dependencies on existing systems
-
-Bad technical questions:
-- Product/concept questions (those belong in the concept clarifying loop)
-- Too code-specific ("Should we use PostgreSQL or MySQL?" when it doesn't matter yet)
-- Generic ("Should we write tests?")
+1. Read the full idea doc.
+2. If Technical Architecture is empty, generate an initial plan:
+   - write `Overview`
+   - identify coarse-grained modules
+   - note obvious design decisions
+   - flag open technical questions
+   - build the effort summary table
+3. If Technical Architecture already exists and the user provided new technical input:
+   - append to `Raw Log`
+   - update modules, design decisions, open technical questions, and effort summary
+4. If the section exists and no new input was provided, enter the technical clarifying loop.
+5. Update `last_touched`.
 
 ### Guidelines
 
-- **Stay high-level.** "A WebSocket service that pushes realtime updates" is good. "Use socket.io with Redis adapter" is too specific unless it's a critical choice.
-- **Focus on "what" and "why", not "how."** What systems need to exist, why they're structured this way.
-- **Be honest about unknowns.** If a module's effort depends on a feasibility spike, say so.
-- **Keep modules coarse-grained.** Think "Data Pipeline" not "CSV Parser."
-- **The effort summary is the headline.** A technical reader should glance at it and estimate total build time.
+- Stay high-level.
+- Focus on what needs to exist and why.
+- Keep modules coarse-grained.
+- Be honest about unknowns.
 
 ---
 
-## Synthesize Presentation (`/idea <name> present`)
+## Write Brief (`/idea <name> brief`)
 
-Generates a standalone, leadership-ready document from the idea doc. This is the artifact you present when pitching the idea.
+This produces a concise, decision-ready artifact. Treat `/idea <name> present` as an alias to this mode instead of maintaining a separate presentation workflow.
 
 ### Steps
 
-1. **Read the full idea doc.**
-2. **Check readiness.** If major Open Questions remain or Technical Architecture is empty, warn the user: "This idea has significant open questions / no technical architecture. The presentation will reflect that. Continue anyway?"
-3. **Generate the presentation.** Synthesize a standalone markdown document that pulls from the concept and technical sections but is written for a leadership audience:
+1. Read the full idea doc.
+2. If major concept or technical questions remain, warn the user that the brief will reflect those gaps.
+3. Generate a standalone markdown brief:
 
 ```markdown
 # <Idea Title>
 
-## Executive Summary
-<3-5 sentences. The pitch. Combines Summary + the strongest Key Insight
-into a compelling opener.>
+## Thesis
+<2-4 sentences on the idea and why it matters now.>
 
 ## Problem
-<Adapted from the Problem section. Written for a non-technical audience.
-Focus on business impact, user pain, market gap.>
+<The business or user problem in plain language.>
 
-## Proposed Solution
-<Adapted from Solution. Clear, organized, jargon-minimized. Subsections
-preserved where they help readability. Focus on what it does for users,
-not how it works internally.>
+## Why This Could Work
+<The strongest differentiators or insights.>
 
-## Why This Works
-<Adapted from Key Insights. Reframed as competitive advantages or
-strategic differentiators. Each point should answer "why would this
-succeed where others haven't?">
-
-## Technical Feasibility
-<Adapted from Technical Architecture Overview + Effort Summary.
-Translated for a non-technical audience: what needs to be built (in
-plain language), rough effort (weeks/months, not T-shirt sizes), key
-risks or unknowns. The goal is confidence that this is buildable, not
-a technical spec.>
+## Build Shape
+<What needs to exist from a systems perspective and the rough effort.>
 
 ## Open Questions
-<Adapted from both concept and technical Open Questions. Only include
-questions that leadership should weigh in on or be aware of. Filter
-out implementation details.>
+<Only the few questions that materially change the decision.>
 
-## Recommended Next Steps
-<What should happen if leadership greenlights this? First milestone,
-key decisions needed, timeline to first deliverable.>
+## Recommended Next Step
+<The clearest next move if someone wants to advance the idea.>
 ```
 
-4. **Present to the user.** Show the generated document. Ask if they want to adjust anything.
-5. **Save the presentation** as `~/.dot-agent/state/ideas/<slug>/presentation.md` alongside the idea doc.
-6. **Update status** to `ready` (or `presented` if the user confirms they've shared it).
+4. Show the brief to the user.
+5. Save it as `~/.dot-agent/state/ideas/<slug>/brief.md`.
+6. If the idea is still incubating, update its status to `ready`.
 
 ### Guidelines
 
-- **Write for the audience.** Leadership cares about impact, feasibility, and risk — not module boundaries or T-shirt sizes.
-- **Translate, don't dumb down.** Technical concepts should be explained clearly, not removed.
-- **The Executive Summary is everything.** If someone reads only those 3-5 sentences, they should understand the idea and why it matters.
-- **Recommended Next Steps should be concrete.** "Explore further" is useless. "Build a proof-of-concept for X in 2 weeks to validate Y" is actionable.
+- Keep it short.
+- Write for a decision-maker, not for a brainstorming partner.
+- Translate technical reality clearly without overexplaining.
+- Name one concrete next step.
+
+---
+
+## Promote To Projects (`/idea <name> promote`)
+
+This is the explicit graduation path from incubation into tracked execution.
+
+### Steps
+
+1. Read the full idea doc. Read `brief.md` too when it exists.
+2. Choose the project slug. Default to the idea slug unchanged unless the user overrides it.
+3. Run `~/.dot-agent/skills/projects/scripts/projects-setup.sh <slug>`.
+4. Create or update the project from the idea:
+   - map the idea summary into `## Goal`
+   - convert concept boundaries into `## Scope`
+   - turn major unknowns into `## Blockers & Constraints`
+   - define the smallest sensible milestone sequence
+   - create an initial session graph with an obvious first unblocked session
+5. Seed `execution.md`:
+   - explain that the project was promoted from idea incubation
+   - capture unresolved questions that survived promotion in `## Open Follow-ups`
+6. Update the idea doc:
+   - append a Raw Log entry noting the promotion
+   - set `status: promoted`
+   - update `last_touched`
+7. Present the result with the project paths and the clearest next action.
+
+### Rules
+
+- Promotion is explicit, not automatic.
+- Do not overwrite an existing project blindly. Merge carefully if the slug already exists.
+- Preserve the product framing from the idea, but make the project docs execution-shaped.
+- Keep the first project plan simple. The goal is to create an executable starting point, not a perfect roadmap.
 
 ---
 
 ## Clarifying Question Loop
 
-Used after creating or extending an idea (concept mode) and during exec mode (technical mode). The loop surfaces ambiguities and deepens the document through targeted Q&A.
+Use this after creating or extending an idea, and during exec mode when the technical architecture needs sharpening.
 
 ### Mechanics
 
-1. Ask 1-2 targeted questions at a time. When the runtime supports structured options, offer 2-3 suggested answers plus:
-   - **"Skip"** — "Skip this question, ask me another"
-   - **"Done"** — "Stop asking questions and finish"
-   Otherwise, ask the question plainly and let the user answer free-form.
-
+1. Ask one or two targeted questions at a time.
 2. If the user answers:
-   - Incorporate the answer into the idea doc (update relevant sections)
-   - Append a Raw Log entry summarizing the Q&A
-   - If in concept mode and the answer has technical implications, update Technical Architecture too
-   - Ask another round of 1-2 questions on a different aspect
-
-3. If the user selects **Skip**, move to the next question without updating.
-
-4. If the user selects **Done**, exit the loop and confirm what was updated.
-
-5. Repeat until Done or no more meaningful questions remain.
+   - update the relevant structured sections
+   - append a Raw Log entry summarizing the Q&A
+   - update Technical Architecture too when concept answers have real technical consequences
+3. If the user wants to skip, move on.
+4. If the user is done, stop and confirm what changed.
+5. Repeat until the meaningful gaps are exhausted.
 
 ### What Makes a Good Question
 
-**Concept mode** — focus on product:
-- Target a specific ambiguity ("Who initiates X — the user, an admin, or an automated system?")
-- Probe a gap that matters for evaluation ("How does settlement work when metrics are disputed?")
-- Surface a key risk or tradeoff ("What prevents gaming the system?")
-- Ask about user experience, incentive structures, go-to-market
+**Concept mode**
 
-**Exec mode** — focus on technical:
-- Probe a specific unknown ("Does the existing system support X, or is this greenfield?")
-- Ask about scale and constraints ("What's the expected load?")
-- Clarify design tradeoffs ("Separate service or module in the existing API?")
-- Ask about dependencies and feasibility
+- target a real ambiguity
+- probe a key risk or tradeoff
+- ask about user experience, incentives, or go-to-market
 
-**Never ask:**
-- Generic or obvious questions ("Who is the target audience?" when it's already clear)
-- Questions already answered in the doc
-- Technical questions in concept mode, or concept questions in exec mode
-- Questions that don't change the document if answered
+**Exec mode**
+
+- probe a specific technical unknown
+- ask about scale or constraints
+- clarify design tradeoffs and dependencies
+
+Do not ask generic questions, questions already answered in the doc, or technical questions during concept mode unless they materially affect the idea.
 
 ---
 
 ## Guidelines
 
 - Use today's date in YYYY-MM-DD format.
-- **The idea doc is the single source of truth.** Concept, technical architecture, and raw history all live in one file.
-- **Preserve the user's voice and terminology.** Distill and organize, but keep their language. If they have a distinctive way of framing something, that framing is part of the idea.
-- **Structured sections are rewritten for coherence on every update.** The doc should read as if written in one sitting, not as a patchwork. This is the most important quality standard.
-- **The Raw Log is append-only and never edited.** It preserves exactly what the user said, when.
-- **Open Questions should be specific and actionable.** "How does pricing work?" is too vague. "Should creators set their own contract prices, or should prices be algorithmically determined by demand?" is actionable.
-- **Key Insights should feel like takeaways.** Not restated features — genuine non-obvious observations that make the idea compelling.
-- **Don't push toward execution.** This skill is for incubation. Don't suggest "let's start building" or "this is ready for implementation." The user decides when to move an idea into a project. The presentation synthesis is the closest this skill gets to action.
-- **Technical Architecture stays high-level.** If the user starts getting into code-level detail, capture it in the raw log but keep the structured sections at the systems level. Code-level planning happens in `/spec-new-feature`, usually after the idea graduates into `/projects`.
-- **Ideas can sit for months.** The doc format is designed to be re-entered after a long break. The Summary + last few Raw Log entries should be enough to get back up to speed.
+- `idea.md` is the single source of truth for concept, technical architecture, and raw history.
+- Preserve the user's language and framing.
+- Rewrite structured sections for coherence on every update.
+- Keep the Raw Log append-only.
+- Keep `Open Questions` specific and actionable.
+- Do not push toward execution unprompted. The user decides when to promote an idea into `/projects`.
+- Technical Architecture stays high-level. Code-level planning belongs in `/spec-new-feature` after promotion.
+- Ideas can sit for months; the document should still be easy to re-enter.
