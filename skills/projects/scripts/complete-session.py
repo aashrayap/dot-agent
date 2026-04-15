@@ -2,6 +2,9 @@
 from __future__ import annotations
 
 import argparse
+import os
+import subprocess
+import sys
 from pathlib import Path
 
 
@@ -107,6 +110,37 @@ def append_audit(audit_log: Path, session_id: str, session_name: str, date_value
     write_text(audit_log, text)
 
 
+def update_execution(project_dir: Path, session_name: str, date_value: str, ref: str, outcome: str, notes: str) -> None:
+    dot_agent = Path(os.environ.get("DOT_AGENT_HOME", str(Path.home() / ".dot-agent"))).expanduser()
+    projects_setup = dot_agent / "skills" / "projects" / "scripts" / "projects-setup.sh"
+    update_execution_script = dot_agent / "skills" / "projects" / "scripts" / "update-execution.py"
+
+    subprocess.run(
+        ["bash", str(projects_setup), "--ensure-execution", project_dir.name],
+        check=True,
+        stdout=subprocess.DEVNULL,
+    )
+    subprocess.run(
+        [
+            sys.executable,
+            str(update_execution_script),
+            str(project_dir),
+            "session",
+            "--date",
+            date_value,
+            "--session",
+            session_name,
+            "--outcome",
+            outcome,
+            "--ref",
+            ref,
+            "--notes",
+            notes,
+        ],
+        check=True,
+    )
+
+
 def main() -> int:
     args = parse_args()
     project_dir = Path(args.project_dir).expanduser()
@@ -128,8 +162,10 @@ def main() -> int:
     lines = remove_mermaid_refs(lines, args.session_id)
     write_text(project_file, "\n".join(lines).rstrip() + "\n")
     append_audit(audit_log, args.session_id, session_name, args.date, args.ref, args.outcome, args.notes)
+    update_execution(project_dir, f"{args.session_id} — {session_name}", args.date, args.ref, args.outcome, args.notes)
     print(f"UPDATED={project_file}")
     print(f"AUDIT_LOG={audit_log}")
+    print(f"EXECUTION_FILE={project_dir / 'execution.md'}")
     print(f"SESSION_NAME={session_name}")
     return 0
 

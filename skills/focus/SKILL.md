@@ -113,6 +113,9 @@ Use this when the user provides new notes, corrections, or asks to edit the page
 When the resulting state is already obvious, prefer `focus-update.py set ...`
 instead of manual markdown editing.
 
+Unspecified list sections should be preserved. Only pass `--now`, `--next`,
+`--later`, or `--blocker` when you intend to replace that section.
+
 ### Review What To Do Next
 
 Use this when the user asks what they should work on now, what matters next, or wants a focus review.
@@ -144,7 +147,8 @@ Use this when the user wants to turn a focus item into a tracked project.
 1. Run the setup script.
 2. Use `focus-promote.py --slug <slug> --why <reason>` to:
    - scaffold the project if it does not exist
-   - make it the current focus item
+   - ensure `execution.md` exists for an existing project before promotion writes
+   - make it the current focus item without clearing unrelated parked work or blockers
 3. Present the resulting focus and project paths.
 
 ## Rules

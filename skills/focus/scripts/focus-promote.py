@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 from datetime import date
@@ -20,12 +21,12 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
-    dot_agent = Path.home() / ".dot-agent"
+    dot_agent = Path(os.environ.get("DOT_AGENT_HOME", str(Path.home() / ".dot-agent"))).expanduser()
     projects_setup = dot_agent / "skills" / "projects" / "scripts" / "projects-setup.sh"
     focus_update = dot_agent / "skills" / "focus" / "scripts" / "focus-update.py"
 
     setup_result = subprocess.run(
-        ["bash", str(projects_setup), args.slug],
+        ["bash", str(projects_setup), "--ensure-execution", args.slug],
         check=True,
         capture_output=True,
         text=True,

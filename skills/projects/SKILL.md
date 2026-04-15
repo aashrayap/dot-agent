@@ -70,7 +70,7 @@ Use `execution.md` to keep a project legible across long-running work:
 - `## Effort Summary` tracks simple metrics only when they are informative.
 - `## Open Follow-ups` captures concrete loose ends that survived the latest session.
 
-When reading an existing project, read `execution.md` whenever it exists. If it does not exist and the user is asking for execution-state updates, create it from the standard scaffold before writing.
+When reading an existing project, read `execution.md` whenever it exists. If it does not exist and the user is asking for execution-state updates, rerun setup as `projects-setup.sh --ensure-execution "$1"` before writing.
 
 ### Graph Maintenance
 
@@ -146,6 +146,7 @@ Read `project.md`, `AUDIT_LOG.md`, and `execution.md` when present, then determi
 
 - **No description** → Present milestone progress, available sessions, blocked sessions, and the latest execution readout.
 - **Description provided** → Act accordingly: add, remove, reorder, or complete sessions and milestones; update dependencies; adjust priorities; and update execution memory when the request changes what actually happened.
+- If execution memory is missing and the user is asking for execution-state changes, ensure it explicitly before writing rather than treating ordinary reads as migration.
 
 </important>
 
@@ -165,8 +166,9 @@ Read `project.md`, `AUDIT_LOG.md`, and `execution.md` when present, then determi
 6. Check whether this resolves a milestone and show which sessions are now available.
 
 When the completion is structurally straightforward, use `complete-session.py`
-first to remove the session block, append the Completed row, and write the audit
-entry. Then do any remaining milestone or dependency reasoning on top.
+first to remove the session block, append the Completed row, write the audit
+entry, and update `execution.md` in the same deterministic path. Then do any
+remaining milestone or dependency reasoning on top.
 
 </important>
 

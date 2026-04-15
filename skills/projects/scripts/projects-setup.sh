@@ -2,8 +2,9 @@
 set -euo pipefail
 
 # Usage:
-#   projects-setup.sh              -> dashboard (list all projects)
-#   projects-setup.sh <slug>       -> return existing project info, or scaffold if new
+#   projects-setup.sh                        -> dashboard (list all projects)
+#   projects-setup.sh <slug>                 -> return existing project info, or scaffold if new
+#   projects-setup.sh --ensure-execution <slug> -> ensure execution.md exists for an existing project
 
 TODAY=$(date +%Y-%m-%d)
 NOW=$(date +"%Y-%m-%d %H:%M:%S")
@@ -11,6 +12,7 @@ DOT_AGENT_HOME="${DOT_AGENT_HOME:-$HOME/.dot-agent}"
 DOT_AGENT_STATE_HOME="${DOT_AGENT_STATE_HOME:-$DOT_AGENT_HOME/state}"
 PROJECTS_DIR="${DOT_AGENT_STATE_HOME}/projects"
 mkdir -p "$PROJECTS_DIR"
+ENSURE_EXECUTION="no"
 
 print_status() {
   local pf="$1"
@@ -63,7 +65,31 @@ $follow_up
 EOF
 }
 
+while [[ $# -gt 0 ]]; do
+  case "${1:-}" in
+    --ensure-execution)
+      ENSURE_EXECUTION="yes"
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      echo "ERROR: unknown option '$1'"
+      exit 1
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
 if [[ $# -lt 1 || -z "${1:-}" ]]; then
+  if [[ "$ENSURE_EXECUTION" == "yes" ]]; then
+    echo "ERROR: --ensure-execution requires a project slug."
+    exit 1
+  fi
   echo "MODE=dashboard"
   echo ""
   if [[ ! -d "$PROJECTS_DIR" ]] || [[ -z "$(ls -A "$PROJECTS_DIR" 2>/dev/null)" ]]; then
@@ -97,7 +123,7 @@ EXECUTION_FILE="${PROJECT_DIR}/execution.md"
 AUDIT_LOG="${PROJECT_DIR}/AUDIT_LOG.md"
 
 if [[ -f "$PROJECT_FILE" ]]; then
-  if [[ ! -f "$EXECUTION_FILE" ]]; then
+  if [[ ! -f "$EXECUTION_FILE" && "$ENSURE_EXECUTION" == "yes" ]]; then
     project_status="$(head -10 "$PROJECT_FILE" | grep -m1 'status:' | sed 's/.*status: *//' || echo "active")"
     project_started="$(head -10 "$PROJECT_FILE" | grep -m1 'started:' | sed 's/.*started: *//' || echo "$TODAY")"
     write_execution_file \
@@ -113,7 +139,11 @@ if [[ -f "$PROJECT_FILE" ]]; then
   echo "PROJECT_SLUG=$SLUG"
   echo "PROJECT_FILE=$PROJECT_FILE"
   echo "EXECUTION_FILE=$EXECUTION_FILE"
-  echo "EXECUTION_EXISTS=yes"
+  if [[ -f "$EXECUTION_FILE" ]]; then
+    echo "EXECUTION_EXISTS=yes"
+  else
+    echo "EXECUTION_EXISTS=no"
+  fi
   echo "AUDIT_LOG=$AUDIT_LOG"
   echo "MODE=existing"
   echo ""
