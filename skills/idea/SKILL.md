@@ -5,7 +5,9 @@ description: >
   develop technical architecture, write concise decision briefs, and explicitly
   promote mature ideas into /projects when requested.
   If the idea first needs a new multi-repo coordination workspace, route through
-  init-epic before projects.
+  init-epic before projects. When an idea appears ready for execution, remind
+  the user that promotion is available so they do not have to remember the
+  command themselves.
   Use when the user types "/idea" to list ideas, start a new one, refine an existing
   one, work on technical architecture, write a brief, or promote it into a project.
   Sub-commands: (none), new, exec, brief, promote.
@@ -200,6 +202,7 @@ last_touched: <date>
    - work on technical architecture
    - write a brief
    - promote to projects
+4. If the idea is already `ready`, or if the doc already has a clear brief and execution-shaped architecture, explicitly ask whether they want to promote it now.
 
 ### Invoked with additional text
 
@@ -229,6 +232,7 @@ When the user adds new thinking to an existing idea:
 4. If the input contains technical thinking, capture it in `## Technical Architecture` too.
 5. Update `last_touched`.
 6. Enter the clarifying loop in concept mode.
+7. If the updated idea now looks execution-ready, explicitly remind the user that promotion is available.
 
 The structured sections should read as though they were written in one sitting, not as a pile of patches.
 
@@ -252,6 +256,7 @@ This mode works the Technical Architecture half of the idea doc.
    - update modules, design decisions, open technical questions, and effort summary
 4. If the section exists and no new input was provided, enter the technical clarifying loop.
 5. Update `last_touched`.
+6. If the architecture now points toward real execution work, ask whether they want to promote the idea now.
 
 ### Guidelines
 
@@ -297,6 +302,7 @@ This produces a concise, decision-ready artifact. Treat `/idea <name> present` a
 4. Show the brief to the user.
 5. Save it as `~/.dot-agent/state/ideas/<slug>/brief.md`.
 6. If the idea is still incubating, update its status to `ready`.
+7. Explicitly ask whether they want to promote the idea now. Mention that promotion may route through `init-epic` first for a new multi-repo coordination effort.
 
 ### Guidelines
 
@@ -343,10 +349,29 @@ If the idea is graduating into a brand-new multi-repo coordination effort, use
    - update `last_touched`
 9. Present the result with the project paths and the clearest next action.
 
+---
+
+## Promotion Reminder
+
+Do not auto-promote, but do not make the user remember the command unaided.
+
+Explicitly ask whether they want to promote the idea now when any of these are true:
+
+- the idea status is `ready`
+- a brief was just written
+- the technical architecture now identifies real modules, dependencies, and an obvious first execution slice
+- the user starts asking execution-shaped questions such as implementation order, milestones, repo structure, delivery slices, or what to build first
+
+Use a short direct reminder such as:
+
+- `Do you want me to promote this now with /idea <name> promote?`
+- `If this is becoming a real multi-repo effort, I can promote it now and route through init-epic first.`
+
 ### Rules
 
 - Promotion is explicit, not automatic.
 - If the idea becomes a new multi-repo coordination effort, `init-epic` comes before `projects`.
+- When the idea looks ready, explicitly remind the user that promotion is available.
 - Do not overwrite an existing project blindly. Merge carefully if the slug already exists.
 - Preserve the product framing from the idea, but make the project docs execution-shaped.
 - Keep the first project plan simple. The goal is to create an executable starting point, not a perfect roadmap.
