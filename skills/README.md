@@ -57,6 +57,13 @@ When a skill needs persistent mutable storage, write it under:
 ```
 
 Examples:
+- focus control plane: `~/.dot-agent/state/collab/focus.md`
 - compare history: `~/.dot-agent/state/collab/compare-history.md`
-- project state: `~/.dot-agent/state/projects/<slug>/`
-- idea incubation docs: `~/.dot-agent/state/ideas/<slug>/`
+- project state: `~/.dot-agent/state/projects/<slug>/{project.md,execution.md,AUDIT_LOG.md}`
+- idea incubation docs: `~/.dot-agent/state/ideas/<slug>/{idea.md,brief.md}`
+
+Typical layering:
+
+- `focus` owns the lightweight day-level control plane
+- `morning-sync` reads focus plus active projects and proposes what should happen next
+- `projects` owns durable planning and execution memory

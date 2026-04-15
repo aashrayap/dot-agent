@@ -1,0 +1,3 @@
+name = "focus"
+targets = ["codex"]
+default_entry = "SKILL.md"
