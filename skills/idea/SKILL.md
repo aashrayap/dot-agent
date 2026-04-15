@@ -4,6 +4,8 @@ description: >
   Long-horizon idea incubation — capture braindumps, refine concepts,
   develop technical architecture, write concise decision briefs, and explicitly
   promote mature ideas into /projects when requested.
+  If the idea first needs a new multi-repo coordination workspace, route through
+  init-epic before projects.
   Use when the user types "/idea" to list ideas, start a new one, refine an existing
   one, work on technical architecture, write a brief, or promote it into a project.
   Sub-commands: (none), new, exec, brief, promote.
@@ -52,6 +54,13 @@ All ideas live in `~/.dot-agent/state/ideas/`. Each idea has a folder with a cor
 If `~/.dot-agent/state/ideas/` does not exist, create it on first use.
 
 Slugs use lowercase letters and hyphens only.
+
+## Workflow Position
+
+- `idea` owns incubation, concept shaping, high-level technical architecture, and decision briefs.
+- `init-epic` owns bootstrapping a new multi-repo coordination workspace when the idea graduates into one.
+- `projects` owns durable milestones and execution slices after promotion.
+- `focus` and `morning-sync` sit on top once execution is live.
 
 ---
 
@@ -302,29 +311,42 @@ This produces a concise, decision-ready artifact. Treat `/idea <name> present` a
 
 This is the explicit graduation path from incubation into tracked execution.
 
+If the idea is graduating into a brand-new multi-repo coordination effort, use
+`init-epic` first and then hand off to `projects`. Do not skip workspace bootstrap.
+
 ### Steps
 
 1. Read the full idea doc. Read `brief.md` too when it exists.
-2. Choose the project slug. Default to the idea slug unchanged unless the user overrides it.
-3. Run `~/.dot-agent/skills/projects/scripts/projects-setup.sh <slug>`.
-4. Create or update the project from the idea:
+2. Decide whether promotion needs a new multi-repo coordination workspace:
+   - if yes, route to `init-epic` first
+   - if no, continue directly to `projects`
+3. Choose the project slug. Default to the idea slug unchanged unless the user overrides it.
+4. If routing through `init-epic`, use the idea's summary, architecture, and dependencies to define:
+   - workspace title
+   - focus label
+   - current vs legacy repo roster
+   - repo order for implementation work
+5. Run `~/.dot-agent/skills/projects/scripts/projects-setup.sh <slug>` once the workspace question is settled.
+6. Create or update the project from the idea:
    - map the idea summary into `## Goal`
    - convert concept boundaries into `## Scope`
    - turn major unknowns into `## Blockers & Constraints`
    - define the smallest sensible milestone sequence
-   - create an initial session graph with an obvious first unblocked session
-5. Seed `execution.md`:
+   - create one obvious first execution slice instead of a speculative micro-plan
+   - add a dependency graph only if real sequencing complexity justifies it
+7. Seed `execution.md`:
    - explain that the project was promoted from idea incubation
    - capture unresolved questions that survived promotion in `## Open Follow-ups`
-6. Update the idea doc:
+8. Update the idea doc:
    - append a Raw Log entry noting the promotion
    - set `status: promoted`
    - update `last_touched`
-7. Present the result with the project paths and the clearest next action.
+9. Present the result with the project paths and the clearest next action.
 
 ### Rules
 
 - Promotion is explicit, not automatic.
+- If the idea becomes a new multi-repo coordination effort, `init-epic` comes before `projects`.
 - Do not overwrite an existing project blindly. Merge carefully if the slug already exists.
 - Preserve the product framing from the idea, but make the project docs execution-shaped.
 - Keep the first project plan simple. The goal is to create an executable starting point, not a perfect roadmap.
