@@ -29,6 +29,9 @@ You are an orchestrator. You never read code or diffs directly — dispatch suba
 
 - All subagents: `subagent_type: "Explore"`, `model: "sonnet"`.
 - Prefix every subagent prompt with the Tooling Block below.
+- Role mapping follows `skills/AGENTS.md`: territory/change/reviewer tracks use
+  Explorer; requested fixes use Worker / Implementor; post-fix validation uses
+  Gate / Verifier.
 
 ### Tooling Block
 
@@ -208,4 +211,5 @@ Per thread: what reviewer says, what territory says, cross-examination verdict (
 
 For each agreed fix, dispatch one opus subagent with: what to change (files, additions, removals), the relevant finding with evidence, territory contracts to preserve, and a verify command. Include `Modify: {files}` and `Never touch: {out of scope files}`.
 
-After all fixes: run relevant tests. No drive-by refactors.
+After all fixes: run relevant tests or a Gate / Verifier pass over the changed
+files. No drive-by refactors.

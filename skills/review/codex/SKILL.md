@@ -29,6 +29,10 @@ Use `scripts/fetch-pr-context.sh` when the repo has an open GitHub PR and review
 
 This is the default unless the user explicitly asks for a lightweight review.
 
+Use the standard roles from `skills/AGENTS.md` when delegation is authorized:
+Explorer for territory/change/reviewer investigation, Worker / Implementor for
+requested fixes, and Gate / Verifier for post-fix validation.
+
 Run three staged passes:
 
 1. Territory pass
@@ -79,5 +83,5 @@ If the user asks for fixes after the review:
 
 - change only the agreed areas
 - preserve documented contracts
-- rerun the most relevant verification
+- rerun the most relevant verification or a Gate / Verifier pass
 - avoid drive-by refactors

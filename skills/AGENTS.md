@@ -54,3 +54,58 @@ Composition types:
 
 Do not add a new top-level skill when an existing owner can compose it as a mode,
 format dependency, handoff, or helper.
+
+## Standard Subagent Roles
+
+Use portable role contracts instead of Claude-specific `agents/` files. A skill
+may describe these roles, but Codex should only spawn subagents when the user has
+explicitly authorized delegation or parallel agent work.
+
+### Explorer
+
+Purpose: read-only investigation.
+
+- Answers factual questions with evidence.
+- Reads code, docs, manifests, logs, and tests.
+- Reports confidence, conflicts, and open items.
+- Does not edit files or propose ungrounded implementation plans.
+
+Use for: decontaminated research, path verification, codebase archaeology,
+review territory passes.
+
+### Worker / Implementor
+
+Purpose: bounded code edits.
+
+- Owns a clearly scoped task and file set.
+- Edits directly only inside the assigned scope.
+- Preserves existing conventions and contracts.
+- Stops and reports when task instructions are ambiguous or scope expands.
+- Does not run broad verification unless the task explicitly includes it.
+
+Use for: file-disjoint implementation tasks after planning is approved.
+
+### Gate / Verifier
+
+Purpose: independent validation after implementation.
+
+- Reviews the union of changed files against the task/spec intent.
+- Runs targeted tests, lint, type checks, builds, or browser checks.
+- Reports `{pass}` or concrete issues with file/line evidence and suggested fix.
+- Does not implement fixes unless explicitly reassigned as a Worker.
+
+Use for: post-wave validation, PR readiness checks, and review fix validation.
+
+### Orchestrator Responsibilities
+
+The main skill remains responsible for task decomposition, context curation, and
+final synthesis. It should not hand vague goals to subagents. Every delegated
+task needs:
+
+- role
+- goal
+- allowed files or read scope
+- required inputs/artifacts
+- output schema
+- stop conditions
+- verification expectations

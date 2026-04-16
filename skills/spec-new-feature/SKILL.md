@@ -97,11 +97,29 @@ Use the idea-spec / idea-plan separation:
 - Include dependencies, sequencing, and parallelizable groups when they matter.
 - Estimate effort in hours in `05_tasks.md` when the codebase is known; use rough sizes only before codebase grounding.
 
+## Subagent Roles
+
+Use the standard roles from `skills/AGENTS.md` when delegation is authorized:
+
+- **Explorer** for decontaminated research, path verification, and factual
+  codebase questions.
+- **Worker / Implementor** for approved, file-scoped implementation tasks.
+- **Gate / Verifier** after implementation waves to check changed files against
+  task/spec intent.
+
+Do not spawn subagents unless the user explicitly authorized delegation or
+parallel agent work. When delegation is not authorized, keep the same role
+separation in your own workflow: investigate first, implement second, verify
+last.
+
 ## Execution Handoff
 
 When `05_tasks.md` is approved:
 
 1. Identify the smallest useful PR or delivery slice.
-2. If the work belongs to a tracked project, hand it back to `projects <slug>` so execution memory owns PRs, pivots, and follow-ups.
-3. If execution starts directly here, keep the final response tied to the approved task IDs and tell the user what should be logged in `projects/execution.md` afterward.
-4. Do not create a parallel idea execution log. Durable delivery reality belongs in `projects`.
+2. If delegation is authorized, dispatch file-disjoint tasks to Worker /
+   Implementor roles and run a Gate / Verifier pass over the union of changed
+   files before calling the wave complete.
+3. If the work belongs to a tracked project, hand it back to `projects <slug>` so execution memory owns PRs, pivots, and follow-ups.
+4. If execution starts directly here, keep the final response tied to the approved task IDs and tell the user what should be logged in `projects/execution.md` afterward.
+5. Do not create a parallel idea execution log. Durable delivery reality belongs in `projects`.
