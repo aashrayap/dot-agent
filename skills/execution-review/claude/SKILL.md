@@ -1,16 +1,16 @@
 ---
 name: execution-review
-description: Evidence-first review of recent local Codex and Claude Code sessions, entered from Codex.
+description: Evidence-first review of recent local Codex and Claude Code sessions, entered from Claude Code.
 ---
 
 # Execution Review
 
-Use the shared execution-review workflow from Codex.
+Use the shared execution-review workflow from Claude Code.
 
 ## Runtime Note
 
-- You are running from Codex, but the scripts can review `codex`, `claude`, or `all` local runtime artifacts.
-- Prefer `--runtime all` unless the user clearly wants a Codex-only pass.
+- You are running from Claude Code, but the scripts can review `claude`, `codex`, or `all` local runtime artifacts.
+- Prefer `--runtime all` unless the user clearly wants a Claude-only pass.
 
 ## Quick Start
 

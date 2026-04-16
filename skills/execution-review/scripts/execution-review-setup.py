@@ -2,11 +2,10 @@
 from __future__ import annotations
 
 import sys
-from collections import defaultdict
-from datetime import datetime, timezone
 from pathlib import Path
-
-from codex_sessions import format_seconds, parse_window, resolve_state_db, select_threads, connect_state_db
+from codex_adapter import fetch_codex_sessions
+from claude_adapter import fetch_claude_sessions
+from review_schema import DB_PATH, HERMES_FINDINGS_PATH, HISTORY_PATH, STATE_ROOT, format_seconds, parse_window
 
 
 def main(argv: list[str]) -> int:
@@ -18,48 +17,34 @@ def main(argv: list[str]) -> int:
         return 1
 
     script_dir = Path(__file__).resolve().parent
-    fetch_script = script_dir / "fetch-codex-sessions.py"
-    inspect_script = script_dir / "inspect-codex-session.py"
+    fetch_script = script_dir / "fetch-execution-sessions.py"
+    inspect_script = script_dir / "inspect-execution-session.py"
+    render_script = script_dir / "render-execution-review.py"
+    record_script = script_dir / "record-execution-review.py"
+    hermes_script = script_dir / "write-hermes-findings.py"
 
-    conn = connect_state_db()
-    try:
-        threads = select_threads(conn, window_hours=window_hours)
-    finally:
-        conn.close()
+    codex_sessions = fetch_codex_sessions(window_hours=window_hours)
+    claude_sessions = fetch_claude_sessions(window_hours=window_hours)
 
     print(f"FETCH_SCRIPT={fetch_script}")
     print(f"INSPECT_SCRIPT={inspect_script}")
+    print(f"RENDER_SCRIPT={render_script}")
+    print(f"RECORD_SCRIPT={record_script}")
+    print(f"HERMES_FINDINGS_SCRIPT={hermes_script}")
     print(f"WINDOW_SPEC={window_spec}")
     print(f"WINDOW_HOURS={window_hours}")
-    print(f"STATE_DB={resolve_state_db()}")
+    print(f"STATE_ROOT={STATE_ROOT}")
+    print(f"REVIEWS_DB={DB_PATH}")
+    print(f"HISTORY_FILE={HISTORY_PATH}")
+    print(f"HERMES_FINDINGS_FILE={HERMES_FINDINGS_PATH}")
     print()
 
-    if not threads:
-        print("(no top-level Codex threads in window)")
-        return 0
-
-    by_cwd: dict[str, dict[str, object]] = defaultdict(lambda: {"threads": 0, "latest": 0, "first": 0})
-    for row in threads:
-        entry = by_cwd[row["cwd"]]
-        entry["threads"] = int(entry["threads"]) + 1
-        entry["latest"] = max(int(entry["latest"]), row["updated_at"])
-        if not entry["first"]:
-            entry["first"] = row["created_at"]
-        else:
-            entry["first"] = min(int(entry["first"]), row["created_at"])
-
-    rows = sorted(by_cwd.items(), key=lambda item: (-int(item[1]["threads"]), -int(item[1]["latest"]), item[0]))
-
-    print(f"=== CODEX ACTIVITY (last {window_spec} / {window_hours:g}h) ===")
-    print("  label  threads  span     cwd")
-    for idx, (cwd, info) in enumerate(rows, start=1):
-        first = datetime.fromtimestamp(int(info["first"]), tz=timezone.utc)
-        latest = datetime.fromtimestamp(int(info["latest"]), tz=timezone.utc)
-        span = max(0, int((latest - first).total_seconds()))
-        print(f"  C{idx:<4}  {int(info['threads']):>7}  {format_seconds(span):>7}  {cwd}")
+    print(f"=== EXECUTION REVIEW ACTIVITY (last {window_spec} / {window_hours:g}h) ===")
+    print(f"  codex_sessions={len(codex_sessions)}")
+    print(f"  claude_sessions={len(claude_sessions)}")
+    print(f"  total_sessions={len(codex_sessions) + len(claude_sessions)}")
     print()
-    print(f"Top-level threads in window: {len(threads)}")
-    print("Use fetch first; inspect only the threads with the most wall time, failures, or missing verification.")
+    print("Use fetch first; inspect only the sessions with the most wall time, failures, missing verification, or response-fit feedback signals.")
     return 0
 
 
