@@ -16,6 +16,8 @@ Run `~/.dot-agent/skills/morning-sync/scripts/morning-sync-setup.sh` first.
 
 This skill is the day-start loop on top of the `focus` and `projects` layers. It should be opinionated and concise. The goal is not to restate every project; the goal is to help a human decide what deserves attention now.
 
+Use `morning-sync` only after the underlying `focus` and `projects` state is current. It summarizes what those layers already know; it does not bootstrap a workspace or replace project planning. If the user still needs a coordination repo, use `init-epic` first.
+
 ## Inputs
 
 Always read:
@@ -32,7 +34,7 @@ If the user invocation includes fresh context for the day, incorporate it before
 
 - Confirm that `focus.md` exists and is in the canonical schema.
 - Check whether the focus page looks stale relative to today.
-- Check whether `In Progress` aligns with active project state.
+- Check whether `## Now` aligns with active project state.
 - Call out contradictions plainly.
 
 ### 2. Pull new work
@@ -100,5 +102,6 @@ Keep it short. If there is no good secondary item, say so instead of padding.
 - Do not silently rewrite `focus.md`.
 - Prefer execution evidence over stale planning.
 - Prefer current momentum over speculative new starts.
+- Do not turn this into bootstrap work or project-plan creation; those belong to `init-epic`, `projects`, or `focus`.
 - If all active work is blocked, say that directly and identify the unblock.
 - If the project system lacks enough PR status detail to form a real review queue, say that the queue depends on better `execution.md` maintenance rather than pretending the data exists.

@@ -3,7 +3,8 @@ name: focus
 description: >
   Active work narrowing and focus control.
   Use when the user wants to choose one workstream, trim WIP, park ideas,
-  or decide what deserves attention now versus later.
+  decide what deserves attention now versus later, or determine whether to
+  stay in focus mode versus switch into project execution.
 argument-hint: <optional current options / current problem / desired outcome>
 disable-model-invocation: true
 ---
@@ -18,6 +19,7 @@ Deterministic helpers:
 
 - `~/.dot-agent/skills/focus/scripts/focus-update.py`
 - `~/.dot-agent/skills/focus/scripts/focus-promote.py`
+- `~/.dot-agent/skills/focus/scripts/focus-handoff.py`
 
 Read `~/.dot-agent/state/collab/focus.md` every time. When the user wants help
 deciding what should happen next, also read active project state from
@@ -29,6 +31,7 @@ This skill is the active control surface for:
 - reducing simultaneous work in progress
 - parking lower-priority work without losing it
 - promoting focused work into a tracked project when needed
+- telling the user when to stay in `focus` versus switch to `projects`
 
 Execution review looks backward. Focus works in the present.
 
@@ -123,8 +126,9 @@ Use this when the user asks what they should work on now, what matters next, or 
 1. Read `focus.md`.
 2. Read active and otherwise non-complete projects under `~/.dot-agent/state/projects/`.
 3. Read each project's `execution.md` when it exists.
-4. Treat this review as read-only. Do not rewrite `focus.md` unless the user explicitly asks.
-5. Synthesize a decision summary with these exact headings:
+4. Run `focus-handoff.py` to determine whether the current focus already maps cleanly to a tracked project.
+5. Treat this review as read-only. Do not rewrite `focus.md` unless the user explicitly asks.
+6. Synthesize a decision summary with these exact headings:
 
 ```markdown
 ## Continue now
@@ -135,10 +139,42 @@ Use this when the user asks what they should work on now, what matters next, or 
 
 ## Blocked / ignore
 - <things that should wait, or are blocked by dependencies or missing decisions>
+
+## Next control surface
+- <stay in `focus`, or invoke `projects <slug>`, with a one-line why>
 ```
 
-6. Bias toward continuation over starting new work.
-7. Call out contradictions between `focus.md` and active project state when they matter.
+7. Bias toward continuation over starting new work.
+8. Call out contradictions between `focus.md` and active project state when they matter.
+
+### Decide The Next Control Surface
+
+Use this whenever the user is moving from "what should I focus on?" toward "what task am I starting?".
+
+- If the question is day-start triage across active projects, use `morning-sync`.
+- If the user does not yet have a coordination workspace for a multi-repo effort, use `init-epic` before trying to route into tracked project execution.
+- Stay in `focus` when the user is still choosing a workstream, trimming WIP, parking items, or correcting the control surface.
+- Tell the user to invoke `projects <slug>` when all of these are true:
+  - `focus-handoff.py` reports `PROJECT_READY=yes`
+  - the user is transitioning from prioritization into execution
+  - the next question is session/task level: what to start, what is unblocked, what changed, or what to hand off into `/spec-new-feature`
+- If `focus-handoff.py` does not find a unique tracked project, keep the user in `focus` and explain what is still ambiguous.
+
+### Deterministic vs Non-Deterministic
+
+Treat these parts as deterministic:
+
+- reading and writing `focus.md`
+- enforcing `wip_limit`
+- matching the current focus or active `Now` item to a tracked project slug with `focus-handoff.py`
+- deciding that a clean project match means the next control surface is `projects <slug>` once the user moves into execution
+
+Treat these parts as non-deterministic judgment:
+
+- choosing the best workstream when multiple active projects exist
+- deciding whether to continue current momentum or start something new
+- interpreting vague focus text that does not map cleanly to one tracked project
+- weighing contradictory planning state against more recent execution evidence
 
 ### Promote Into A Project
 

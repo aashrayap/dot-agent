@@ -1,6 +1,6 @@
 ---
 name: init-epic
-description: "Bootstrap a cross-repo coordination workspace using the toolkit-rigby pattern: root AGENTS.md, README.md, gitignored sibling repos, inventory docs, and optional repo cloning."
+description: "Bootstrap a cross-repo coordination workspace using the toolkit-rigby pattern: root AGENTS.md, README.md, gitignored sibling repos, inventory docs, and optional repo cloning. Use this before projects/focus when the user first needs a multi-repo coordination workspace."
 argument-hint: <workspace description and repo map>
 disable-model-invocation: true
 ---
@@ -10,6 +10,13 @@ disable-model-invocation: true
 Use this when the user wants to stand up a coordination repo for a multi-repo initiative.
 
 This skill captures the reusable pattern from `toolkit-rigby`: root coordination files, gitignored sibling repos, inventory stubs for each imported repo, and clear routing between current implementation repos, legacy reference repos, and the coordination repo itself.
+
+## Workflow Position
+
+- `init-epic` bootstraps the coordination repo.
+- `projects` takes over once durable milestones and execution slices need tracking.
+- `focus` chooses the active tracked project or slice for today.
+- `morning-sync` reviews that state at day start.
 
 ## Context
 
@@ -49,7 +56,7 @@ Then inspect the current workspace:
 
 4. Review the generated files and tighten any wording that should preserve the user's exact language.
 5. If the user wants a fully bootstrapped local workspace, verify the remotes are reachable and rerun with `--clone-missing`.
-6. If the work will be long-lived, hand off to `projects` after bootstrap. `init-epic` owns the workspace scaffold; `projects` owns milestone and session tracking.
+6. If the work will be long-lived, hand off to `projects <slug>` after bootstrap. `init-epic` owns the workspace scaffold; `projects` owns milestone and execution-slice tracking. After that, use `focus` for day-level control and `morning-sync` for daily review.
 
 ## Outputs
 
