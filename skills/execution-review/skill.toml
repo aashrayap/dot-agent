@@ -1,3 +1,5 @@
 name = "execution-review"
-targets = ["codex"]
+targets = ["claude", "codex"]
+default_entry = "SKILL.md"
+claude_entry = "claude/SKILL.md"
 codex_entry = "codex/SKILL.md"
