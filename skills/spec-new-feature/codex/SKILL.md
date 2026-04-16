@@ -5,7 +5,19 @@ description: Plan and optionally execute non-trivial feature work using an artif
 
 # Spec New Feature
 
+## Composes With
+
+- Parent: `idea` or `projects` when work needs code-grounded planning.
+- Children: none.
+- Uses format from: none.
+- Reads state from: idea `spec.md`/`plan.md`, thin project `Current Slice`, repo docs/code, and feature artifacts.
+- Writes through: `docs/artifacts/<feature>/` for feature artifacts; returns PRs/pivots/follow-ups to `projects`.
+- Hands off to: `projects` after execution or when durable memory is needed.
+- Receives back from: `projects` as curated workstream context.
+
 Use this for new features, significant behavior changes, or multi-file work where the requirements need to be shaped before implementation.
+
+This is also the code-grounded planning bridge for mature `/idea` work. Idea docs provide product and high-level architecture context; this workflow owns approved spec artifacts, decontaminated research, design, code-specific tasks, and optional execution.
 
 ## Quick Start
 
@@ -32,6 +44,8 @@ If the feature already exists, resume from the first incomplete phase instead of
 - Prefer local docs and code first. Use external docs only when needed and cite them.
 - Default checkpoints: ask for approval on the question list before research and on the design before execution. If the user explicitly asks for uninterrupted planning, continue and record assumptions clearly.
 - Only parallelize research with subagents if the user explicitly asks for delegated or parallel agent work.
+- Code-specific files, function names, schemas, API routes, packages, migrations, and verify commands belong in `05_tasks.md`, not in earlier artifacts, unless they are evidence found during research.
+- When this starts from an idea handoff, preserve the product framing but do not treat the idea's technical architecture as implementation authority until research/design verifies it.
 
 ## Workflow
 
@@ -52,6 +66,8 @@ Capture:
 - risks, migrations, and external dependencies
 
 Keep this focused on the problem. Do not turn it into implementation notes.
+
+If the input references an idea under `~/.dot-agent/state/ideas/<slug>/`, also read the matching `idea.md`, `brief.md`, `spec.md`, and `plan.md` when present. Convert the idea into users, acceptance criteria, boundaries, and open questions. If the idea is still missing product clarity, stop and route back to `/idea <slug>`.
 
 ### 3. Draft `02_questions.md`
 
@@ -124,6 +140,8 @@ Break the work into file-scoped tasks with:
 - acceptance criteria
 - verify commands
 - boundaries and out-of-scope notes
+- effort estimates in hours when the codebase is known
+- task IDs that can be referenced from `projects/execution.md`
 
 Tasks should be self-contained enough to execute without re-reading the entire design.
 
@@ -135,6 +153,7 @@ If the user asks to execute:
 - parallelize only file-disjoint tasks
 - run the verify commands after each task or task wave
 - stop if execution uncovers a design gap that the plan did not resolve
+- if this belongs to a tracked project, hand PRs, pivots, discarded approaches, and follow-ups back to `projects/execution.md` instead of creating a parallel idea execution log
 
 ## Non-Goals
 

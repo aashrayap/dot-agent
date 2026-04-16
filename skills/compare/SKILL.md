@@ -1,18 +1,30 @@
 ---
 name: compare
-description: Compare two files or skills side-by-side. Produces a diff-focused analysis with divergences, shared DNA, and steal lists.
+description: Compare two files, skills, codebases, branches, workflows, configs, or structured artifacts side-by-side. Uses explain-style visuals and produces a diff-focused analysis with divergences, shared DNA, and steal lists.
 disable-model-invocation: true
 ---
 
 # Compare
 
-Side-by-side comparison of two files. Works on skills, CLAUDE.mds, configs, workflows — anything structured.
+## Composes With
+
+- Parent: user comparison request.
+- Children: none.
+- Uses format from: `explain` Compare and Delta visual modes.
+- Reads state from: requested files, skills, codebases, branches, workflows, or configs.
+- Writes through: `~/.dot-agent/state/collab/compare-history.md` only.
+- Hands off to: none; compare owns final judgment.
+- Receives back from: none.
+
+Side-by-side comparison of anything structured. Works on files, skills, codebases, branches, CLAUDE/AGENTS files, configs, workflows, implementation-vs-spec checks, and docs.
 
 ## Commands
 
 ```
 /compare <file1> <file2>                  — compare two files, output to stdout
 /compare <file1> <file2> -o <output>      — compare and write to a file
+/compare <repo1> <repo2>                  — compare two codebases or directories
+/compare <branch1> <branch2>              — compare two branches when run inside a repo
 ```
 
 Arguments can be file paths or **skill names**. If an argument matches a skill directory in `~/.dot-agent/skills/<name>/`, resolve it automatically using that skill's entrypoint.
@@ -28,8 +40,12 @@ Examples:
    - If `~/.dot-agent/skills/<arg>/skill.toml` exists, resolve the runtime-appropriate entry (`claude_entry` or `codex_entry`) or fall back to `default_entry`.
    - Else if `~/.dot-agent/skills/<arg>/SKILL.md` exists, use that path.
    - Otherwise treat the argument as a file path.
-2. Read both files in full.
-3. Identify the type of content (skill, config, markdown doc, code) and adapt section headers accordingly.
+2. Read both inputs at the right granularity:
+   - files: full file
+   - skills: entrypoint plus relevant scripts/assets only when needed
+   - directories/codebases: tree, README/AGENTS/CLAUDE files, manifests, key source paths, and tests
+   - branches: `git diff --stat`, changed files, relevant patches, and docs
+3. Identify the type of content (skill, config, markdown doc, codebase, branch, workflow) and adapt section headers accordingly.
 4. Generate comparison using the output format below.
 5. If `-o` specified, write to that path. Otherwise, output directly.
 6. Append an entry to the history file (see History section).
@@ -41,6 +57,9 @@ Last compared: YYYY-MM-DD
 Sources: <file1 basename> (<line count>), <file2 basename> (<line count>)
 
 # Compare: <file1 name> vs <file2 name>
+
+## Visual Map
+[Use `explain` Compare or Delta style. For codebases, show side-by-side trees or flow levels.]
 
 ## Philosophy
 - **<name1>**: [1 line — core approach]
@@ -60,6 +79,10 @@ Sources: <file1 basename> (<line count>), <file2 basename> (<line count>)
 ```
 
 **When comparing skills**: the Structure Map should include a Phase/Step Map showing each skill's phases side-by-side with what each does.
+
+**When comparing codebases**: include a tree/architecture map, runtime/tooling comparison, state/storage boundaries, and test/build surface.
+
+**When comparing branches**: include changed-file groups, behavior deltas, risk deltas, and verification coverage.
 
 ## History
 

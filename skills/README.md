@@ -5,6 +5,9 @@
 The canonical repo root is `~/.dot-agent/`. Mutable outputs belong under
 `~/.dot-agent/state/`, not in runtime homes or tracked repo directories.
 
+Read `skills/AGENTS.md` before adding or materially rewriting a skill. New and
+rewritten skills must include the composition contract described there.
+
 ## Layout
 
 Portable skills can keep a single root `SKILL.md`:
@@ -57,13 +60,17 @@ When a skill needs persistent mutable storage, write it under:
 ```
 
 Examples:
-- focus control plane: `~/.dot-agent/state/collab/focus.md`
+- daily operating board: `~/.dot-agent/state/collab/roadmap.md`
+- legacy focus compatibility file: `~/.dot-agent/state/collab/focus.md`
 - compare history: `~/.dot-agent/state/collab/compare-history.md`
-- project state: `~/.dot-agent/state/projects/<slug>/{project.md,execution.md,AUDIT_LOG.md}`
-- idea incubation docs: `~/.dot-agent/state/ideas/<slug>/{idea.md,brief.md}`
+- thin project state: `~/.dot-agent/state/projects/<slug>/project.md`
+- optional project execution memory: `~/.dot-agent/state/projects/<slug>/execution.md`
+- idea incubation docs: `~/.dot-agent/state/ideas/<slug>/{idea.md,brief.md,spec.md,plan.md}`
 
 Typical layering:
 
-- `focus` owns the lightweight day-level control plane
-- `morning-sync` reads focus plus active projects and proposes what should happen next
-- `projects` owns durable planning and execution memory
+- `focus` mutates the roadmap
+- `morning-sync` reads the roadmap plus active projects and proposes what should happen next
+- `projects` is the thin durable bridge between roadmap rows and deep implementation
+- `spec-new-feature` owns deep code-grounded planning and implementation artifacts
+- `execution-review` drains completed roadmap rows and writes closure through owning helpers

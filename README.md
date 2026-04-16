@@ -69,6 +69,7 @@ What `setup.sh` does:
 - Keep personal context, risky bypass flags, and extra machine-local permissions such as `skipDangerousModePermissionPrompt` or extra `Bash(...)` allow-rules out of tracked config.
 - Keep statusline behavior cheap and predictable. It should not poll git or network state.
 - Update the repo explicitly: `git -C ~/.dot-agent pull --ff-only && ~/.dot-agent/setup.sh`
+- Follow the skill composition contract in `skills/AGENTS.md` when creating or materially rewriting skills.
 
 ## Skill Layout
 
@@ -96,15 +97,18 @@ Shared mutable artifacts belong under `~/.dot-agent/state/`, not in tracked sour
 
 Examples:
 
-- focus control plane: `~/.dot-agent/state/collab/focus.md`
+- daily operating board: `~/.dot-agent/state/collab/roadmap.md`
+- legacy focus compatibility file: `~/.dot-agent/state/collab/focus.md`
 - compare history: `~/.dot-agent/state/collab/compare-history.md`
-- project state: `~/.dot-agent/state/projects/<slug>/{project.md,execution.md,AUDIT_LOG.md}`
-- idea incubation docs: `~/.dot-agent/state/ideas/<slug>/{idea.md,brief.md}`
+- thin project state: `~/.dot-agent/state/projects/<slug>/project.md`
+- optional project execution memory: `~/.dot-agent/state/projects/<slug>/execution.md`
+- idea incubation docs: `~/.dot-agent/state/ideas/<slug>/{idea.md,brief.md,spec.md,plan.md}`
 
 Daily operating loop:
 
-- `/focus` is the lightweight control plane
-- `/morning-sync` is the read-only day-start summary over focus plus active projects
+- `/morning-sync` is the first morning call over roadmap plus active projects
+- `/focus` mutates the roadmap
+- `/projects` is the thin durable bridge between roadmap rows and `/spec-new-feature`
 
 ## Skill Migration Rules
 

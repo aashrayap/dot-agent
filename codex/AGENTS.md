@@ -8,3 +8,4 @@ Shared runtime instructions for repositories using this dot-agent install.
   - Tactical layer: harnesses, skills, workflows, reviews, deterministic helpers that accelerate the strategic layer.
   - Disposable layer: tool-specific tricks likely to be replaced by a Claude/Codex/Hermes release.
 - Prefer work that preserves or compounds the strategic layer; keep tactical work migration-ready and avoid over-investing in disposable tricks.
+- When creating or materially rewriting a skill in this repo, follow `skills/AGENTS.md` and include the skill composition contract.

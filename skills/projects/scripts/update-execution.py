@@ -101,6 +101,20 @@ def table_row_count(lines: list[str], header: str) -> int:
     return count
 
 
+def table_status_count(lines: list[str], header: str, status_value: str) -> int:
+    start, end = section_bounds(lines, header)
+    count = 0
+    expected = status_value.lower()
+    for line in lines[start + 3 : end]:
+        stripped = line.strip()
+        if not stripped.startswith("|") or set(stripped.replace("|", "").strip()) <= {"-", " "}:
+            continue
+        parts = [part.strip().lower() for part in stripped.strip("|").split("|")]
+        if len(parts) >= 2 and expected in parts[1]:
+            count += 1
+    return count
+
+
 def current_metric(lines: list[str], metric_name: str) -> int:
     start, end = section_bounds(lines, "## Effort Summary")
     needle = f"| {metric_name} |"
@@ -117,6 +131,7 @@ def current_metric(lines: list[str], metric_name: str) -> int:
 
 def recalc_effort_summary(lines: list[str], *, session_count: int | None = None) -> list[str]:
     pr_count = table_row_count(lines, "## PRs")
+    discarded_count = table_status_count(lines, "## PRs", "discarded")
     pivot_count = table_row_count(lines, "## Pivots & Changes")
     start, end = section_bounds(lines, "## Open Follow-ups")
     followup_count = len([line for line in lines[start + 2 : end] if line.strip().startswith("-")])
@@ -129,8 +144,11 @@ def recalc_effort_summary(lines: list[str], *, session_count: int | None = None)
         "|--------|-------|",
         f"| Sessions completed | {session_count} |",
         f"| PRs logged | {pr_count} |",
+        f"| Discarded PRs | {discarded_count} |",
         f"| Pivots logged | {pivot_count} |",
         f"| Open follow-ups | {followup_count} |",
+        "| Compression | — |",
+        "| Precision | — |",
     ]
     start, end = section_bounds(lines, "## Effort Summary")
     return lines[:start] + replacement + lines[end:]

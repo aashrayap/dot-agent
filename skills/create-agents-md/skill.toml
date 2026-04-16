@@ -1,3 +1,4 @@
 name = "create-agents-md"
-targets = ["codex"]
+targets = ["claude", "codex"]
+default_entry = "SKILL.md"
 codex_entry = "codex/SKILL.md"

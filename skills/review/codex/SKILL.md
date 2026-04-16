@@ -5,6 +5,16 @@ description: Review current branch, diff, or PR for bugs, regressions, contract 
 
 # Review
 
+## Composes With
+
+- Parent: user code-review request.
+- Children: GitHub plugin workflows when PR metadata, CI, or unresolved review comments exceed local scripts.
+- Uses format from: none.
+- Reads state from: git diff, changed files, PR context when available, and repository tests/docs.
+- Writes through: none by default; review comments only when explicitly requested.
+- Hands off to: `github:gh-address-comments` for unresolved review threads and `github:gh-fix-ci` for failing CI.
+- Receives back from: GitHub plugin context when used.
+
 Use this when the user asks for a code review, PR review, diff review, or wants unresolved reviewer comments checked against the current code.
 
 ## Quick Start

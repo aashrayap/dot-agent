@@ -2,24 +2,36 @@
 name: idea
 description: >
   Long-horizon idea incubation — capture braindumps, refine concepts,
-  develop technical architecture, write concise decision briefs, and explicitly
-  promote mature ideas into /projects when requested.
+  develop technical architecture, write leadership-ready decision briefs,
+  bridge mature ideas into /spec-new-feature, and explicitly promote mature
+  ideas into /projects when requested.
   If the idea first needs a new multi-repo coordination workspace, route through
   init-epic before projects. When an idea appears ready for execution, remind
   the user that promotion is available so they do not have to remember the
   command themselves.
   Use when the user types "/idea" to list ideas, start a new one, refine an existing
-  one, work on technical architecture, write a brief, or promote it into a project.
-  Sub-commands: (none), new, exec, brief, promote.
-argument-hint: <idea-name | "new" | idea-name "exec" | idea-name "brief" | idea-name "promote">
+  one, work on technical architecture, write a brief, write a high-level spec,
+  create an optional plan, or promote it into roadmap/projects. Sub-commands: (none), new, exec, brief, spec,
+  plan, promote.
+argument-hint: <idea-name | "new" | idea-name "exec" | idea-name "brief" | idea-name "spec" | idea-name "plan" | idea-name "promote">
 disable-model-invocation: true
 ---
 
 # Idea Skill
 
-You are an idea incubation assistant. Your job is to capture raw thinking, distill it into structured concept documents, develop technical architecture, write concise decision briefs, and support explicit graduation into `/projects` when the user asks.
+## Composes With
 
-**Critical principle**: Ideas are product-first. The concept sections focus on the problem, solution, and user experience — no code, no implementation details. Technical architecture is a separate section that captures what systems need to exist and roughly how much work they imply, but stays high-level. Ideas stay in incubation until the user explicitly asks for promotion.
+- Parent: user braindumps, roadmap rows, and morning-sync discoveries.
+- Children: `roadmap.md`, `projects`, and `spec-new-feature`.
+- Uses format from: none.
+- Reads state from: `~/.dot-agent/state/ideas/<slug>/`.
+- Writes through: idea artifact files only: `idea.md`, `brief.md`, `spec.md`, optional `plan.md`.
+- Hands off to: `roadmap.md` for daily work, `projects` for durable work, and `spec-new-feature` when codebase grounding is required.
+- Receives back from: `projects` and `execution-review` as delivery context; concept/spec changes still require user approval.
+
+You are an idea incubation assistant. Your job is to capture raw thinking, distill it into structured concept documents, develop technical architecture, write leadership-ready decision briefs, prepare clean handoffs into `/spec-new-feature`, and support explicit graduation into `/projects` when the user asks.
+
+**Critical principle**: Ideas are product-first. The concept sections focus on the problem, solution, user experience, personas, and strategic thesis — no code, no implementation details. Technical architecture is a separate section that captures what systems need to exist and roughly how much work they imply, but stays high-level. Code-grounded planning belongs in `/spec-new-feature`, not in the idea doc. Ideas stay in incubation until the user explicitly asks for promotion.
 
 ## Sub-command Routing
 
@@ -30,9 +42,11 @@ Parse `$ARGUMENTS` to determine the action:
 | (none) | **List ideas** — show all existing ideas with status |
 | `new` or `new <braindump>` | **Create** a new idea |
 | `<name>` | **Enter** an existing idea — add thinking or refine |
-| `<name> exec` | **Technical architecture** — work on the execution plan section |
+| `<name> exec` | Compatibility alias to `spec` |
 | `<name> brief` | **Write brief** — generate a concise decision-ready artifact |
-| `<name> promote` | **Promote to projects** — create or update a project from the idea |
+| `<name> spec` | **Write spec** — create or refine high-level technical `spec.md` |
+| `<name> plan` | **Plan** — create optional `plan.md` or route to `/spec-new-feature` |
+| `<name> promote` | **Promote** — add roadmap row first; create project only when durable |
 | `<name> present` | Alias to `brief` for backward compatibility |
 | `<braindump text>` | **Smart route** — match against existing ideas or create new |
 
@@ -46,7 +60,9 @@ All ideas live in `~/.dot-agent/state/ideas/`. Each idea has a folder with a cor
 ~/.dot-agent/state/ideas/
 ├── social-trading/
 │   ├── idea.md
-│   └── brief.md
+│   ├── brief.md
+│   ├── spec.md
+│   └── plan.md
 ├── creator-markets/
 │   ├── idea.md
 │   └── brief.md
@@ -59,7 +75,8 @@ Slugs use lowercase letters and hyphens only.
 
 ## Workflow Position
 
-- `idea` owns incubation, concept shaping, high-level technical architecture, and decision briefs.
+- `idea` owns incubation, concept shaping, high-level technical specs, decision briefs, and optional pre-promotion plans.
+- `spec-new-feature` owns approved spec, decontaminated research, design, code-grounded tasks, and optional execution.
 - `init-epic` owns bootstrapping a new multi-repo coordination workspace when the idea graduates into one.
 - `projects` owns durable milestones and execution slices after promotion.
 - `focus` and `morning-sync` sit on top once execution is live.
@@ -269,31 +286,56 @@ This mode works the Technical Architecture half of the idea doc.
 
 ## Write Brief (`/idea <name> brief`)
 
-This produces a concise, decision-ready artifact. Treat `/idea <name> present` as an alias to this mode instead of maintaining a separate presentation workflow.
+This produces a leadership-ready artifact. Treat `/idea <name> present` as an alias to this mode instead of maintaining a separate presentation workflow.
+
+The brief is product-facing. It should stand on its own as the pitch for why the idea matters, who it unlocks, how the rollout can be staged, and what decision should happen next. Do not let it become an engineering spec.
 
 ### Steps
 
 1. Read the full idea doc.
 2. If major concept or technical questions remain, warn the user that the brief will reflect those gaps.
-3. Generate a standalone markdown brief:
+3. Generate a standalone markdown brief. Default to the concise structure below unless the user explicitly asks for a smaller memo:
 
 ```markdown
 # <Idea Title>
 
+## Tagline
+> <one sentence capturing the endgame product>
+
 ## Thesis
-<2-4 sentences on the idea and why it matters now.>
+<2-4 sentences on the opportunity, why now, and why this shape.>
 
-## Problem
-<The business or user problem in plain language.>
+## The Pitch
+- <market/user/problem framing with concrete numbers when available>
+- <what was blocked before>
+- <what this unlocks now>
+- <how it ladders into the broader strategy>
 
-## Why This Could Work
-<The strongest differentiators or insights.>
+## Personas
+| Persona | What they get |
+|---------|---------------|
 
-## Build Shape
-<What needs to exist from a systems perspective and the rough effort.>
+## Why Current Options Do Not Work
+| Problem | Consequence |
+|---------|-------------|
+
+## Staged Rollout
+| Label | Milestone | Delivers | Why it matters | Personas unlocked | Timeline |
+|-------|-----------|----------|----------------|-------------------|----------|
+
+## Blockers
+| Milestone | Blocker | Why it matters |
+|-----------|---------|----------------|
 
 ## Open Questions
-<Only the few questions that materially change the decision.>
+| Question | Impact | Resolution path |
+|----------|--------|-----------------|
+
+## Success Metric
+**<one concrete target>**
+
+## Revenue / Strategic Value
+<How value is captured, or why this compounds even without direct revenue.>
 
 ## Recommended Next Step
 <The clearest next move if someone wants to advance the idea.>
@@ -306,10 +348,106 @@ This produces a concise, decision-ready artifact. Treat `/idea <name> present` a
 
 ### Guidelines
 
-- Keep it short.
+- Keep it concise, but complete enough for a decision-maker to judge.
 - Write for a decision-maker, not for a brainstorming partner.
 - Translate technical reality clearly without overexplaining.
+- Tie every major feature or milestone back to a persona or strategic value.
+- Milestones should be independently marketable when possible, not just internal engineering phases.
+- Be honest about unknowns. Product-level unknowns stay in the brief; technical unknowns should point back to Technical Architecture or `/spec-new-feature`.
 - Name one concrete next step.
+
+---
+
+## Write Spec (`/idea <name> spec`)
+
+This mode creates or refines `~/.dot-agent/state/ideas/<slug>/spec.md`.
+
+`spec.md` is a Sushant-style high-level technical spec. It is not
+`spec-new-feature/01_spec.md` and it is not a code task plan.
+
+### Steps
+
+1. Read the full idea doc and `brief.md` when present.
+2. Treat `/idea <name> exec` as a compatibility alias to this mode.
+3. Check whether the concept is ready enough for technical specification:
+   - problem, user, and acceptance shape are clear
+   - major product unknowns are either answered or explicitly listed
+   - implementation unknowns are separable from product unknowns
+4. Write or refresh `~/.dot-agent/state/ideas/<slug>/spec.md`:
+
+```markdown
+# <Idea Title> — Spec
+
+## Overview
+<technical framing in 1-2 paragraphs>
+
+## Modules
+
+### <Module>
+
+**Effort:** S / M / L / XL
+
+<responsibility, boundary, and why it exists>
+
+**Key design choices:**
+- <decision and rationale>
+
+**Dependencies:** <systems/APIs/repos>
+
+## Design Decisions
+
+- <cross-cutting decision>
+
+## Open Technical Questions
+
+- <question that could change the build>
+
+## Effort Summary
+
+| Module | Effort | Notes |
+|--------|--------|-------|
+```
+
+5. Tell the user whether the next move is:
+   - answer concept questions in `/idea`
+   - deepen the spec with `/idea <name> spec`
+   - create a pre-promotion plan with `/idea <name> plan`
+   - start `/spec-new-feature <slug>` when repo/code grounding is needed
+
+### Rules
+
+- Do not write code-level tasks here.
+- Do not duplicate `/spec-new-feature` artifact names inside the idea directory.
+- Preserve product language from the idea; make uncertainties explicit instead of smoothing them over.
+
+---
+
+## Planning Bridge (`/idea <name> plan`)
+
+Use this when the user asks for implementation order, repo structure, task breakdown, or what to build first.
+
+1. Read the idea doc, `brief.md`, and `spec.md` if present.
+2. If the user is still shaping the product, route back to `/idea <name>` or `/idea <name> brief`.
+3. If there is no repo yet or the user only needs pre-promotion execution shape, write `~/.dot-agent/state/ideas/<slug>/plan.md`:
+
+```markdown
+# <Idea Title> — Plan
+
+## Build Shape
+<what must exist, without codebase-specific tasking>
+
+## Execution Order
+| Step | Outcome | Depends On | Notes |
+|------|---------|------------|-------|
+
+## Promotion Target
+Roadmap row first; project only if durable execution memory is needed.
+```
+
+4. If the user needs code-grounded tasks, route to `/spec-new-feature`; that workflow owns codebase research, design, and task breakdown.
+5. If the idea has already become durable execution work, offer `/idea <name> promote` so roadmap/projects can own live state.
+
+This bridge exists to prevent a third planning surface from growing inside `idea`.
 
 ---
 
@@ -322,32 +460,35 @@ If the idea is graduating into a brand-new multi-repo coordination effort, use
 
 ### Steps
 
-1. Read the full idea doc. Read `brief.md` too when it exists.
-2. Decide whether promotion needs a new multi-repo coordination workspace:
+1. Read the full idea doc. Read `brief.md`, `spec.md`, and `plan.md` too when they exist.
+2. Add or propose a row in `~/.dot-agent/state/collab/roadmap.md` first.
+3. Decide whether promotion also needs a project:
+   - spans multiple days
+   - needs PR/pivot/follow-up memory
+   - needs `/spec-new-feature`
+   - crosses repositories
+   - has durable decisions worth preserving
+4. Decide whether promotion needs a new multi-repo coordination workspace:
    - if yes, route to `init-epic` first
-   - if no, continue directly to `projects`
-3. Choose the project slug. Default to the idea slug unchanged unless the user overrides it.
-4. If routing through `init-epic`, use the idea's summary, architecture, and dependencies to define:
+   - if no project is needed, stop after the roadmap row
+   - if a project is needed, continue to `projects`
+5. Choose the project slug. Default to the idea slug unchanged unless the user overrides it.
+6. If routing through `init-epic`, use the idea's summary, architecture, and dependencies to define:
    - workspace title
    - focus label
    - current vs legacy repo roster
    - repo order for implementation work
-5. Run `~/.dot-agent/skills/projects/scripts/projects-setup.sh <slug>` once the workspace question is settled.
-6. Create or update the project from the idea:
-   - map the idea summary into `## Goal`
-   - convert concept boundaries into `## Scope`
-   - turn major unknowns into `## Blockers & Constraints`
-   - define the smallest sensible milestone sequence
-   - create one obvious first execution slice instead of a speculative micro-plan
-   - add a dependency graph only if real sequencing complexity justifies it
-7. Seed `execution.md`:
-   - explain that the project was promoted from idea incubation
-   - capture unresolved questions that survived promotion in `## Open Follow-ups`
-8. Update the idea doc:
+7. Run `~/.dot-agent/skills/projects/scripts/projects-setup.sh <slug>` once the workspace question is settled.
+8. Create or update the thin project from the idea:
+   - map the idea summary into `## Why`
+   - map `plan.md` or `spec.md` into `## Current Slice`
+   - fill idea/spec/repo links
+   - capture unresolved questions in `## Open Follow-ups`
+9. Update the idea doc:
    - append a Raw Log entry noting the promotion
    - set `status: promoted`
    - update `last_touched`
-9. Present the result with the project paths and the clearest next action.
+10. Present the result with roadmap/project paths and the clearest next action.
 
 ---
 
@@ -370,6 +511,7 @@ Use a short direct reminder such as:
 ### Rules
 
 - Promotion is explicit, not automatic.
+- Promotion writes or proposes a roadmap row first.
 - If the idea becomes a new multi-repo coordination effort, `init-epic` comes before `projects`.
 - When the idea looks ready, explicitly remind the user that promotion is available.
 - Do not overwrite an existing project blindly. Merge carefully if the slug already exists.
@@ -420,5 +562,5 @@ Do not ask generic questions, questions already answered in the doc, or technica
 - Keep the Raw Log append-only.
 - Keep `Open Questions` specific and actionable.
 - Do not push toward execution unprompted. The user decides when to promote an idea into `/projects`.
-- Technical Architecture stays high-level. Code-level planning belongs in `/spec-new-feature` after promotion.
+- `spec.md` stays high-level. Code-level planning belongs in `/spec-new-feature` once repo grounding is required.
 - Ideas can sit for months; the document should still be easy to re-enter.

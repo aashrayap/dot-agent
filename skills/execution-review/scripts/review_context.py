@@ -9,6 +9,7 @@ from review_schema import DOT_AGENT_HOME, excerpt
 
 STATE_ROOT = DOT_AGENT_HOME / "state"
 FOCUS_FILE = STATE_ROOT / "collab" / "focus.md"
+ROADMAP_FILE = STATE_ROOT / "collab" / "roadmap.md"
 PROJECTS_DIR = STATE_ROOT / "projects"
 
 
@@ -41,6 +42,44 @@ def _extract_slug(text: str) -> str | None:
 
 
 def load_focus_context() -> dict[str, Any]:
+    if ROADMAP_FILE.exists():
+        lines = _read(ROADMAP_FILE).splitlines()
+        focus = " ".join(_section(lines, "## Focus")).strip()
+        in_progress: list[str] = []
+        queued: list[str] = []
+        done: list[str] = []
+        blockers: list[str] = []
+        for line in lines:
+            if not line.startswith("|"):
+                continue
+            parts = [part.strip() for part in line.strip().strip("|").split("|")]
+            if len(parts) < 2 or parts[0] == "Status" or parts[1] == "-":
+                continue
+            status = parts[0].lower()
+            item = f"- {parts[1]}"
+            if status == "in progress":
+                in_progress.append(item)
+            elif status == "queued":
+                queued.append(item)
+            elif status == "completed":
+                done.append(item)
+            elif status == "blocked":
+                blockers.append(item)
+        return {
+            "exists": True,
+            "path": str(ROADMAP_FILE),
+            "legacy_focus_path": str(FOCUS_FILE),
+            "current_focus": focus,
+            "focus": focus,
+            "now": in_progress,
+            "next": queued,
+            "later": [],
+            "blockers": blockers,
+            "queued": queued + blockers,
+            "in_progress": in_progress,
+            "done": done,
+        }
+
     if not FOCUS_FILE.exists():
         return {"exists": False, "path": str(FOCUS_FILE)}
     lines = _read(FOCUS_FILE).splitlines()

@@ -12,6 +12,7 @@ DOT_AGENT_STATE_HOME = Path(
     os.environ.get("DOT_AGENT_STATE_HOME", str(DOT_AGENT_HOME / "state"))
 ).expanduser()
 FOCUS_FILE = DOT_AGENT_STATE_HOME / "collab" / "focus.md"
+ROADMAP_FILE = DOT_AGENT_STATE_HOME / "collab" / "roadmap.md"
 PROJECTS_DIR = DOT_AGENT_STATE_HOME / "projects"
 
 
@@ -56,6 +57,35 @@ def first_list_item(lines: list[str]) -> str:
             item = value[2:].strip()
             if item and item.lower() != "none":
                 return item
+    return ""
+
+
+def roadmap_focus() -> str:
+    if not ROADMAP_FILE.exists():
+        return ""
+    lines = read_text(ROADMAP_FILE).splitlines()
+    try:
+        start = lines.index("## Focus")
+    except ValueError:
+        return ""
+    body: list[str] = []
+    for line in lines[start + 1 :]:
+        if line.startswith("## "):
+            break
+        if line.strip():
+            body.append(line.strip())
+    return " ".join(body)
+
+
+def roadmap_active_item() -> str:
+    if not ROADMAP_FILE.exists():
+        return ""
+    for line in read_text(ROADMAP_FILE).splitlines():
+        if not line.startswith("|"):
+            continue
+        parts = [part.strip() for part in line.strip().strip("|").split("|")]
+        if len(parts) >= 2 and parts[0].lower() == "in progress" and parts[1] not in {"Item", "-"}:
+            return parts[1]
     return ""
 
 
@@ -109,9 +139,12 @@ def shell_quote(value: str) -> str:
 
 
 def main() -> int:
-    lines = read_text(FOCUS_FILE).splitlines()
-    current_focus = first_nonempty_line(section_body(lines, "## Current Focus"))
-    now_item = first_list_item(section_body(lines, "## Now"))
+    current_focus = roadmap_focus()
+    now_item = roadmap_active_item()
+    if not current_focus and FOCUS_FILE.exists():
+        lines = read_text(FOCUS_FILE).splitlines()
+        current_focus = first_nonempty_line(section_body(lines, "## Current Focus"))
+        now_item = first_list_item(section_body(lines, "## Now"))
     slugs = active_projects()
 
     exact_match = exact_slug_match(current_focus, slugs, "current-focus")
@@ -130,6 +163,7 @@ def main() -> int:
 
     project_match = exact_match or unique_contains
 
+    print(f"ROADMAP_FILE={ROADMAP_FILE}")
     print(f"FOCUS_FILE={FOCUS_FILE}")
     print(f"CURRENT_FOCUS={shell_quote(current_focus or 'None set yet.')}")
     print(f"NOW_ITEM={shell_quote(now_item or 'None')}")

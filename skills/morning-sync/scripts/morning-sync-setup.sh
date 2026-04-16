@@ -6,9 +6,17 @@ DOT_AGENT_HOME="${DOT_AGENT_HOME:-$HOME/.dot-agent}"
 FOCUS_SETUP="${DOT_AGENT_HOME}/skills/focus/scripts/focus-setup.sh"
 
 SETUP_OUTPUT="$("$FOCUS_SETUP")"
+ROADMAP_FILE="$(printf "%s\n" "$SETUP_OUTPUT" | sed -n 's/^ROADMAP_FILE=//p')"
 FOCUS_FILE="$(printf "%s\n" "$SETUP_OUTPUT" | sed -n 's/^FOCUS_FILE=//p')"
 PROJECTS_DIR="$(printf "%s\n" "$SETUP_OUTPUT" | sed -n 's/^PROJECTS_DIR=//p')"
 MIGRATED_FOCUS="$(printf "%s\n" "$SETUP_OUTPUT" | sed -n 's/^MIGRATED_FOCUS=//p')"
+
+roadmap_last_touched="$(head -10 "$ROADMAP_FILE" | grep -m1 'last_touched:' | sed 's/.*last_touched: *//' || echo "unknown")"
+if [[ "$roadmap_last_touched" == "$TODAY" ]]; then
+  roadmap_stale="no"
+else
+  roadmap_stale="yes"
+fi
 
 focus_last_touched="$(head -10 "$FOCUS_FILE" | grep -m1 'last_touched:' | sed 's/.*last_touched: *//' || echo "unknown")"
 if [[ "$focus_last_touched" == "$TODAY" ]]; then
@@ -17,6 +25,9 @@ else
   focus_stale="yes"
 fi
 
+echo "ROADMAP_FILE=$ROADMAP_FILE"
+echo "ROADMAP_LAST_TOUCHED=$roadmap_last_touched"
+echo "ROADMAP_STALE=$roadmap_stale"
 echo "FOCUS_FILE=$FOCUS_FILE"
 echo "FOCUS_LAST_TOUCHED=$focus_last_touched"
 echo "FOCUS_STALE=$focus_stale"
