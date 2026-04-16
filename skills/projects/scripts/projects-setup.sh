@@ -58,6 +58,13 @@ $progress_summary
 
 | Metric | Value |
 |--------|-------|
+| Sessions completed | 0 |
+| PRs logged | 0 |
+| Discarded PRs | 0 |
+| Pivots logged | 0 |
+| Open follow-ups | 0 |
+| Compression | — |
+| Precision | — |
 
 ## Open Follow-ups
 
@@ -134,6 +141,9 @@ if [[ -f "$PROJECT_FILE" ]]; then
       "Backfilled execution memory on $TODAY for an existing project. Historical execution details have not been reconstructed yet." \
       "- Backfill historical PRs and pivots if they matter."
   fi
+  if [[ ! -f "$AUDIT_LOG" && "$ENSURE_EXECUTION" == "yes" ]]; then
+    printf "# Audit Log: %s\n\n## %s\n\nExecution memory ensured.\n\n" "$SLUG" "$NOW" > "$AUDIT_LOG"
+  fi
 
   echo "PROJECT_DIR=$PROJECT_DIR"
   echo "PROJECT_SLUG=$SLUG"
@@ -162,64 +172,44 @@ last_touched: $TODAY
 
 # ${SLUG}
 
-## Goal
+## Why
 
-## Scope
+<why this workstream deserves memory beyond roadmap.md>
 
-**In scope:**
--
+## Current Slice
 
-**Out of scope:**
--
+<one clear next slice, or none>
 
-## Blockers & Constraints
+## Links
 
-## Milestones
+| Type | Link |
+|------|------|
+| Roadmap | - |
+| Idea | - |
+| Spec | - |
+| Repo | - |
+| PR | - |
 
-| # | Milestone | Status |
-|---|-----------|--------|
+## Done
 
-## Sessions
+| Date | What | Ref |
+|------|------|-----|
 
-Sessions are delivery slices picked up via \`/spec-new-feature\` or direct execution.
-Create a session only when it deserves its own completion row, dependency edge, or handoff.
-Keep \`## Available Sessions\` to one clear next slice when possible.
+## Open Follow-ups
 
-### Dependency Graph (Optional)
+- None
 
-\`\`\`mermaid
-flowchart TB
-    %% Add this only when 3+ live slices or real sequencing make a graph useful.
-    %% Group by batch level in invisible subgraphs (b0, b1, ...) with direction LR.
-    %% Style each: style b0 fill:none,stroke:none
-    %% Color-code nodes by milestone via style directives.
-\`\`\`
+## Handoff
 
-## Available Sessions
-
-## Blocked Sessions
-
-## Completed
-
-| Session | Completed | Ref |
-|---------|-----------|-----|
+Use \`/spec-new-feature ${SLUG}\` when the Current Slice needs code-grounded planning.
+Return PRs, pivots, and follow-ups here unless the workstream grows enough to need \`execution.md\`.
 EOF
-
-printf "# Audit Log: %s\n\n## %s\n\nProject created.\n\n" "$SLUG" "$NOW" > "$AUDIT_LOG"
-
-write_execution_file \
-  "$EXECUTION_FILE" \
-  "active" \
-  "$TODAY" \
-  "$TODAY" \
-  "Project scaffolded on $TODAY. Add execution reality here once work begins." \
-  ""
 
 echo "PROJECT_DIR=$PROJECT_DIR"
 echo "PROJECT_SLUG=$SLUG"
 echo "PROJECT_FILE=$PROJECT_FILE"
 echo "EXECUTION_FILE=$EXECUTION_FILE"
-echo "EXECUTION_EXISTS=yes"
+echo "EXECUTION_EXISTS=no"
 echo "AUDIT_LOG=$AUDIT_LOG"
 echo "MODE=new"
 echo ""

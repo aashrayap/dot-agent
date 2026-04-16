@@ -77,9 +77,23 @@ def extract_session_block(lines: list[str], section_header: str, session_id: str
     return new_lines, session_name
 
 
+def extract_current_slice(lines: list[str]) -> tuple[list[str], str | None]:
+    start, end = section_bounds(lines, "## Current Slice")
+    body = [line.strip() for line in lines[start + 1 : end] if line.strip()]
+    if not body:
+        return lines, None
+    session_name = " ".join(body)
+    new_lines = lines[: start + 1] + ["", "None"] + lines[end:]
+    return new_lines, session_name
+
+
 def append_completed_row(lines: list[str], session_name: str, date_value: str, ref: str) -> list[str]:
-    _, end = section_bounds(lines, "## Completed")
-    row = f"| {session_name} | {date_value} | {ref} |"
+    try:
+        _, end = section_bounds(lines, "## Completed")
+        row = f"| {session_name} | {date_value} | {ref} |"
+    except SystemExit:
+        _, end = section_bounds(lines, "## Done")
+        row = f"| {date_value} | {session_name} | {ref} |"
     return lines[:end] + [row] + lines[end:]
 
 
@@ -148,8 +162,6 @@ def main() -> int:
     audit_log = project_dir / "AUDIT_LOG.md"
     if not project_file.exists():
         raise SystemExit(f"ERROR: project file not found: {project_file}")
-    if not audit_log.exists():
-        raise SystemExit(f"ERROR: audit log not found: {audit_log}")
 
     lines = read_text(project_file).splitlines()
     lines = update_last_touched(lines, args.date)
@@ -157,14 +169,18 @@ def main() -> int:
     if session_name is None:
         lines, session_name = extract_session_block(lines, "## Blocked Sessions", args.session_id)
     if session_name is None:
-        raise SystemExit(f"ERROR: session {args.session_id} not found in Available or Blocked sections")
+        lines, session_name = extract_current_slice(lines)
+    if session_name is None:
+        raise SystemExit(f"ERROR: session {args.session_id} not found and Current Slice is empty")
     lines = append_completed_row(lines, f"{args.session_id} — {session_name}", args.date, args.ref)
     lines = remove_mermaid_refs(lines, args.session_id)
     write_text(project_file, "\n".join(lines).rstrip() + "\n")
-    append_audit(audit_log, args.session_id, session_name, args.date, args.ref, args.outcome, args.notes)
+    if audit_log.exists():
+        append_audit(audit_log, args.session_id, session_name, args.date, args.ref, args.outcome, args.notes)
     update_execution(project_dir, f"{args.session_id} — {session_name}", args.date, args.ref, args.outcome, args.notes)
     print(f"UPDATED={project_file}")
-    print(f"AUDIT_LOG={audit_log}")
+    if audit_log.exists():
+        print(f"AUDIT_LOG={audit_log}")
     print(f"EXECUTION_FILE={project_dir / 'execution.md'}")
     print(f"SESSION_NAME={session_name}")
     return 0

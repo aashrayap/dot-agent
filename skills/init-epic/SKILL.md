@@ -7,6 +7,16 @@ disable-model-invocation: true
 
 # Init Epic
 
+## Composes With
+
+- Parent: `idea`, `focus`, or `projects` when a workstream needs a multi-repo coordination workspace.
+- Children: `projects` after the workspace exists.
+- Uses format from: none.
+- Reads state from: user-provided repo/workspace context and existing sibling repos.
+- Writes through: `scripts/init-epic-setup.sh` and the new coordination workspace files.
+- Hands off to: `projects` for durable execution state.
+- Receives back from: none.
+
 Use this when the user wants to stand up a coordination repo for a multi-repo initiative.
 
 This skill captures the reusable pattern from `toolkit-rigby`: root coordination files, gitignored sibling repos, inventory stubs for each imported repo, and clear routing between current implementation repos, legacy reference repos, and the coordination repo itself.

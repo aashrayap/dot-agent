@@ -5,6 +5,16 @@ description: Review current branch, diff, or PR for bugs, regressions, contract 
 
 # Review
 
+## Composes With
+
+- Parent: user code-review request.
+- Children: GitHub plugin workflows when PR metadata, CI, or unresolved review comments exceed local scripts.
+- Uses format from: none.
+- Reads state from: git diff, changed files, PR context when available, and repository tests/docs.
+- Writes through: none by default; review comments only when explicitly requested.
+- Hands off to: `github:gh-address-comments` for unresolved review threads and `github:gh-fix-ci` for failing CI.
+- Receives back from: GitHub plugin context when used.
+
 Use this when the user asks for a code review, PR review, diff review, or wants unresolved reviewer comments checked against the current code.
 
 ## Quick Start
@@ -18,6 +28,10 @@ Use `scripts/fetch-pr-context.sh` when the repo has an open GitHub PR and review
 ### Cross-Exam Review
 
 This is the default unless the user explicitly asks for a lightweight review.
+
+Use the standard roles from `skills/AGENTS.md` when delegation is authorized:
+Explorer for territory/change/reviewer investigation, Worker / Implementor for
+requested fixes, and Gate / Verifier for post-fix validation.
 
 Run three staged passes:
 
@@ -69,5 +83,5 @@ If the user asks for fixes after the review:
 
 - change only the agreed areas
 - preserve documented contracts
-- rerun the most relevant verification
+- rerun the most relevant verification or a Gate / Verifier pass
 - avoid drive-by refactors

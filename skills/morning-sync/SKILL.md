@@ -10,19 +10,35 @@ disable-model-invocation: true
 
 # Morning Sync
 
+## Composes With
+
+- Parent: first morning call from the user.
+- Children: `focus` for roadmap mutations, `projects` for durable workstreams, `idea` for new concepts, `spec-new-feature` only after user chooses implementation.
+- Uses format from: none.
+- Reads state from: `~/.dot-agent/state/collab/roadmap.md`, active `projects/*/project.md`, optional `projects/*/execution.md`, and PR/review queues when available.
+- Writes through: `focus`/`roadmap.py` only when the user asks for an updating sync.
+- Hands off to: `focus` for board edits; `projects` for durable work; `idea` for incubation.
+- Receives back from: `execution-review` through completed-row drainage history.
+
 ## Context
 
 Run `~/.dot-agent/skills/morning-sync/scripts/morning-sync-setup.sh` first.
 
-This skill is the day-start loop on top of the `focus` and `projects` layers. It should be opinionated and concise. The goal is not to restate every project; the goal is to help a human decide what deserves attention now.
+This skill is the first morning call. It runs on top of the `roadmap` and
+`projects` layers. It should be opinionated and concise. The goal is not to
+restate every project; the goal is to help a human decide what deserves
+attention now.
 
-Use `morning-sync` only after the underlying `focus` and `projects` state is current. It summarizes what those layers already know; it does not bootstrap a workspace or replace project planning. If the user still needs a coordination repo, use `init-epic` first.
+Use `morning-sync` when the user asks what to work on this morning, wants a
+daily sync, or wants to start the day. It summarizes the daily board and active
+projects; it does not replace project planning. If the user still needs a
+coordination repo, use `init-epic` first.
 
 ## Inputs
 
 Always read:
 
-- `~/.dot-agent/state/collab/focus.md`
+- `~/.dot-agent/state/collab/roadmap.md`
 - active `~/.dot-agent/state/projects/*/project.md`
 - active `~/.dot-agent/state/projects/*/execution.md` when present
 
@@ -32,14 +48,15 @@ If the user invocation includes fresh context for the day, incorporate it before
 
 ### 1. Validate focus
 
-- Confirm that `focus.md` exists and is in the canonical schema.
-- Check whether the focus page looks stale relative to today.
-- Check whether `## Now` aligns with active project state.
+- Confirm that `roadmap.md` exists and is in the canonical schema.
+- Check whether the roadmap looks stale relative to today.
+- Warn if it contains `Completed` rows that were not drained by `execution-review`.
+- Check whether `In Progress` rows align with active project state.
 - Call out contradictions plainly.
 
 ### 2. Pull new work
 
-- Review active projects for unblocked sessions, unresolved follow-ups, and fresh execution momentum.
+- Review active projects for current slices, unresolved follow-ups, and fresh execution momentum.
 - Prefer continuing something already in motion over starting a new track.
 - Only pull in new work if:
   - the current focus is empty
@@ -65,7 +82,7 @@ Bias toward:
 - at most one secondary pull-in
 - explicit blocked or ignore items that should not steal attention
 
-Treat this as read-only unless the user explicitly asks to update `focus.md`.
+Treat this as read-only unless the user explicitly asks to update `roadmap.md`.
 
 ## Output Format
 
@@ -93,13 +110,16 @@ In progress:
 - <item>
 Queued:
 - <item>
+
+## Proposed roadmap changes
+- <add/move/complete/drop row, or "No changes">
 ```
 
 Keep it short. If there is no good secondary item, say so instead of padding.
 
 ## Rules
 
-- Do not silently rewrite `focus.md`.
+- Do not silently rewrite `roadmap.md`.
 - Prefer execution evidence over stale planning.
 - Prefer current momentum over speculative new starts.
 - Do not turn this into bootstrap work or project-plan creation; those belong to `init-epic`, `projects`, or `focus`.

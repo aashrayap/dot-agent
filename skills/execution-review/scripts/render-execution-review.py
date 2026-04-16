@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -11,7 +12,7 @@ from uuid import uuid4
 from claude_adapter import fetch_claude_sessions
 from codex_adapter import fetch_codex_sessions
 from review_context import load_focus_context, load_project_contexts
-from review_schema import aggregate_normalized_sessions, iso, parse_window, utc_now
+from review_schema import aggregate_normalized_sessions, format_seconds, iso, parse_window, to_dt, utc_now
 from review_scoring import (
     build_layer_allocation,
     recommendations_from_layer_allocation,
@@ -116,6 +117,95 @@ def _markdown_table(headers: list[str], rows: list[list[str]]) -> str:
     return "\n".join(lines)
 
 
+def _table_cell(value: Any) -> str:
+    return str(value or "").replace("|", "/").replace("\n", " ").strip()
+
+
+def _local_hm(value: Any) -> str:
+    dt = to_dt(value)
+    if dt is None:
+        return "?"
+    return dt.astimezone().strftime("%H:%M")
+
+
+def _project_label(session: dict[str, Any], project_contexts: list[dict[str, Any]]) -> str:
+    cwd = str(session.get("cwd") or "")
+    cwd_name = Path(cwd).name if cwd else ""
+    cwd_parts = set(Path(cwd).parts) if cwd else set()
+    for project in project_contexts:
+        slug = str(project.get("slug") or "")
+        if slug and (slug == cwd_name or slug in cwd_parts):
+            return slug
+    label = str(session.get("label") or "").strip()
+    if label:
+        clean_label = re.sub(r"<[^>]+>", " ", label)
+        words = [word.strip("`*_[](){}:,.#+$") for word in clean_label.split()]
+        words = [
+            word
+            for word in words
+            if word and not word.isdigit() and not word.startswith(("http://", "https://"))
+        ]
+        short = " ".join(word for word in words[:5] if word)
+        if short:
+            return f"{short} (inferred)"
+    return cwd_name or "unknown (inferred)"
+
+
+def _project_ribbon_rows(
+    sessions: list[dict[str, Any]],
+    project_contexts: list[dict[str, Any]],
+) -> list[list[str]]:
+    ordered = sorted(sessions, key=lambda item: item.get("started_at") or item.get("ended_at") or "")
+    groups: list[dict[str, Any]] = []
+    for session in ordered:
+        project = _project_label(session, project_contexts)
+        started = session.get("started_at")
+        ended = session.get("ended_at")
+        runtime = str(session.get("runtime") or "unknown")
+        cwd = str(session.get("cwd") or "")
+        session_id = str(session.get("session_id") or "")
+        wall_seconds = int(session.get("wall_seconds") or 0)
+
+        if groups and groups[-1]["project"] == project:
+            group = groups[-1]
+            group["ended_at"] = max(str(group.get("ended_at") or ""), str(ended or ""))
+            group["wall_seconds"] += wall_seconds
+            group["runtimes"].add(runtime)
+            if cwd:
+                group["cwds"].add(cwd)
+            if session_id:
+                group["sessions"].append(session_id)
+            continue
+
+        groups.append(
+            {
+                "project": project,
+                "started_at": started,
+                "ended_at": ended,
+                "wall_seconds": wall_seconds,
+                "runtimes": {runtime},
+                "cwds": {cwd} if cwd else set(),
+                "sessions": [session_id] if session_id else [],
+            }
+        )
+
+    rows: list[list[str]] = []
+    for idx, group in enumerate(groups, start=1):
+        cwd_names = sorted({Path(cwd).name or cwd for cwd in group["cwds"] if cwd})
+        rows.append(
+            [
+                str(idx),
+                f"{_local_hm(group.get('started_at'))} -> {_local_hm(group.get('ended_at'))}",
+                format_seconds(group.get("wall_seconds")),
+                _table_cell(group.get("project")),
+                ", ".join(sorted(group["runtimes"])),
+                _table_cell(", ".join(cwd_names)),
+                ", ".join(f"`{sid}`" for sid in group["sessions"]),
+            ]
+        )
+    return rows
+
+
 def _render_report(
     *,
     created_at: str,
@@ -140,6 +230,17 @@ def _render_report(
     for line in _topline(payload, scores):
         lines.append(f"- {line}")
     lines.append("")
+
+    ribbon_rows = _project_ribbon_rows(payload.get("sessions") or [], project_contexts)
+    if ribbon_rows:
+        lines.append("## Project Ribbon")
+        lines.append(
+            _markdown_table(
+                ["#", "Time", "Wall", "Project", "Runtime", "cwd(s)", "Sessions"],
+                ribbon_rows,
+            )
+        )
+        lines.append("")
 
     runtime_rows = [
         [

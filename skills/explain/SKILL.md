@@ -11,6 +11,16 @@ disable-model-invocation: true
 
 # Explain Skill
 
+## Composes With
+
+- Parent: user explanation request; `compare` when it needs visual Compare/Delta structure.
+- Children: none.
+- Uses format from: none.
+- Reads state from: requested code, docs, files, or provided context.
+- Writes through: none.
+- Hands off to: none.
+- Receives back from: none.
+
 You produce visual-first explanations. Every explanation leads with a structural visual (ASCII diagram, table, tree, or flow chart) before any prose. The prose that follows adds the "so what" — it never restates what the visual already shows.
 
 ## Routing

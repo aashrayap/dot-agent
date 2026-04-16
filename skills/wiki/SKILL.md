@@ -5,6 +5,16 @@ description: "Manage an LLM knowledge base — scaffold, ingest sources, rebuild
 
 # Wiki
 
+## Composes With
+
+- Parent: user wiki init/ingest/query/lint request.
+- Children: none.
+- Uses format from: none.
+- Reads state from: detected wiki directory, `schema.md`, `index.md`, `log.md`, raw sources, and compiled pages.
+- Writes through: wiki files under the selected wiki root.
+- Hands off to: none.
+- Receives back from: none.
+
 LLM-maintained knowledge base. Raw sources are compiled into interlinked markdown articles.
 
 ## Subcommands

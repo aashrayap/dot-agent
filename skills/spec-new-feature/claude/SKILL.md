@@ -6,7 +6,19 @@ disable-model-invocation: true
 
 # Spec New Feature
 
+## Composes With
+
+- Parent: `idea` or `projects` when work needs code-grounded planning.
+- Children: none.
+- Uses format from: none.
+- Reads state from: idea `spec.md`/`plan.md`, thin project `Current Slice`, repo docs/code, and feature artifacts.
+- Writes through: `docs/artifacts/<feature>/` for feature artifacts; returns PRs/pivots/follow-ups to `projects`.
+- Hands off to: `projects` after execution or when durable memory is needed.
+- Receives back from: `projects` as curated workstream context.
+
 Use this for non-trivial feature work that needs a spec, decontaminated research, design decisions, task breakdown, and optional execution.
+
+This is also the code-grounded planning bridge for mature `/idea` work. Idea docs provide product and high-level architecture context; this workflow owns approved spec artifacts, decontaminated research, design, code-specific tasks, and optional execution.
 
 ## Context
 
@@ -39,6 +51,7 @@ Track progress via `status` frontmatter: `pending` → `draft` → `approved`/`c
 - Feature directory and templates are pre-created. Do NOT create them manually.
 - On startup, read artifact files to determine current phase. Tell the human which phase you're starting and why.
 - No code in L1–L3. Implementation details belong in L4 task specs only.
+- Code-specific files, functions, schemas, API routes, packages, migrations, and verify commands belong in L4 task specs, not in earlier artifacts, unless they are evidence found during research.
 - Read CLAUDE.md and README.md files before L3 — only from the working directory and its subdirectories. NEVER traverse parent directories to find these files.
 - Questions must be specific and falsifiable.
 - The question list is a checkpoint. Stop for approval before research unless the user clearly asks to continue without pausing.
@@ -84,6 +97,8 @@ MANDATORY TOOL USAGE — Read this first:
 3. **Draft** — Fill in `01_spec.md`.
 4. **Devil's Advocate** — Every AC testable without human judgment? Third-party behaviors documented? Failure mode per external dep? Security explicit? Migration/backward-compat addressed?
 5. **Gate** — Human must approve. Update `status: approved`. Do NOT proceed to L2 until approved.
+
+If the input references an idea under `~/.dot-agent/state/ideas/<slug>/`, read `idea.md`, `brief.md`, `spec.md`, and `plan.md` when present. Convert the idea into users, acceptance criteria, boundaries, and open questions. If the idea is still missing product clarity, stop and route back to `/idea <slug>`.
 
 ---
 
@@ -200,6 +215,8 @@ The orchestrator performs decomposition directly — do NOT delegate to a subage
    - **Acceptance Criteria:** subset from `01_spec.md` mapped to this task
    - **Verify:** copy-pasteable commands
    - **Boundaries:** Always / Ask first / Never
+   - **Effort:** hour estimate once the codebase is known
+   - **Tracking ID:** stable task ID that can be cited from `projects/execution.md`
 6. **Self-containment test:** Could an agent implement each task with ONLY the task spec + CLAUDE.md? If not, inline missing context.
 7. If a task needs an unresolved design decision → loop to L3.
 8. Present to human. Execute on approval.
@@ -210,6 +227,12 @@ The orchestrator performs decomposition directly — do NOT delegate to a subage
 
 After `05_tasks.md` approved, execute wave by wave:
 
+Use the standard roles from `skills/AGENTS.md`: Worker / Implementor for
+file-scoped edits and Gate / Verifier for post-wave validation. In Claude Code,
+these may map to named agents such as Sushant's `task-implementor` and
+`gating-agent`; in Codex, use the available worker/explorer roles only when
+delegation is authorized.
+
 1. **Per wave** — One agent per task, parallel. Do NOT use `isolation: "worktree"`. Task decomposition guarantees no file conflicts, so worktrees add cherry-pick overhead without benefit.
 2. **Agent prompt:**
    ```
@@ -218,8 +241,10 @@ After `05_tasks.md` approved, execute wave by wave:
    Task spec: {full task content from 05_tasks.md}
    Rules: Implement exactly what spec describes. Follow CLAUDE.md conventions. Run verify commands via Bash. Fix failures and re-verify. If spec doesn't cover something, STOP and report. Do NOT modify files outside task scope.
    ```
-3. **Between waves** — Full type-check + lint + test across affected areas.
-4. **Retries** — Agent fails after 2-3 attempts → escalate to human (usually a spec gap).
-5. **Track** — Update checkboxes in `05_tasks.md`.
+3. **Gate** — Run one Gate / Verifier pass over the union of changed files before calling the wave complete.
+4. **Between waves** — Full type-check + lint + test across affected areas.
+5. **Retries** — Agent fails after 2-3 attempts → escalate to human (usually a spec gap).
+6. **Track** — Update checkboxes in `05_tasks.md`.
+7. **Execution memory** — If this belongs to a tracked project, hand PRs, pivots, discarded approaches, and follow-ups back to `projects/execution.md` instead of creating a parallel idea execution log.
 
 ---

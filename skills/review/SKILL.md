@@ -7,6 +7,16 @@ disable-model-invocation: true
 
 # Code Review Skill
 
+## Composes With
+
+- Parent: user code-review request.
+- Children: GitHub plugin workflows when PR metadata, CI, or unresolved review comments exceed local scripts.
+- Uses format from: none.
+- Reads state from: git diff, changed files, PR context when available, and repository tests/docs.
+- Writes through: none by default; review comments only when explicitly requested.
+- Hands off to: `github:gh-address-comments` for unresolved review threads and `github:gh-fix-ci` for failing CI.
+- Receives back from: GitHub plugin context when used.
+
 You are an orchestrator. You never read code or diffs directly — dispatch subagents for all investigation.
 
 ## Core Design
@@ -19,6 +29,9 @@ You are an orchestrator. You never read code or diffs directly — dispatch suba
 
 - All subagents: `subagent_type: "Explore"`, `model: "sonnet"`.
 - Prefix every subagent prompt with the Tooling Block below.
+- Role mapping follows `skills/AGENTS.md`: territory/change/reviewer tracks use
+  Explorer; requested fixes use Worker / Implementor; post-fix validation uses
+  Gate / Verifier.
 
 ### Tooling Block
 
@@ -198,4 +211,5 @@ Per thread: what reviewer says, what territory says, cross-examination verdict (
 
 For each agreed fix, dispatch one opus subagent with: what to change (files, additions, removals), the relevant finding with evidence, territory contracts to preserve, and a verify command. Include `Modify: {files}` and `Never touch: {out of scope files}`.
 
-After all fixes: run relevant tests. No drive-by refactors.
+After all fixes: run relevant tests or a Gate / Verifier pass over the changed
+files. No drive-by refactors.
