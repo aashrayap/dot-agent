@@ -1,8 +1,9 @@
-Shared runtime instructions for repositories using this dot-agent install.
+Runtime instructions for repositories using Ash's dot-agent install.
 
 - Treat this file as base runtime context, not project-specific context.
 - Follow repository-local instructions in the active workspace when present.
-- Keep personal preferences, private context, and risky local overrides out of this shared repo.
+- This repo is Ash's personal/work-machine harness, not a shared team distribution.
+- Keep private context and risky machine-local overrides out of tracked config.
 - Use the strategic/tactical/disposable lens when making workflow or tooling decisions:
   - Strategic layer: domain expertise, proprietary context/data, judgment, evals, decision loops, trust.
   - Tactical layer: harnesses, skills, workflows, reviews, deterministic helpers that accelerate the strategic layer.
