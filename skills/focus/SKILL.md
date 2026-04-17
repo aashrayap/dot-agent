@@ -14,12 +14,12 @@ disable-model-invocation: true
 ## Composes With
 
 - Parent: `morning-sync` for day-start orchestration.
-- Children: `projects` when a roadmap row needs durable memory; `idea` when a row is still conceptual.
-- Uses format from: none.
-- Reads state from: `~/.dot-agent/state/collab/roadmap.md`, legacy `focus.md`, and active projects when reviewing what to do next.
+- Children: `idea` when a row is still conceptual; `spec-new-feature` when a row needs deep planning; `excalidraw-diagram` when a roadmap change needs a durable visual; `projects` only for explicit promotion, legacy inspection, or execution drill-down.
+- Uses format from: `excalidraw-diagram` for human-facing roadmap, workflow, or before/after visuals when useful.
+- Reads state from: `~/.dot-agent/state/collab/roadmap.md` by default; legacy `focus.md` only for compatibility or migration. Do not read `~/.dot-agent/state/projects/*` in the normal focus/review path.
 - Writes through: `skills/focus/scripts/roadmap.py` for roadmap mutations and `focus-promote.py` for project promotion.
-- Hands off to: `morning-sync` for first morning call; `projects` for durable workstreams.
-- Receives back from: `execution-review` when completed rows need draining or cleanup.
+- Hands off to: `morning-sync` for first morning call; `daily-review` for completed-row drainage; `spec-new-feature` for deep planning; `projects` only for explicit legacy or execution drill-down.
+- Receives back from: `daily-review` when completed rows were drained or left ambiguous.
 
 ## Context
 
@@ -35,8 +35,10 @@ Deterministic helpers:
 Read `~/.dot-agent/state/collab/roadmap.md` every time. Keep
 `~/.dot-agent/state/collab/focus.md` as a legacy compatibility file, not the
 primary operating board. When the user wants help deciding what should happen
-next, also read active project state from
-`~/.dot-agent/state/projects/*/project.md` and `execution.md` when present.
+next, stay on the human roadmap by default. Do not read active project state
+from `~/.dot-agent/state/projects/*/project.md` or `execution.md` unless the
+user explicitly asks for legacy project inspection, one-time migration, or a
+deep execution drill-down.
 
 This skill is the active control surface for:
 
@@ -45,9 +47,16 @@ This skill is the active control surface for:
 - reducing simultaneous work in progress
 - parking lower-priority work without losing it
 - promoting focused work into a tracked project when needed
-- telling the user when to stay in `focus` versus switch to `projects`
+- telling the user when to stay in `focus` versus switch to deep planning or
+  explicit project execution
 
-Execution review looks backward. Focus works in the present.
+`daily-review` closes the day. `execution-review` is forensic. Focus works in
+the present.
+
+When a focus change is structural, such as reshaping the board, splitting
+workstreams, or explaining why work moves between active/review/parked states,
+lead with or link to an Excalidraw diagram. Use text-only output for small row
+edits.
 
 ## Storage
 
@@ -74,13 +83,25 @@ last_touched: YYYY-MM-DD
 
 <one or two sentences>
 
-## <Project or Workstream>
+## Active Projects
 
-| Status | Item | Link | Spec / Idea / Project | Notes |
-|--------|------|------|-----------------------|-------|
-| In Progress | <title> | <PR/ticket/ref or -> | <link or -> | <short note> |
-| Queued | <title> | <PR/ticket/ref or -> | <link or -> | <short note> |
-| Completed | <title> | <PR/ticket/ref or -> | <link or -> | <short note> |
+| Project | Status | Task | Link | Notes |
+|---------|--------|------|------|-------|
+| <project or workstream> | In Progress | <plain-language task> | <PR/ticket/ref or -> | <short note> |
+| <project or workstream> | Queued | <plain-language task> | <PR/ticket/ref or -> | <short note> |
+| <project or workstream> | Completed | <plain-language task> | <PR/ticket/ref or -> | <short note> |
+
+## Review Queue
+
+| Item | Source | Status | Notes |
+|------|--------|--------|-------|
+| <PR/review/blocker> | <repo/tool/user> | <status> | <short note> |
+
+## Parked / Blocked
+
+| Item | Reason | Revisit |
+|------|--------|---------|
+| <plain-language item> | <why parked or blocked> | <date/event or -> |
 ```
 
 ## Modes
@@ -111,6 +132,8 @@ Use this when the user provides new notes, corrections, or asks to edit the page
    - use `Queued` for deferred work
    - use `Completed` for work that should drain at day-end review
    - use `Dropped` only for abandoned work that should not drain as completed
+   - keep project/workstream names human-readable
+   - avoid session IDs, dependency labels, and execution artifact anchors
 3. Update `last_touched` on every write.
 4. Keep the page concise. This is a control surface, not a diary.
 
@@ -123,28 +146,29 @@ Use this when the user asks what they should work on now, what matters next, or 
 
 1. Read legacy `focus.md` only for compatibility context when it exists.
 2. Read `roadmap.md`.
-3. Read active and otherwise non-complete projects under `~/.dot-agent/state/projects/`.
-4. Read each project's `execution.md` when it exists.
-5. Run `focus-handoff.py` to determine whether the current focus already maps cleanly to a tracked project.
-6. Treat this review as read-only. Do not rewrite `roadmap.md` unless the user explicitly asks.
-7. Synthesize a decision summary with these exact headings:
+3. Do not read `~/.dot-agent/state/projects/*` unless the user explicitly asks for legacy project inspection, one-time migration, or deep execution drill-down.
+4. Treat this review as read-only. Do not rewrite `roadmap.md` unless the user explicitly asks.
+5. Synthesize a decision summary with these exact headings:
 
 ```markdown
-## Continue now
-- <highest-leverage in-flight work>
+## Focus
+- <plain-language current focus>
 
-## Worth starting
-- <valuable unblocked work that is not the immediate best next step>
+## Active Projects
+- <project or workstream>: <high-level task>
+
+## Review Queue
+- <items that need review attention now, or "No tracked queue">
 
 ## Blocked / ignore
 - <things that should wait, or are blocked by dependencies or missing decisions>
 
-## Next control surface
-- <stay in `focus`, or invoke `projects <slug>`, with a one-line why>
+## Suggested Board Changes
+- <add/move/complete/drop row, or "No changes">
 ```
 
-7. Bias toward continuation over starting new work.
-8. Call out contradictions between `roadmap.md` and active project state when they matter.
+6. Bias toward continuation over starting new work.
+7. Call out contradictions inside `roadmap.md` when they matter.
 
 ### Decide The Next Control Surface
 
@@ -153,11 +177,9 @@ Use this whenever the user is moving from "what should I focus on?" toward "what
 - If the question is day-start triage or "what should I work on this morning?", use `morning-sync`.
 - If the user does not yet have a coordination workspace for a multi-repo effort, use `init-epic` before trying to route into tracked project execution.
 - Stay in `focus` when the user is editing the roadmap, trimming WIP, parking items, or correcting the control surface.
-- Tell the user to invoke `projects <slug>` when all of these are true:
-  - `focus-handoff.py` reports `PROJECT_READY=yes`
-  - the user is transitioning from prioritization into execution
-  - the next question is session/task level: what to start, what is unblocked, what changed, or what to hand off into `/spec-new-feature`
-- If `focus-handoff.py` does not find a unique tracked project, keep the user in `focus` and explain what is still ambiguous.
+- Use `daily-review` when the user wants to close the day, drain completed rows, or write a dated recap.
+- Use `spec-new-feature` when a roadmap task needs deep planning or implementation artifacts.
+- Use `projects <slug>` only when the user explicitly asks for durable project state or execution history, or when promoting a roadmap row into tracked project memory.
 
 ### Deterministic vs Non-Deterministic
 
@@ -165,15 +187,15 @@ Treat these parts as deterministic:
 
 - reading and writing `roadmap.md`
 - enforcing `wip_limit`
-- matching the current roadmap focus or active row to a tracked project slug with `focus-handoff.py`
-- deciding that a clean project match means the next control surface is `projects <slug>` once the user moves into execution
+- keeping completed rows available for `daily-review` drainage
+- preserving the roadmap's human-readable schema
 
 Treat these parts as non-deterministic judgment:
 
 - choosing the best workstream when multiple active projects exist
 - deciding whether to continue current momentum or start something new
-- interpreting vague focus text that does not map cleanly to one tracked project
-- weighing contradictory planning state against more recent execution evidence
+- interpreting vague focus text that does not map cleanly to one active project/workstream row
+- weighing contradictory roadmap rows against fresh user intent
 
 ### Promote Into A Project
 
@@ -191,5 +213,7 @@ Use this when the user wants to turn a focus item into a tracked project.
 - Use YYYY-MM-DD dates.
 - Keep the file human-scannable in under a minute.
 - Do not turn `roadmap.md` into a second project tracker.
-- `roadmap.md` is the day-level control plane. `projects/` remains the durable home for structured execution history.
-- If project state suggests a better next move than the current focus page, say so plainly.
+- `roadmap.md` is the day-level control plane. `projects/` is legacy/deep execution state and is not read in the normal focus path.
+- Never emit `S01`, `S02`, session IDs, dependency graph labels, or `project.md#s01` anchors in normal human output.
+- Do not expose `Available Sessions`, `Blocked Sessions`, Mermaid dependency graphs, or raw execution artifact internals in focus output.
+- If the roadmap is missing a useful project/task row, suggest a plain-language board edit instead of reaching into project state.

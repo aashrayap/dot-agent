@@ -23,7 +23,7 @@ def main() -> int:
     args = parse_args()
     dot_agent = Path(os.environ.get("DOT_AGENT_HOME", str(Path.home() / ".dot-agent"))).expanduser()
     projects_setup = dot_agent / "skills" / "projects" / "scripts" / "projects-setup.sh"
-    focus_update = dot_agent / "skills" / "focus" / "scripts" / "focus-update.py"
+    roadmap = dot_agent / "skills" / "focus" / "scripts" / "roadmap.py"
 
     setup_result = subprocess.run(
         ["bash", str(projects_setup), "--ensure-execution", args.slug],
@@ -32,24 +32,78 @@ def main() -> int:
         text=True,
     )
 
-    cmd = [
+    focus_cmd = [
         sys.executable,
-        str(focus_update),
-        "set",
+        str(roadmap),
+        "focus",
         "--date",
         args.date,
-        "--current",
-        args.slug,
-        "--why",
-        args.why,
-        "--now",
-        f"{args.slug} — promoted into active tracked project focus",
+        "--text",
+        f"{args.slug}: promoted into tracked project focus.",
     ]
+    subprocess.run(focus_cmd, check=True)
+
+    active_cmd = [
+        sys.executable,
+        str(roadmap),
+        "add",
+        "--date",
+        args.date,
+        "--section",
+        "Active Projects",
+        "--source",
+        args.slug,
+        "--status",
+        "In Progress",
+        "--item",
+        f"{args.slug} promoted into tracked project focus",
+        "--notes",
+        args.why,
+    ]
+    subprocess.run(active_cmd, check=True)
+
     for item in args.queued:
-        cmd.extend(["--next", item])
+        subprocess.run(
+            [
+                sys.executable,
+                str(roadmap),
+                "add",
+                "--date",
+                args.date,
+                "--section",
+                "Active Projects",
+                "--source",
+                args.slug,
+                "--status",
+                "Queued",
+                "--item",
+                item,
+                "--notes",
+                "queued during project promotion",
+            ],
+            check=True,
+        )
     for item in args.done:
-        cmd.extend(["--later", item])
-    subprocess.run(cmd, check=True)
+        subprocess.run(
+            [
+                sys.executable,
+                str(roadmap),
+                "add",
+                "--date",
+                args.date,
+                "--section",
+                "Active Projects",
+                "--source",
+                args.slug,
+                "--status",
+                "Completed",
+                "--item",
+                item,
+                "--notes",
+                "completed before project promotion",
+            ],
+            check=True,
+        )
     sys.stdout.write(setup_result.stdout)
     return 0
 

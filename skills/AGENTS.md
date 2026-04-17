@@ -66,7 +66,7 @@ skill edits.
 - `projects` owns durable workstream state.
 - `idea` owns incubation artifacts.
 - `spec-new-feature` owns deep code-grounded feature artifacts.
-- `execution-review` owns retrospective review and closure recommendations.
+- `execution-review` owns forensic retrospective review and session-quality recommendations.
 - Mutate another skill's state only through that skill's helper scripts or
   documented write path.
 

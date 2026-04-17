@@ -10,14 +10,18 @@ disable-model-invocation: true
 ## Composes With
 
 - Parent: user code-review request.
-- Children: GitHub plugin workflows when PR metadata, CI, or unresolved review comments exceed local scripts.
-- Uses format from: none.
+- Children: GitHub plugin workflows when PR metadata, CI, or unresolved review comments exceed local scripts; `excalidraw-diagram` only when a broad review needs a durable architecture or workflow visual.
+- Uses format from: `excalidraw-diagram` for high-level review maps when useful; line-specific findings remain text-first.
 - Reads state from: git diff, changed files, PR context when available, and repository tests/docs.
 - Writes through: none by default; review comments only when explicitly requested.
 - Hands off to: `github:gh-address-comments` for unresolved review threads and `github:gh-fix-ci` for failing CI.
 - Receives back from: GitHub plugin context when used.
 
 You are an orchestrator. You never read code or diffs directly — dispatch subagents for all investigation.
+
+For narrow code findings, cite exact files and lines without forcing a diagram.
+For broad contract, workflow, or architecture reviews, add or link a diagram
+when it makes the reviewed shape easier to understand.
 
 ## Core Design
 

@@ -9,12 +9,12 @@ disable-model-invocation: true
 ## Composes With
 
 - Parent: `roadmap.md` rows that outgrow the daily board.
-- Children: `spec-new-feature` for code-grounded implementation slices.
-- Uses format from: shared `projects` workflow.
+- Children: `spec-new-feature` for code-grounded implementation slices; `excalidraw-diagram` when durable project state needs a visual map.
+- Uses format from: shared `projects` workflow; `excalidraw-diagram` for human-facing workstream, dependency, or before/after maps when useful.
 - Reads state from: `~/.dot-agent/state/projects/<slug>/project.md`, optional `execution.md`, optional `AUDIT_LOG.md`, and related roadmap rows.
 - Writes through: `projects-setup.sh`, `complete-session.py`, and `update-execution.py` when execution memory exists.
 - Hands off to: `spec-new-feature` when Current Slice needs deep planning or code grounding.
-- Receives back from: `spec-new-feature` with PRs, pivots, and follow-ups; `execution-review` with closure updates.
+- Receives back from: `spec-new-feature` with PRs, pivots, and follow-ups; `execution-review` with forensic recommendations.
 
 Use the shared `projects` workflow from Claude Code.
 
@@ -30,3 +30,5 @@ Then follow the shared thin-project contract:
 - `execution.md` and `AUDIT_LOG.md` are optional and should be ensured only when
   PRs, pivots, discarded work, or multi-session execution memory matter.
 - Hand code-grounded slices to `/spec-new-feature`.
+- Use or link a high-level diagram when a complex workstream, dependency shape,
+  or before/after state would be easier for the human to review visually.

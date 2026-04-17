@@ -53,8 +53,10 @@ Examples:
 
 ## Visual Artifact Mode
 
-Default to Markdown tables and text. Use `excalidraw-diagram` only when at least
-one of these is true:
+Default to Markdown tables and text for narrow comparisons. For human-facing
+architecture, workflow, runtime, state-machine, or handoff comparisons, prefer a
+diagram companion when it will make the shape easier to review. Use
+`excalidraw-diagram` when at least one of these is true:
 
 - the user explicitly asks for an Excalidraw, drawing, diagram, or rendered visual
 - the comparison is an architecture, workflow, runtime, state-machine, or handoff map

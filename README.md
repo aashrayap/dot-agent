@@ -80,13 +80,41 @@ Use `state/` for local operating memory:
 - `state/ideas/<slug>/`
 - `state/tools/`
 
-## Operating Loop
+## Human Daily Loop
 
-- `morning-sync` reads the day board and active projects.
-- `focus` mutates the day board.
-- `projects` preserves durable workstream state.
-- `spec-new-feature` owns deep code-grounded planning and execution artifacts.
-- `execution-review` reconciles closure and writes back through owning helpers.
+The normal day-start surface is the human roadmap, not project/session memory.
+
+- `state/collab/roadmap.md` is the day board: focus, active projects, review
+  queue, and parked or blocked work.
+- `morning-sync` reads roadmap rows by default and returns plain-language
+  project/task bullets.
+- `focus` mutates the roadmap and keeps the board human-scannable.
+- `daily-review` owns day-end closure, recap, and completed-row drainage.
+- `projects` preserves durable execution history, but normal morning/focus
+  output should not depend on `projects/*` internals.
+- `spec-new-feature` owns deep code-grounded planning and implementation
+  artifacts.
+- `execution-review` stays forensic: session quality, verification, skill use,
+  and failure analysis.
+
+Session IDs, dependency graphs, and `project.md#s01` anchors belong in deep
+execution artifacts or legacy project state, not in the daily board.
+
+## Human Review Surfaces
+
+Review the contract layer first:
+
+1. diagrams for workflow and architecture shape
+2. `README.md` and `AGENTS.md` for repo/runtime intent
+3. `skills/README.md`, `skills/AGENTS.md`, `SKILL.md`, and `skill.toml` for
+   skill behavior
+4. code sampling when setup, runtime, state mutation, renderers, adapters, or
+   generated outputs change
+
+Human-presenting skills should point to an existing Excalidraw diagram or create
+one when they explain non-trivial workflow, architecture, planning, review, or
+decision state. Text should deepen the drawing rather than make the human infer
+the shape from prose first.
 
 ## Skills
 

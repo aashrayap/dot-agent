@@ -50,7 +50,9 @@ The wrapper installs the upstream renderer into
 Playwright-based render pipeline. This keeps third-party code and dependency
 caches out of tracked dot-agent source.
 
-Read `references/upstream-renderer.md` before changing renderer setup behavior.
+The renderer is pinned to the tested upstream commit documented in
+`references/upstream-renderer.md`. Read that file before changing renderer setup
+behavior or updating the pin.
 
 ## Artifact Rules
 

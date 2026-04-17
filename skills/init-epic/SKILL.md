@@ -10,8 +10,8 @@ disable-model-invocation: true
 ## Composes With
 
 - Parent: `idea`, `focus`, or `projects` when a workstream needs a multi-repo coordination workspace.
-- Children: `projects` after the workspace exists.
-- Uses format from: none.
+- Children: `projects` after the workspace exists; `excalidraw-diagram` when the workspace split needs a durable visual.
+- Uses format from: `excalidraw-diagram` for repo topology, ownership, or workflow maps when useful.
 - Reads state from: user-provided repo/workspace context and existing sibling repos.
 - Writes through: `scripts/init-epic-setup.sh` and the new coordination workspace files.
 - Hands off to: `projects` for durable execution state.
@@ -21,12 +21,16 @@ Use this when the user wants to stand up a coordination repo for a multi-repo in
 
 This skill captures the reusable pattern from `toolkit-rigby`: root coordination files, gitignored sibling repos, inventory stubs for each imported repo, and clear routing between current implementation repos, legacy reference repos, and the coordination repo itself.
 
+For multi-repo workspaces, include or update a high-level diagram when it will
+help the human reviewer see repo ownership, current-vs-legacy boundaries, or
+implementation order.
+
 ## Workflow Position
 
 - `init-epic` bootstraps the coordination repo.
 - `projects` takes over once durable milestones and execution slices need tracking.
-- `focus` chooses the active tracked project or slice for today.
-- `morning-sync` reviews that state at day start.
+- `focus` chooses the day-level roadmap row.
+- `morning-sync` reviews the human roadmap at day start.
 
 ## Context
 

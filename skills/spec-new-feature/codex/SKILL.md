@@ -8,8 +8,8 @@ description: Plan and optionally execute non-trivial feature work using an artif
 ## Composes With
 
 - Parent: `idea` or `projects` when work needs code-grounded planning.
-- Children: none.
-- Uses format from: none.
+- Children: `excalidraw-diagram` when a feature plan needs a durable workflow, architecture, or before/after visual.
+- Uses format from: `excalidraw-diagram` for human-facing planning and design visuals when useful.
 - Reads state from: idea `spec.md`/`plan.md`, thin project `Current Slice`, repo docs/code, and feature artifacts.
 - Writes through: `docs/artifacts/<feature>/` for feature artifacts; returns PRs/pivots/follow-ups to `projects`.
 - Hands off to: `projects` after execution or when durable memory is needed.
@@ -46,6 +46,9 @@ If the feature already exists, resume from the first incomplete phase instead of
 - Only parallelize research with subagents if the user explicitly asks for delegated or parallel agent work.
 - Code-specific files, function names, schemas, API routes, packages, migrations, and verify commands belong in `05_tasks.md`, not in earlier artifacts, unless they are evidence found during research.
 - When this starts from an idea handoff, preserve the product framing but do not treat the idea's technical architecture as implementation authority until research/design verifies it.
+- When the feature involves workflow, architecture, state flow, or a before/after
+  model that a human needs to understand, add or update a companion Excalidraw
+  diagram and link it from the relevant artifact.
 
 ## Workflow
 

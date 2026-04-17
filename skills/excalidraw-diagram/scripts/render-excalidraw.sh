@@ -77,13 +77,23 @@ TOOLS_DIR="$DOT_AGENT_STATE_HOME/tools"
 RENDERER_DIR="$TOOLS_DIR/excalidraw-diagram-skill"
 RENDERER_REF_DIR="$RENDERER_DIR/references"
 RENDERER_URL="https://github.com/coleam00/excalidraw-diagram-skill.git"
+DEFAULT_RENDERER_REF="8646fcc9f74f38539c6cdb4c969723336a96ddcd"
+RENDERER_REF="${EXCALIDRAW_RENDERER_REF:-$DEFAULT_RENDERER_REF}"
 
 mkdir -p "$TOOLS_DIR"
 
+checkout_renderer_ref() {
+  git -C "$RENDERER_DIR" fetch --depth 1 origin "$RENDERER_REF"
+  git -C "$RENDERER_DIR" checkout --detach FETCH_HEAD
+}
+
 if [[ ! -d "$RENDERER_DIR/.git" ]]; then
-  git clone --depth 1 "$RENDERER_URL" "$RENDERER_DIR"
+  git clone --no-checkout "$RENDERER_URL" "$RENDERER_DIR"
+  checkout_renderer_ref
+elif [[ "$(git -C "$RENDERER_DIR" rev-parse HEAD)" != "$RENDERER_REF" ]]; then
+  checkout_renderer_ref
 elif [[ "${EXCALIDRAW_RENDERER_UPDATE:-0}" == "1" ]]; then
-  git -C "$RENDERER_DIR" pull --ff-only
+  checkout_renderer_ref
 fi
 
 if [[ ! -f "$RENDERER_REF_DIR/render_excalidraw.py" ]]; then

@@ -16,12 +16,12 @@ disable-model-invocation: true
 ## Composes With
 
 - Parent: `roadmap.md` rows that outgrow the daily board.
-- Children: `spec-new-feature` for code-grounded implementation slices.
-- Uses format from: none.
+- Children: `spec-new-feature` for code-grounded implementation slices; `excalidraw-diagram` when durable project state needs a visual map.
+- Uses format from: `excalidraw-diagram` for human-facing workstream, dependency, or before/after maps when useful.
 - Reads state from: `~/.dot-agent/state/projects/<slug>/project.md`, optional `execution.md`, optional `AUDIT_LOG.md`, and related roadmap rows.
 - Writes through: `projects-setup.sh`, `complete-session.py`, and `update-execution.py` when execution memory exists.
 - Hands off to: `spec-new-feature` when Current Slice needs deep planning or code grounding.
-- Receives back from: `spec-new-feature` with PRs, pivots, and follow-ups; `execution-review` with closure updates.
+- Receives back from: `spec-new-feature` with PRs, pivots, and follow-ups; `execution-review` with forensic recommendations.
 
 ## Context
 
@@ -38,8 +38,8 @@ Read the project file. Read `execution.md` and `AUDIT_LOG.md` only when they exi
 
 - `init-epic` bootstraps a new coordination workspace and repo map.
 - `projects` owns durable milestones, live execution slices, and execution memory once that workspace exists.
-- `focus` chooses which tracked project or slice gets attention now.
-- `morning-sync` is the day-start readout on top of `focus` and active `projects`.
+- `focus` owns the human daily board and may link to projects when durable memory is needed.
+- `morning-sync` reads roadmap rows by default; it should inspect project internals only on explicit user drill-down or migration.
 
 ## Structure
 
@@ -55,6 +55,10 @@ Projects live under `~/.dot-agent/state/projects/` so both Claude and Codex on t
 records delivery reality only when needed. Technical details and codebase
 exploration are `/spec-new-feature`'s job. Prefer one current slice over
 speculative micro-steps.
+
+When presenting a complex workstream to a human, prefer a high-level diagram of
+current slice, durable memory, PR/follow-up flow, or dependency shape before
+deep tables. Reuse an existing diagram when it still matches reality.
 
 ## Key Concepts
 
