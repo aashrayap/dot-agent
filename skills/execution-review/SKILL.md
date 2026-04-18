@@ -58,7 +58,7 @@ The review system is evidence-first:
      rendered or human-readable artifact
    - one session that looks especially strong
 4. Inspect that small set with `scripts/inspect-execution-session.py`.
-5. Cluster sessions into logical workstreams. Treat `cwd` as a hint only: one repo can hold multiple projects, and one project can span repos or runtimes.
+5. Cluster sessions into logical workstreams. Treat `cwd` as a hint only: one repo can hold multiple workstreams, and one workstream can span repos or runtimes.
 6. Build a chronological workstream ribbon before scoring. It should answer, at a glance, how agent effort was actually spent.
 7. Produce the report with citations, scorecard, session-quality findings, and 1-3 concrete workflow changes.
 8. If closure, recap, or roadmap-drainage work is needed, recommend handoff to `daily-review` instead of mutating state here.
@@ -166,7 +166,7 @@ Also report strategic/tactical/disposable allocation:
 
 - Prefer a small number of inspected sessions over opening everything.
 - Treat `cwd` as a hint, not perfect ground truth.
-- Do not equate repos with projects.
+- Repos are not workstreams.
 - A no-edit research session is not automatically poor if it reduced uncertainty decisively.
 - A session with edits and no verification is a real risk.
 - Hermes findings should be clearly labeled as secondary interpretation when present.

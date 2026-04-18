@@ -19,9 +19,18 @@ Use this for new features, significant behavior changes, or multi-file work wher
 
 This is also the code-grounded planning bridge for mature `/idea` work. Idea docs provide product and high-level architecture context; this workflow owns approved spec artifacts, decontaminated research, design, code-specific tasks, and optional execution.
 
+## Response Contract
+
+- The universal response contract lives above this skill and applies to
+  non-trivial runs when relevant.
+- `spec-new-feature` implements that contract through `docs/artifacts/<feature>/`
+  when the run creates multiple artifacts or needs durable review/resume.
+- `00_summary.md` is the durable landing page for the artifact set when one is
+  needed.
+
 ## Quick Start
 
-Run `scripts/init-feature-artifacts.sh <feature-slug>` first. It creates or resumes:
+Run `scripts/init-feature-artifacts.sh <feature-slug>` first. It creates or resumes the core phase artifacts:
 
 - `docs/artifacts/<feature>/01_spec.md`
 - `docs/artifacts/<feature>/02_questions.md`
