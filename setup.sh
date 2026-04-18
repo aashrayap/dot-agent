@@ -165,6 +165,7 @@ ensure_codex_rules() {
 link_codex_payload() {
   backup_and_link "$DOT_AGENT_SOURCE_ROOT/AGENTS.md" "$CODEX_DST/AGENTS.md" ".codex/AGENTS.md"
   backup_and_link "$CODEX_SRC/config.toml" "$CODEX_DST/config.toml" ".codex/config.toml"
+  backup_and_link "$CODEX_SRC/hooks.json" "$CODEX_DST/hooks.json" ".codex/hooks.json"
   ensure_codex_rules
 }
 

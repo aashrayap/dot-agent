@@ -33,6 +33,7 @@ Installed runtime shape:
 ~/.codex/
 ├── AGENTS.md
 ├── config.toml
+├── hooks.json
 ├── rules/
 └── skills/
 ```
@@ -57,7 +58,7 @@ git -C ~/.dot-agent pull --ff-only
 
 - symlinks Claude config into `~/.claude/`
 - symlinks root `AGENTS.md` into `~/.codex/AGENTS.md`
-- symlinks Codex config/rules into `~/.codex/`
+- symlinks Codex config, hooks, and rules into `~/.codex/`
 - installs skills into both runtimes based on `skill.toml`
 - creates `state/{collab,ideas}`
 - backs up conflicting legacy runtime files under `state/backups/setup/`
