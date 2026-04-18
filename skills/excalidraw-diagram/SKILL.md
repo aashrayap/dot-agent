@@ -33,7 +33,16 @@ sequence.
 6. Inspect the PNG visually.
 7. Fix layout, text clipping, overlaps, weak hierarchy, or unclear arrows.
 8. Rerender until the PNG is readable.
-9. When embedding in Markdown, link the PNG and mention the `.excalidraw` source.
+9. When embedding in Markdown, link the PNG only.
+
+## Delivery Contract
+
+- The user-facing deliverable is the human-readable PNG.
+- In final responses, list or link only rendered `.png` paths.
+- Do not include `.excalidraw` paths, raw Excalidraw JSON, or other editable
+  source in the final answer.
+- Keep adjacent `.excalidraw` files for durability and future edits, but treat
+  them as internal implementation artifacts in normal handoffs.
 
 ## Renderer
 
@@ -58,6 +67,7 @@ behavior or updating the pin.
 
 - Treat `.excalidraw` as the editable source of truth for durable diagrams.
 - Treat `.png` as a rendered artifact for docs and review.
+- Present the PNG, not the source, in human-facing reading order.
 - Track the PNG when a tracked Markdown doc embeds it.
 - Keep generated dependency state under `~/.dot-agent/state/tools/`, not under
   `skills/`.

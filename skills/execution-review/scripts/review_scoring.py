@@ -56,6 +56,45 @@ DISPOSABLE_TERMS = (
 )
 
 
+SOURCE_ARTIFACT_EXTS = (
+    ".excalidraw",
+    ".drawio",
+    ".mmd",
+    ".mermaid",
+    ".plantuml",
+    ".puml",
+    ".dot",
+    ".gv",
+)
+
+HUMAN_READABLE_ARTIFACT_EXTS = (
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".webp",
+    ".pdf",
+)
+
+
+def artifact_contract_risk_sessions(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    risks: list[dict[str, Any]] = []
+    for session in payload.get("sessions") or []:
+        text = str(session.get("final_response_excerpt") or "").lower()
+        source_exts = sorted({ext for ext in SOURCE_ARTIFACT_EXTS if ext in text})
+        readable_exts = sorted({ext for ext in HUMAN_READABLE_ARTIFACT_EXTS if ext in text})
+        if not source_exts or not readable_exts:
+            continue
+
+        risk = dict(session)
+        risk["artifact_contract_risk"] = {
+            "source_exts": source_exts,
+            "readable_exts": readable_exts,
+            "reason": "final response mentions editable/source and human-readable artifact extensions together",
+        }
+        risks.append(risk)
+    return risks
+
+
 def classify_session_layer(session: dict[str, Any]) -> tuple[str, str]:
     text = " ".join(
         str(value or "")
@@ -112,6 +151,7 @@ def score_review_payload(payload: dict[str, Any]) -> dict[str, dict[str, Any]]:
     failures = int(summary.get("exec_failures") or 0)
     subagents = int(summary.get("subagent_count") or 0)
     total_feedback, followups = _all_feedback(payload)
+    artifact_risks = artifact_contract_risk_sessions(payload)
 
     edit_sessions = [s for s in sessions if int(s.get("edits") or 0) > 0]
     grounded_edit_sessions = [
@@ -198,6 +238,8 @@ def score_review_payload(payload: dict[str, Any]) -> dict[str, dict[str, Any]]:
         response_fit -= 1
     if total_feedback >= 6:
         response_fit -= 1
+    if artifact_risks:
+        response_fit -= 1
     if session_count and _ratio(followups, session_count) > 2.5:
         response_fit -= 1
     response_fit = _clamp(response_fit)
@@ -252,7 +294,10 @@ def score_review_payload(payload: dict[str, Any]) -> dict[str, dict[str, Any]]:
         },
         "response_fit": {
             "score": response_fit,
-            "why": f"{total_feedback} response-fit feedback signals and {followups} total follow-up user messages were detected.",
+            "why": (
+                f"{total_feedback} response-fit feedback signals, {followups} total follow-up user messages, "
+                f"and {len(artifact_risks)} possible artifact-contract risk(s) were detected."
+            ),
         },
         "skill_leverage": {
             "score": skill_leverage,

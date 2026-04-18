@@ -53,6 +53,9 @@ The review system is evidence-first:
    - sessions with `edits > 0` and `verifications == 0`
    - sessions with `exec_failures > 0`
    - sessions with response-fit feedback signals
+   - sessions with artifact contract drift, such as final answers that expose
+     editable/source artifacts when the user-facing deliverable should be a
+     rendered or human-readable artifact
    - one session that looks especially strong
 4. Inspect that small set with `scripts/inspect-execution-session.py`.
 5. Cluster sessions into logical workstreams. Treat `cwd` as a hint only: one repo can hold multiple projects, and one project can span repos or runtimes.
@@ -121,13 +124,18 @@ Use this lens when reviewing a Codex session transcript. Apply the same shape to
 | Act | Were tool calls scoped, parallelized where useful, and respectful of existing user/concurrent changes? |
 | Verify | Did it run focused checks after meaningful edits, and did it report failures or skipped checks plainly? |
 | Synthesize | Did it connect evidence to findings, separate facts from recommendations, and avoid overclaiming? |
-| Handoff | Did the final response name changed files, residual risk, next actions, and PR/git state accurately? |
+| Handoff | Did the final response name changed files, residual risk, next actions, PR/git state, and user-facing artifacts accurately, without exposing internal/source artifacts unless requested? |
 
 Rules:
 
 - Score the session only after inspecting evidence from the phases that matter.
 - Cite complete session ids and turn indices when available.
 - Treat missing verification after edits as a concrete risk, not a style issue.
+- Treat artifact contract drift as a response-fit defect: the final answer must
+  match the active skill's delivery contract and the user's requested reading
+  surface. For example, a diagram session that gives `.excalidraw` paths beside
+  PNG paths should be flagged unless the user explicitly asked for editable
+  source.
 - Do not use this pipeline to populate the human daily board; it is an execution-review lens only.
 - If the session reveals daily closure work, hand it to `daily-review` instead of performing closure here.
 
@@ -142,7 +150,7 @@ Use this rubric:
 | Focus | Low avoidable fragmentation, coherent workstreams, limited unnecessary cwd switching |
 | Grounding | Real inspection before changes or strong conclusions |
 | Verification | Tests, lint, checks, or other explicit validation after meaningful edits |
-| Response Fit | Whether the response shape matched the ask, based on excerpts and user follow-up/correction signals |
+| Response Fit | Whether the response shape matched the ask and artifact delivery contract, based on excerpts and user follow-up/correction signals |
 | Skill Leverage | Whether existing skills/patterns were used well or skipped when they would have helped |
 | Workflow Efficiency | Time/tokens/actions relative to actual progress, without over-scoring shallow churn |
 
@@ -162,6 +170,9 @@ Also report strategic/tactical/disposable allocation:
 - A no-edit research session is not automatically poor if it reduced uncertainty decisively.
 - A session with edits and no verification is a real risk.
 - Hermes findings should be clearly labeled as secondary interpretation when present.
+- Do not treat every source-artifact mention as a failure; check whether the
+  user asked for source or whether the source path was necessary for a concrete
+  follow-up. Otherwise prefer human-readable artifacts in findings and handoffs.
 - Every recommendation should be grounded in an inspected session, closure discrepancy, or recurring metric. Avoid generic workflow advice.
 - Do not port Claude-specific command protocols, allowed-tool constraints, or ROADMAP.md behavior into this shared skill.
 

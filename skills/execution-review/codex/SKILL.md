@@ -37,3 +37,4 @@ Then follow the shared evidence-first review contract:
 - keep full session ids in every citation; add turn indices when the inspected payload exposes them
 - keep Hermes findings clearly separate when present
 - use or link an Excalidraw diagram for non-trivial workflow/session-shape explanations; keep exact scores and citations in text
+- flag artifact contract drift when a final answer exposes editable/source artifacts instead of the requested human-readable deliverable
