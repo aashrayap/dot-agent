@@ -7,13 +7,13 @@ description: Full feature workflow — spec, research, design, tasks, execute.
 
 ## Composes With
 
-- Parent: `idea` or `projects` when work needs code-grounded planning.
+- Parent: `idea`, `focus`, or `init-epic` when work needs code-grounded planning.
 - Children: `excalidraw-diagram` when a feature plan needs a durable workflow, architecture, or before/after visual.
 - Uses format from: `excalidraw-diagram` for human-facing planning and design visuals when useful.
-- Reads state from: idea `spec.md`/`plan.md`, thin project `Current Slice`, repo docs/code, and feature artifacts.
-- Writes through: `docs/artifacts/<feature>/` for feature artifacts; returns PRs/pivots/follow-ups to `projects`.
-- Hands off to: `projects` after execution or when durable memory is needed.
-- Receives back from: `projects` as curated workstream context.
+- Reads state from: idea `spec.md`/`plan.md`, roadmap rows, repo docs/code, and feature artifacts.
+- Writes through: `docs/artifacts/<feature>/` for feature artifacts; returns PRs/pivots/follow-ups to roadmap rows, handoff docs, or PR descriptions.
+- Hands off to: `focus` for roadmap follow-ups, `review` for PR review, or `daily-review` for day-end closure.
+- Receives back from: `focus`, `review`, PR refs, and prior feature artifacts as curated workstream context.
 
 Non-trivial feature work through spec, decontaminated research, design decisions, task breakdown, and optional execution.
 
@@ -125,6 +125,6 @@ When `05_tasks.md` is approved:
 2. If delegation is authorized, dispatch file-disjoint tasks to Worker /
    Implementor roles and run a Gate / Verifier pass over the union of changed
    files before calling the wave complete.
-3. If the work belongs to a tracked project, hand it back to `projects <slug>` so execution memory owns PRs, pivots, and follow-ups.
-4. If execution starts directly here, keep the final response tied to the approved task IDs and tell the user what should be logged in `projects/execution.md` afterward.
-5. Do not create a parallel idea execution log. Durable delivery reality belongs in `projects`.
+3. Hand PRs, pivots, discarded approaches, and follow-ups back to `focus`, `review`, PR descriptions, or the relevant handoff doc.
+4. If execution starts directly here, keep the final response tied to the approved task IDs and name the artifact or roadmap row that should receive follow-ups.
+5. Do not create a parallel idea execution log. Durable delivery reality belongs in feature artifacts, PRs, roadmap rows, or handoff docs.

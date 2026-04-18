@@ -16,7 +16,7 @@ disable-model-invocation: true
 - Children: `focus` for roadmap edits, `morning-sync` for next-day handoff, `spec-new-feature` only when a recap exposes a real planning need, and `excalidraw-diagram` when closure needs a durable visual.
 - Uses format from: `roadmap.md` human board rows; `excalidraw-diagram` for human-facing workflow or before/after closure visuals when useful.
 - Reads state from: `~/.dot-agent/state/collab/roadmap.md` by default; optional user-provided PR/review notes or external signals when available.
-- Writes through: `skills/focus/scripts/roadmap.py` for roadmap drainage and direct recap writes under `~/.dot-agent/state/collab/daily-reviews/`.
+- Writes through: `skills/focus/scripts/roadmap.py review --write` for recap writes and completed-row drainage.
 - Hands off to: `morning-sync` for the next day; `focus` for unresolved board cleanup.
 - Receives back from: `morning-sync` and `focus` through roadmap state.
 
@@ -47,9 +47,8 @@ Optional inputs:
 - PR, GitHub, Linear, or repo signals already available in the session
 - explicit user-provided references to previous review or execution artifacts
 
-Do not read `~/.dot-agent/state/projects/*` in the normal daily-review path.
-Only inspect legacy project state when the user explicitly asks for it or when
-a one-time migration is moving selected rows into `roadmap.md`.
+Do not inspect legacy project/session state in the normal daily-review path.
+Only read a historical artifact when the user explicitly points to it.
 
 ## Routine
 
@@ -70,7 +69,13 @@ a one-time migration is moving selected rows into `roadmap.md`.
 
 ### 3. Write The Recap
 
-Write a dated recap under:
+Write a dated recap through the deterministic helper:
+
+```bash
+~/.dot-agent/skills/focus/scripts/roadmap.py review --write --date YYYY-MM-DD
+```
+
+The helper writes:
 
 ```text
 ~/.dot-agent/state/collab/daily-reviews/YYYY-MM-DD.md
@@ -106,8 +111,10 @@ Use this shape:
 
 - Remove drained `Completed` rows from `roadmap.md` after they are recorded in
   the dated recap.
-- Use `roadmap.py drop --item <task>` for straightforward drainage when the
-  row identity is clear.
+- Prefer `roadmap.py review --write --date YYYY-MM-DD`, which writes the recap
+  and drains exact `Completed` rows in one pass.
+- Use `roadmap.py drop --item <task>` only for targeted cleanup after the
+  helper leaves an ambiguous row in place.
 - Preserve unfinished, queued, parked, and blocked rows.
 - Update `last_touched` on the roadmap when writing.
 - If no completed rows can be drained, still write a recap when the user asks

@@ -63,10 +63,11 @@ skill edits.
 
 - Prefer composing an existing owner over adding a new top-level skill.
 - `focus` owns the daily roadmap.
-- `projects` owns durable workstream state.
 - `idea` owns incubation artifacts.
 - `spec-new-feature` owns deep code-grounded feature artifacts.
 - `execution-review` owns forensic retrospective review and session-quality recommendations.
+- Durable delivery state belongs in roadmap rows, feature artifacts, PRs, or
+  explicit handoff docs. Do not recreate a hidden project/session service layer.
 - Mutate another skill's state only through that skill's helper scripts or
   documented write path.
 

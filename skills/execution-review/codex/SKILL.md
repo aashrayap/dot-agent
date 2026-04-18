@@ -10,10 +10,10 @@ description: Evidence-first review of recent local Codex and Claude Code session
 - Parent: forensic execution review, workflow diagnosis, session-review, or weekly retrospective request.
 - Children: runtime evidence scripts, optional Hermes findings, and `excalidraw-diagram` when a forensic review needs a durable workflow or session-shape visual.
 - Uses format from: `excalidraw-diagram` for human-facing session pipeline, workflow, or before/after visuals when useful.
-- Reads state from: Codex/Claude session logs, execution-review evidence/history, PR signals, and optional Hermes findings. Roadmap/project files may be read only as evidence when the user explicitly asks to diagnose a session or workstream.
+- Reads state from: Codex/Claude session logs, execution-review evidence/history, PR signals, roadmap rows when relevant, and optional Hermes findings.
 - Writes through: execution-review report/history files only.
-- Hands off to: `daily-review` for human day-end closure, recap, and roadmap drainage; `spec-new-feature`, `focus`, or `projects` only as recommended follow-up surfaces.
-- Receives back from: `spec-new-feature`, `projects`, PR refs, and prior execution-review reports as evidence.
+- Hands off to: `daily-review` for human day-end closure, recap, and roadmap drainage; `spec-new-feature`, `focus`, or `review` only as recommended follow-up surfaces.
+- Receives back from: `spec-new-feature`, `focus`, `review`, PR refs, and prior execution-review reports as evidence.
 
 Use the shared execution-review workflow from Codex.
 

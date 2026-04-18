@@ -228,7 +228,7 @@ render_agents() {
   echo "## Conditional Guidance"
   echo
   echo "### Planning"
-  echo "- If the request only affects this repo, keep it limited to docs, project state, templates, or coordination automation."
+  echo "- If the request only affects this repo, keep it limited to docs, roadmap state, templates, or coordination automation."
   echo "- If the request affects runtime behavior, identify the owning upstream repo before making changes."
   if (( LEGACY_COUNT > 0 )); then
     echo "- Use legacy repos to understand prior behavior, not as the default place for new production work."
@@ -454,6 +454,6 @@ if (( CLONE_MISSING == 1 )); then
   done
 fi
 
-echo "NEXT_STEP=Use the projects skill if this workspace needs milestone and session tracking."
+echo "NEXT_STEP=Add a focus roadmap row, then use spec-new-feature if this workspace needs code-grounded planning."
 
 exit "$CLONE_ERRORS"

@@ -12,7 +12,7 @@ disable-model-invocation: true
 - Parent: user request for a diagram or visual documentation artifact.
 - Children: none by default; Explorer subagents only when the user explicitly authorizes parallel research for diagram content.
 - Uses format from: none.
-- Reads state from: requested docs, code, project state, workflow notes, and optional existing `.excalidraw` files.
+- Reads state from: requested docs, code, roadmap/workflow notes, and optional existing `.excalidraw` files.
 - Writes through: `.excalidraw` source files and rendered image files in the user-requested workspace.
 - Hands off to: none.
 - Receives back from: none.

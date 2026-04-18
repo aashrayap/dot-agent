@@ -29,7 +29,6 @@ TACTICAL_TERMS = (
     ".dot-agent",
     "execution-review",
     "focus",
-    "projects",
     "spec-new-feature",
     "skill",
     "skills",

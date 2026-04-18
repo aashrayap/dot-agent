@@ -59,7 +59,7 @@ git -C ~/.dot-agent pull --ff-only
 - symlinks root `AGENTS.md` into `~/.codex/AGENTS.md`
 - symlinks Codex config/rules into `~/.codex/`
 - installs skills into both runtimes based on `skill.toml`
-- creates `state/{collab,projects,ideas}`
+- creates `state/{collab,ideas}`
 - backs up conflicting legacy runtime files under `state/backups/setup/`
 
 ## Versioned Vs Local
@@ -75,8 +75,6 @@ Track portable runtime defaults here. Keep these out of tracked config:
 Use `state/` for local operating memory:
 
 - `state/collab/roadmap.md`
-- `state/projects/<slug>/project.md`
-- `state/projects/<slug>/execution.md`
 - `state/ideas/<slug>/`
 - `state/tools/`
 
@@ -90,15 +88,13 @@ The normal day-start surface is the human roadmap, not project/session memory.
   project/task bullets.
 - `focus` mutates the roadmap and keeps the board human-scannable.
 - `daily-review` owns day-end closure, recap, and completed-row drainage.
-- `projects` preserves durable execution history, but normal morning/focus
-  output should not depend on `projects/*` internals.
 - `spec-new-feature` owns deep code-grounded planning and implementation
   artifacts.
 - `execution-review` stays forensic: session quality, verification, skill use,
   and failure analysis.
 
-Session IDs, dependency graphs, and `project.md#s01` anchors belong in deep
-execution artifacts or legacy project state, not in the daily board.
+Session IDs, dependency graphs, and runtime transcript anchors belong in
+forensic execution artifacts, not in the daily board.
 
 ## Human Review Surfaces
 

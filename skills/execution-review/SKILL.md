@@ -10,10 +10,10 @@ description: Review recent Codex and Claude Code sessions to diagnose response f
 - Parent: forensic execution review, workflow diagnosis, session-review, or weekly retrospective request.
 - Children: runtime evidence scripts, optional Hermes findings, and `excalidraw-diagram` when a forensic review needs a durable workflow or session-shape visual.
 - Uses format from: `excalidraw-diagram` for human-facing session pipeline, workflow, or before/after visuals when useful.
-- Reads state from: Codex/Claude session logs, execution-review evidence/history, PR signals, and optional Hermes findings. Roadmap/project files may be read only as evidence when the user explicitly asks to diagnose a session or workstream.
+- Reads state from: Codex/Claude session logs, execution-review evidence/history, PR signals, roadmap rows when relevant, and optional Hermes findings.
 - Writes through: execution-review report/history files only.
-- Hands off to: `daily-review` for human day-end closure, recap, and roadmap drainage; `spec-new-feature`, `focus`, or `projects` only as recommended follow-up surfaces.
-- Receives back from: `spec-new-feature`, `projects`, PR refs, and prior execution-review reports as evidence.
+- Hands off to: `daily-review` for human day-end closure, recap, and roadmap drainage; `spec-new-feature`, `focus`, or `review` only as recommended follow-up surfaces.
+- Receives back from: `spec-new-feature`, `focus`, `review`, PR refs, and prior execution-review reports as evidence.
 
 Use this when the user wants forensic review of agent sessions, workflow diagnosis, response-style analysis, skill-usage analysis, verification analysis, or a structured retrospective across recent local agent sessions.
 
@@ -29,7 +29,7 @@ diagram. Keep exact scores, citations, and findings in text.
 2. Run `scripts/fetch-execution-sessions.py --runtime <all|codex|claude> --window <window>`.
 3. Inspect only the sessions that matter with `scripts/inspect-execution-session.py --runtime <runtime> --session-id <id>`.
 4. Render the actual review with `scripts/render-execution-review.py --runtime <all|codex|claude> --window <window> [--save] [--record]`.
-5. For day-end closure requests, do not drain roadmap or project state here; hand off closure work to `daily-review`.
+5. For day-end closure requests, do not drain roadmap state here; hand off closure work to `daily-review`.
 
 `window` accepts `day`, `week`, raw hours like `24`, or suffixed values like `36h`, `7d`.
 
@@ -75,9 +75,8 @@ Not allowed:
 
 - drain completed roadmap rows
 - mark roadmap rows complete
-- mark project sessions complete
 - write day-end human recaps
-- route closure writes through `focus` or `projects`
+- route closure writes through `focus`
 
 ## Workstream Ribbon
 
@@ -91,8 +90,7 @@ The report should include a chronological ribbon for windowed reviews:
 Rules:
 
 - Workstream names are logical workstreams, not repo names or roadmap rows.
-- Use project slugs from `~/.dot-agent/state/projects/` only when the review explicitly needs that context and the session maps cleanly.
-- Otherwise infer a short workstream label from the request and cwd, and mark it as inferred.
+- Infer a short workstream label from the request and cwd, and mark it as inferred when the evidence is ambiguous.
 - Keep every session id complete and untruncated.
 - If an inspected session exposes turn-level detail, cite findings as `<full-session-id>:turn-<n>`.
 - If turn indices are unavailable, cite `<full-session-id>` and say turn-level detail was not exposed by the adapter.
@@ -107,7 +105,7 @@ Rules:
    - repeated failure modes
    - response-fit drift
    - skill-usage patterns and missed opportunities
-   - project effort, compression, and precision metrics when `projects/execution.md` provides them
+   - workstream effort, compression, and precision metrics from session aggregates and inspected evidence
 4. Inspect representative sessions.
 5. Produce the weekly review and 1-3 process experiments.
 

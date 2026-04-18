@@ -2,7 +2,7 @@
 
 `skills/` is the source of truth for shared Claude and Codex skills.
 
-![Skill composability workflow](../docs/diagrams/skill-composability-workflow.png)
+![Skill workflow prune map](../docs/diagrams/skill-workflow-prune-map.png)
 
 ## Authoring Contract
 
@@ -106,13 +106,12 @@ Skills should compose instead of duplicating ownership.
 | Uses format | Borrow presentation without handing off ownership | `compare` uses `explain` visual modes |
 | Reads state | Observe another surface without writing it | `morning-sync` reads roadmap rows |
 | Writes through | Mutate only through the owning helper | `daily-review` drains completed rows through `focus` |
-| Hands off | Transfer ownership to a better surface | `projects` hands code-grounded work to `spec-new-feature` |
-| Receives back | Accept delivery reality from another workflow | `projects` receives PRs and pivots |
+| Hands off | Transfer ownership to a better surface | `idea` hands code-grounded work to `spec-new-feature` |
+| Receives back | Accept delivery reality from another workflow | `daily-review` receives completed-row state from `focus` |
 
 Default ownership:
 
 - `roadmap.md`: `focus`
-- `state/projects/<slug>/`: `projects`
 - `state/ideas/<slug>/`: `idea`
 - `docs/artifacts/<feature>/`: `spec-new-feature`
 - `state/collab/daily-reviews/`: `daily-review`
@@ -132,8 +131,8 @@ Default ladder:
    drill-down.
 
 This applies most often to `morning-sync`, `focus`, `daily-review`,
-`execution-review`, `spec-new-feature`, `projects`, `idea`, `compare`,
-`explain`, and `create-agents-md`.
+`execution-review`, `spec-new-feature`, `idea`, `compare`, `explain`, and
+`create-agents-md`.
 
 Do not force a new diagram for one-line status updates, direct command output,
 small mechanical edits, narrow line-specific review findings, or transient
