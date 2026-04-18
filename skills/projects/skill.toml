@@ -1,4 +1,0 @@
-name = "projects"
-targets = ["claude", "codex"]
-default_entry = "SKILL.md"
-claude_entry = "claude/SKILL.md"

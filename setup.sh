@@ -43,7 +43,6 @@ mkdir -p \
   "$CLAUDE_DST/skills" \
   "$CODEX_DST/skills" \
   "$DOT_AGENT_STATE_HOME/collab" \
-  "$DOT_AGENT_STATE_HOME/projects" \
   "$DOT_AGENT_STATE_HOME/ideas"
 
 ensure_backup_dir() {
@@ -281,7 +280,7 @@ cleanup_legacy_paths() {
   cleanup_legacy_path "$CODEX_DST/config.work.toml" ".codex/config.work.toml"
   cleanup_legacy_path "$CODEX_DST/config.personal.toml" ".codex/config.personal.toml"
 
-  for removed_skill in audit cmux qa remove-slop ship; do
+  for removed_skill in audit cmux improve-agent-md projects qa remove-slop ship; do
     cleanup_removed_skill "$removed_skill"
   done
 }

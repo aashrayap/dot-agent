@@ -8,13 +8,13 @@ disable-model-invocation: true
 
 ## Composes With
 
-- Parent: `idea` or `projects` when work needs code-grounded planning.
+- Parent: `idea`, `focus`, or `init-epic` when work needs code-grounded planning.
 - Children: `excalidraw-diagram` when a feature plan needs a durable workflow, architecture, or before/after visual.
 - Uses format from: `excalidraw-diagram` for human-facing planning and design visuals when useful.
-- Reads state from: idea `spec.md`/`plan.md`, thin project `Current Slice`, repo docs/code, and feature artifacts.
-- Writes through: `docs/artifacts/<feature>/` for feature artifacts; returns PRs/pivots/follow-ups to `projects`.
-- Hands off to: `projects` after execution or when durable memory is needed.
-- Receives back from: `projects` as curated workstream context.
+- Reads state from: idea `spec.md`/`plan.md`, roadmap rows, repo docs/code, and feature artifacts.
+- Writes through: `docs/artifacts/<feature>/` for feature artifacts; returns PRs/pivots/follow-ups to roadmap rows, handoff docs, or PR descriptions.
+- Hands off to: `focus` for roadmap follow-ups, `review` for PR review, or `daily-review` for day-end closure.
+- Receives back from: `focus`, `review`, PR refs, and prior feature artifacts as curated workstream context.
 
 Use this for non-trivial feature work that needs a spec, decontaminated research, design decisions, task breakdown, and optional execution.
 
@@ -219,7 +219,7 @@ The orchestrator performs decomposition directly — do NOT delegate to a subage
    - **Verify:** copy-pasteable commands
    - **Boundaries:** Always / Ask first / Never
    - **Effort:** hour estimate once the codebase is known
-   - **Tracking ID:** stable task ID that can be cited from `projects/execution.md`
+   - **Tracking ID:** stable task ID that can be cited from PRs, handoff docs, or roadmap follow-ups
 6. **Self-containment test:** Could an agent implement each task with ONLY the task spec + CLAUDE.md? If not, inline missing context.
 7. If a task needs an unresolved design decision → loop to L3.
 8. Present to human. Execute on approval.
@@ -248,6 +248,6 @@ delegation is authorized.
 4. **Between waves** — Full type-check + lint + test across affected areas.
 5. **Retries** — Agent fails after 2-3 attempts → escalate to human (usually a spec gap).
 6. **Track** — Update checkboxes in `05_tasks.md`.
-7. **Execution memory** — If this belongs to a tracked project, hand PRs, pivots, discarded approaches, and follow-ups back to `projects/execution.md` instead of creating a parallel idea execution log.
+7. **Execution memory** — Hand PRs, pivots, discarded approaches, and follow-ups back to `focus`, `review`, PR descriptions, or the relevant handoff doc instead of creating a parallel idea execution log.
 
 ---

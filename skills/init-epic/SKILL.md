@@ -1,6 +1,6 @@
 ---
 name: init-epic
-description: "Bootstrap a cross-repo coordination workspace using the toolkit-rigby pattern: root AGENTS.md, README.md, gitignored sibling repos, inventory docs, and optional repo cloning. Use this before projects/focus when the user first needs a multi-repo coordination workspace."
+description: "Bootstrap a cross-repo coordination workspace using the toolkit-rigby pattern: root AGENTS.md, README.md, gitignored sibling repos, inventory docs, and optional repo cloning. Use this before focus/spec-new-feature when the user first needs a multi-repo coordination workspace."
 argument-hint: <workspace description and repo map>
 disable-model-invocation: true
 ---
@@ -9,12 +9,12 @@ disable-model-invocation: true
 
 ## Composes With
 
-- Parent: `idea`, `focus`, or `projects` when a workstream needs a multi-repo coordination workspace.
-- Children: `projects` after the workspace exists; `excalidraw-diagram` when the workspace split needs a durable visual.
+- Parent: `idea`, `focus`, or `spec-new-feature` when a workstream needs a multi-repo coordination workspace.
+- Children: `spec-new-feature` after the workspace exists; `excalidraw-diagram` when the workspace split needs a durable visual.
 - Uses format from: `excalidraw-diagram` for repo topology, ownership, or workflow maps when useful.
 - Reads state from: user-provided repo/workspace context and existing sibling repos.
 - Writes through: `scripts/init-epic-setup.sh` and the new coordination workspace files.
-- Hands off to: `projects` for durable execution state.
+- Hands off to: `focus` for roadmap tracking and `spec-new-feature` for code-grounded planning.
 - Receives back from: none.
 
 Use this when the user wants to stand up a coordination repo for a multi-repo initiative.
@@ -28,8 +28,8 @@ implementation order.
 ## Workflow Position
 
 - `init-epic` bootstraps the coordination repo.
-- `projects` takes over once durable milestones and execution slices need tracking.
-- `focus` chooses the day-level roadmap row.
+- `focus` tracks the day-level roadmap row.
+- `spec-new-feature` takes over once code-grounded planning or executable tasks are needed.
 - `morning-sync` reviews the human roadmap at day start.
 
 ## Context
@@ -70,7 +70,7 @@ Then inspect the current workspace:
 
 4. Review the generated files and tighten any wording that should preserve the user's exact language.
 5. If the user wants a fully bootstrapped local workspace, verify the remotes are reachable and rerun with `--clone-missing`.
-6. If the work will be long-lived, hand off to `projects <slug>` after bootstrap. `init-epic` owns the workspace scaffold; `projects` owns milestone and execution-slice tracking. After that, use `focus` for day-level control and `morning-sync` for daily review.
+6. If the work will be long-lived, add or update a `focus` roadmap row after bootstrap. Use `spec-new-feature` when the workspace needs code-grounded planning or executable tasks.
 
 ## Outputs
 

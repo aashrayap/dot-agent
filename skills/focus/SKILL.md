@@ -3,8 +3,8 @@ name: focus
 description: >
   Mutate and inspect the daily roadmap/focus board. Use when the user wants to
   set focus, add or reorder roadmap rows, mark work complete, drop/park work,
-  trim WIP, or decide whether a roadmap row should stay lightweight or promote
-  into projects.
+  trim WIP, or decide whether a roadmap row should stay lightweight or move
+  into deeper feature planning.
 argument-hint: <optional current options / current problem / desired outcome>
 disable-model-invocation: true
 ---
@@ -14,11 +14,11 @@ disable-model-invocation: true
 ## Composes With
 
 - Parent: `morning-sync` for day-start orchestration.
-- Children: `idea` when a row is still conceptual; `spec-new-feature` when a row needs deep planning; `excalidraw-diagram` when a roadmap change needs a durable visual; `projects` only for explicit promotion, legacy inspection, or execution drill-down.
+- Children: `idea` when a row is still conceptual; `spec-new-feature` when a row needs deep planning; `excalidraw-diagram` when a roadmap change needs a durable visual.
 - Uses format from: `excalidraw-diagram` for human-facing roadmap, workflow, or before/after visuals when useful.
-- Reads state from: `~/.dot-agent/state/collab/roadmap.md` by default; legacy `focus.md` only for compatibility or migration. Do not read `~/.dot-agent/state/projects/*` in the normal focus/review path.
-- Writes through: `skills/focus/scripts/roadmap.py` for roadmap mutations and `focus-promote.py` for project promotion.
-- Hands off to: `morning-sync` for first morning call; `daily-review` for completed-row drainage; `spec-new-feature` for deep planning; `projects` only for explicit legacy or execution drill-down.
+- Reads state from: `~/.dot-agent/state/collab/roadmap.md` by default; legacy `focus.md` only for compatibility or migration.
+- Writes through: `skills/focus/scripts/roadmap.py` for roadmap mutations and daily-review drainage.
+- Hands off to: `morning-sync` for first morning call; `daily-review` for completed-row drainage; `spec-new-feature` for deep planning.
 - Receives back from: `daily-review` when completed rows were drained or left ambiguous.
 
 ## Context
@@ -29,16 +29,13 @@ Deterministic helpers:
 
 - `~/.dot-agent/skills/focus/scripts/roadmap.py`
 - `~/.dot-agent/skills/focus/scripts/focus-update.py`
-- `~/.dot-agent/skills/focus/scripts/focus-promote.py`
 - `~/.dot-agent/skills/focus/scripts/focus-handoff.py`
 
 Read `~/.dot-agent/state/collab/roadmap.md` every time. Keep
 `~/.dot-agent/state/collab/focus.md` as a legacy compatibility file, not the
 primary operating board. When the user wants help deciding what should happen
-next, stay on the human roadmap by default. Do not read active project state
-from `~/.dot-agent/state/projects/*/project.md` or `execution.md` unless the
-user explicitly asks for legacy project inspection, one-time migration, or a
-deep execution drill-down.
+next, stay on the human roadmap by default. Do not inspect legacy
+project/session state unless the user points to a specific historical artifact.
 
 This skill is the active control surface for:
 
@@ -46,9 +43,9 @@ This skill is the active control surface for:
 - adding, dropping, completing, or reordering roadmap rows
 - reducing simultaneous work in progress
 - parking lower-priority work without losing it
-- promoting focused work into a tracked project when needed
+- routing focused work into `idea` or `spec-new-feature` when needed
 - telling the user when to stay in `focus` versus switch to deep planning or
-  explicit project execution
+  implementation
 
 `daily-review` closes the day. `execution-review` is forensic. Focus works in
 the present.
@@ -146,7 +143,7 @@ Use this when the user asks what they should work on now, what matters next, or 
 
 1. Read legacy `focus.md` only for compatibility context when it exists.
 2. Read `roadmap.md`.
-3. Do not read `~/.dot-agent/state/projects/*` unless the user explicitly asks for legacy project inspection, one-time migration, or deep execution drill-down.
+3. Do not inspect legacy project/session state unless the user points to a specific historical artifact.
 4. Treat this review as read-only. Do not rewrite `roadmap.md` unless the user explicitly asks.
 5. Synthesize a decision summary with these exact headings:
 
@@ -175,11 +172,10 @@ Use this when the user asks what they should work on now, what matters next, or 
 Use this whenever the user is moving from "what should I focus on?" toward "what task am I starting?".
 
 - If the question is day-start triage or "what should I work on this morning?", use `morning-sync`.
-- If the user does not yet have a coordination workspace for a multi-repo effort, use `init-epic` before trying to route into tracked project execution.
+- If the user does not yet have a coordination workspace for a multi-repo effort, use `init-epic` before feature planning.
 - Stay in `focus` when the user is editing the roadmap, trimming WIP, parking items, or correcting the control surface.
 - Use `daily-review` when the user wants to close the day, drain completed rows, or write a dated recap.
 - Use `spec-new-feature` when a roadmap task needs deep planning or implementation artifacts.
-- Use `projects <slug>` only when the user explicitly asks for durable project state or execution history, or when promoting a roadmap row into tracked project memory.
 
 ### Deterministic vs Non-Deterministic
 
@@ -192,28 +188,27 @@ Treat these parts as deterministic:
 
 Treat these parts as non-deterministic judgment:
 
-- choosing the best workstream when multiple active projects exist
+- choosing the best workstream when multiple active rows exist
 - deciding whether to continue current momentum or start something new
 - interpreting vague focus text that does not map cleanly to one active project/workstream row
 - weighing contradictory roadmap rows against fresh user intent
 
-### Promote Into A Project
+### Route Into Deeper Planning
 
-Use this when the user wants to turn a focus item into a tracked project.
+Use this when the user wants to turn a focus item into executable planning.
 
 1. Run the setup script.
-2. Use `focus-promote.py --slug <slug> --why <reason>` to:
-   - scaffold the project if it does not exist
-   - ensure `execution.md` exists for an existing project before promotion writes
-   - make it the current focus item without clearing unrelated parked work or blockers
-3. Present the resulting focus and project paths.
+2. Keep or add a plain-language roadmap row for the workstream.
+3. If the work is still conceptual, hand off to `idea`.
+4. If the work needs code-grounded research, design, or tasks, hand off to `spec-new-feature`.
+5. Present the resulting focus row and artifact path.
 
 ## Rules
 
 - Use YYYY-MM-DD dates.
 - Keep the file human-scannable in under a minute.
 - Do not turn `roadmap.md` into a second project tracker.
-- `roadmap.md` is the day-level control plane. `projects/` is legacy/deep execution state and is not read in the normal focus path.
+- `roadmap.md` is the day-level control plane. Do not recreate hidden project/session state behind it.
 - Never emit `S01`, `S02`, session IDs, dependency graph labels, or `project.md#s01` anchors in normal human output.
 - Do not expose `Available Sessions`, `Blocked Sessions`, Mermaid dependency graphs, or raw execution artifact internals in focus output.
-- If the roadmap is missing a useful project/task row, suggest a plain-language board edit instead of reaching into project state.
+- If the roadmap is missing a useful workstream/task row, suggest a plain-language board edit instead of reaching into hidden state.

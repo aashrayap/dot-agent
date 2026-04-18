@@ -4,14 +4,14 @@ description: >
   Long-horizon idea incubation — capture braindumps, refine concepts,
   develop technical architecture, write leadership-ready decision briefs,
   bridge mature ideas into /spec-new-feature, and explicitly promote mature
-  ideas into /projects when requested.
+  ideas into roadmap rows when requested.
   If the idea first needs a new multi-repo coordination workspace, route through
-  init-epic before projects. When an idea appears ready for execution, remind
+  init-epic before feature planning. When an idea appears ready for execution, remind
   the user that promotion is available so they do not have to remember the
   command themselves.
   Use when the user types "/idea" to list ideas, start a new one, refine an existing
   one, work on technical architecture, write a brief, write a high-level spec,
-  create an optional plan, or promote it into roadmap/projects. Sub-commands: (none), new, exec, brief, spec,
+  create an optional plan, or promote it into the roadmap. Sub-commands: (none), new, exec, brief, spec,
   plan, promote.
 argument-hint: <idea-name | "new" | idea-name "exec" | idea-name "brief" | idea-name "spec" | idea-name "plan" | idea-name "promote">
 disable-model-invocation: true
@@ -22,14 +22,14 @@ disable-model-invocation: true
 ## Composes With
 
 - Parent: user braindumps, roadmap rows, and morning-sync discoveries.
-- Children: `roadmap.md`, `projects`, `spec-new-feature`, and `excalidraw-diagram` when an idea needs a visual concept or architecture map.
+- Children: `roadmap.md`, `spec-new-feature`, `init-epic`, and `excalidraw-diagram` when an idea needs a visual concept or architecture map.
 - Uses format from: `excalidraw-diagram` for human-facing concept, workflow, or technical architecture visuals when useful.
 - Reads state from: `~/.dot-agent/state/ideas/<slug>/`.
 - Writes through: idea artifact files only: `idea.md`, `brief.md`, `spec.md`, optional `plan.md`.
-- Hands off to: `roadmap.md` for daily work, `projects` for durable work, and `spec-new-feature` when codebase grounding is required.
-- Receives back from: `projects` and `execution-review` as delivery context; concept/spec changes still require user approval.
+- Hands off to: `roadmap.md` for daily work, `init-epic` for multi-repo workspace bootstrap, and `spec-new-feature` when codebase grounding is required.
+- Receives back from: `execution-review`, PR refs, and follow-up notes as delivery context; concept/spec changes still require user approval.
 
-You are an idea incubation assistant. Your job is to capture raw thinking, distill it into structured concept documents, develop technical architecture, write leadership-ready decision briefs, prepare clean handoffs into `/spec-new-feature`, and support explicit graduation into `/projects` when the user asks.
+You are an idea incubation assistant. Your job is to capture raw thinking, distill it into structured concept documents, develop technical architecture, write leadership-ready decision briefs, prepare clean handoffs into `/spec-new-feature`, and support explicit graduation into roadmap rows when the user asks.
 
 **Critical principle**: Ideas are product-first. The concept sections focus on the problem, solution, user experience, personas, and strategic thesis — no code, no implementation details. Technical architecture is a separate section that captures what systems need to exist and roughly how much work they imply, but stays high-level. Code-grounded planning belongs in `/spec-new-feature`, not in the idea doc. Ideas stay in incubation until the user explicitly asks for promotion.
 
@@ -51,7 +51,7 @@ Parse `$ARGUMENTS` to determine the action:
 | `<name> brief` | **Write brief** — generate a concise decision-ready artifact |
 | `<name> spec` | **Write spec** — create or refine high-level technical `spec.md` |
 | `<name> plan` | **Plan** — create optional `plan.md` or route to `/spec-new-feature` |
-| `<name> promote` | **Promote** — add roadmap row first; create project only when durable |
+| `<name> promote` | **Promote** — add or propose a roadmap row |
 | `<name> present` | Alias to `brief` for backward compatibility |
 | `<braindump text>` | **Smart route** — match against existing ideas or create new |
 
@@ -83,7 +83,6 @@ Slugs use lowercase letters and hyphens only.
 - `idea` owns incubation, concept shaping, high-level technical specs, decision briefs, and optional pre-promotion plans.
 - `spec-new-feature` owns approved spec, decontaminated research, design, code-grounded tasks, and optional execution.
 - `init-epic` owns bootstrapping a new multi-repo coordination workspace when the idea graduates into one.
-- `projects` owns durable milestones and execution slices after promotion.
 - `focus` and `morning-sync` sit on top once execution is live.
 
 ---
@@ -223,7 +222,7 @@ last_touched: <date>
    - answer clarifying questions
    - work on technical architecture
    - write a brief
-   - promote to projects
+   - promote to the roadmap
 4. If the idea is already `ready`, or if the doc already has a clear brief and execution-shaped architecture, explicitly ask whether they want to promote it now.
 
 ### Invoked with additional text
@@ -446,54 +445,46 @@ Use this when the user asks for implementation order, repo structure, task break
 |------|---------|------------|-------|
 
 ## Promotion Target
-Roadmap row first; project only if durable execution memory is needed.
+Roadmap row first; feature artifact only when deeper planning is needed.
 ```
 
 4. If the user needs code-grounded tasks, route to `/spec-new-feature`; that workflow owns codebase research, design, and task breakdown.
-5. If the idea has already become durable execution work, offer `/idea <name> promote` so roadmap/projects can own live state.
+5. If the idea has already become durable execution work, offer `/idea <name> promote` so the roadmap can own live state.
 
 This bridge exists to prevent a third planning surface from growing inside `idea`.
 
 ---
 
-## Promote To Projects (`/idea <name> promote`)
+## Promote To Roadmap (`/idea <name> promote`)
 
-This is the explicit graduation path from incubation into tracked execution.
+This is the explicit graduation path from incubation into live work.
 
 If the idea is graduating into a brand-new multi-repo coordination effort, use
-`init-epic` first and then hand off to `projects`. Do not skip workspace bootstrap.
+`init-epic` first. Do not skip workspace bootstrap.
 
 ### Steps
 
 1. Read the full idea doc. Read `brief.md`, `spec.md`, and `plan.md` too when they exist.
 2. Add or propose a row in `~/.dot-agent/state/collab/roadmap.md` first.
-3. Decide whether promotion also needs a project:
-   - spans multiple days
-   - needs PR/pivot/follow-up memory
+3. Decide whether promotion needs deeper planning:
    - needs `/spec-new-feature`
-   - crosses repositories
-   - has durable decisions worth preserving
+   - crosses repositories and needs `init-epic`
+   - has durable decisions worth preserving in an artifact
 4. Decide whether promotion needs a new multi-repo coordination workspace:
    - if yes, route to `init-epic` first
-   - if no project is needed, stop after the roadmap row
-   - if a project is needed, continue to `projects`
-5. Choose the project slug. Default to the idea slug unchanged unless the user overrides it.
+   - if no workspace is needed, stop after the roadmap row or route to `spec-new-feature`
+5. Choose the roadmap/workstream label. Default to the idea title unless the user overrides it.
 6. If routing through `init-epic`, use the idea's summary, architecture, and dependencies to define:
    - workspace title
    - focus label
    - current vs legacy repo roster
    - repo order for implementation work
-7. Run `~/.dot-agent/skills/projects/scripts/projects-setup.sh <slug>` once the workspace question is settled.
-8. Create or update the thin project from the idea:
-   - map the idea summary into `## Why`
-   - map `plan.md` or `spec.md` into `## Current Slice`
-   - fill idea/spec/repo links
-   - capture unresolved questions in `## Open Follow-ups`
-9. Update the idea doc:
+7. If routing to `spec-new-feature`, use the idea's product framing, `spec.md`, and `plan.md` as source material.
+8. Update the idea doc:
    - append a Raw Log entry noting the promotion
    - set `status: promoted`
    - update `last_touched`
-10. Present the result with roadmap/project paths and the clearest next action.
+9. Present the result with roadmap/artifact paths and the clearest next action.
 
 ---
 
@@ -517,11 +508,11 @@ Use a short direct reminder such as:
 
 - Promotion is explicit, not automatic.
 - Promotion writes or proposes a roadmap row first.
-- If the idea becomes a new multi-repo coordination effort, `init-epic` comes before `projects`.
+- If the idea becomes a new multi-repo coordination effort, `init-epic` comes before `spec-new-feature`.
 - When the idea looks ready, explicitly remind the user that promotion is available.
-- Do not overwrite an existing project blindly. Merge carefully if the slug already exists.
-- Preserve the product framing from the idea, but make the project docs execution-shaped.
-- Keep the first project plan simple. The goal is to create an executable starting point, not a perfect roadmap.
+- Do not overwrite an existing roadmap row or feature artifact blindly. Merge carefully if the slug already exists.
+- Preserve the product framing from the idea, but make the promoted roadmap row execution-shaped.
+- Keep the first promoted row simple. The goal is to create an executable starting point, not a perfect roadmap.
 
 ---
 
@@ -566,6 +557,6 @@ Do not ask generic questions, questions already answered in the doc, or technica
 - Rewrite structured sections for coherence on every update.
 - Keep the Raw Log append-only.
 - Keep `Open Questions` specific and actionable.
-- Do not push toward execution unprompted. The user decides when to promote an idea into `/projects`.
+- Do not push toward execution unprompted. The user decides when to promote an idea into the roadmap.
 - `spec.md` stays high-level. Code-level planning belongs in `/spec-new-feature` once repo grounding is required.
 - Ideas can sit for months; the document should still be easy to re-enter.

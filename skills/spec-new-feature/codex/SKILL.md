@@ -7,13 +7,13 @@ description: Plan and optionally execute non-trivial feature work using an artif
 
 ## Composes With
 
-- Parent: `idea` or `projects` when work needs code-grounded planning.
+- Parent: `idea`, `focus`, or `init-epic` when work needs code-grounded planning.
 - Children: `excalidraw-diagram` when a feature plan needs a durable workflow, architecture, or before/after visual.
 - Uses format from: `excalidraw-diagram` for human-facing planning and design visuals when useful.
-- Reads state from: idea `spec.md`/`plan.md`, thin project `Current Slice`, repo docs/code, and feature artifacts.
-- Writes through: `docs/artifacts/<feature>/` for feature artifacts; returns PRs/pivots/follow-ups to `projects`.
-- Hands off to: `projects` after execution or when durable memory is needed.
-- Receives back from: `projects` as curated workstream context.
+- Reads state from: idea `spec.md`/`plan.md`, roadmap rows, repo docs/code, and feature artifacts.
+- Writes through: `docs/artifacts/<feature>/` for feature artifacts; returns PRs/pivots/follow-ups to roadmap rows, handoff docs, or PR descriptions.
+- Hands off to: `focus` for roadmap follow-ups, `review` for PR review, or `daily-review` for day-end closure.
+- Receives back from: `focus`, `review`, PR refs, and prior feature artifacts as curated workstream context.
 
 Use this for new features, significant behavior changes, or multi-file work where the requirements need to be shaped before implementation.
 
@@ -144,7 +144,7 @@ Break the work into file-scoped tasks with:
 - verify commands
 - boundaries and out-of-scope notes
 - effort estimates in hours when the codebase is known
-- task IDs that can be referenced from `projects/execution.md`
+- task IDs that can be referenced from PRs, handoff docs, or roadmap follow-ups
 
 Tasks should be self-contained enough to execute without re-reading the entire design.
 
@@ -161,7 +161,7 @@ If the user asks to execute:
 - when using workers, run one Gate / Verifier pass over the union of changed
   files before calling a wave complete
 - stop if execution uncovers a design gap that the plan did not resolve
-- if this belongs to a tracked project, hand PRs, pivots, discarded approaches, and follow-ups back to `projects/execution.md` instead of creating a parallel idea execution log
+- hand PRs, pivots, discarded approaches, and follow-ups back to `focus`, `review`, PR descriptions, or the relevant handoff doc instead of creating a parallel idea execution log
 
 ## Non-Goals
 

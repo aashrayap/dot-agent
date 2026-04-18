@@ -13,11 +13,11 @@ disable-model-invocation: true
 ## Composes With
 
 - Parent: first morning call from the user.
-- Children: `focus` for roadmap mutations, `idea` for new concepts, `spec-new-feature` only after user chooses implementation, and `excalidraw-diagram` when the day shape needs a durable visual. Use `projects` only for explicit legacy inspection, one-time migration, or user-requested deep execution drill-down.
+- Children: `focus` for roadmap mutations, `idea` for new concepts, `spec-new-feature` only after user chooses implementation, and `excalidraw-diagram` when the day shape needs a durable visual.
 - Uses format from: `excalidraw-diagram` for human-facing workflow or before/after visuals when useful.
-- Reads state from: `~/.dot-agent/state/collab/roadmap.md` by default; optional external PR/review queues when available. Do not read `~/.dot-agent/state/projects/*` in the normal morning path.
+- Reads state from: `~/.dot-agent/state/collab/roadmap.md` by default; optional external PR/review queues when available.
 - Writes through: `focus`/`roadmap.py` only when the user asks for an updating sync.
-- Hands off to: `focus` for board edits; `idea` for incubation; `spec-new-feature` for deep implementation planning; `projects` only for explicit legacy or execution drill-down.
+- Hands off to: `focus` for board edits; `idea` for incubation; `spec-new-feature` for deep implementation planning.
 - Receives back from: `daily-review` through completed-row drainage history.
 
 ## Context
@@ -32,7 +32,7 @@ attention now.
 Use `morning-sync` when the user asks what to work on this morning, wants a
 daily sync, or wants to start the day. It summarizes the daily board's focus,
 active projects, review queue, and parked/blocker rows. It does not replace
-project planning. If the user still needs a coordination repo, use `init-epic`
+feature planning. If the user still needs a coordination repo, use `init-epic`
 first.
 
 When the sync is explaining a non-trivial workflow shift, multi-workstream
@@ -45,14 +45,9 @@ Always read:
 
 - `~/.dot-agent/state/collab/roadmap.md`
 
-Do not read `~/.dot-agent/state/projects/*/project.md` or
-`~/.dot-agent/state/projects/*/execution.md` during the normal morning path.
-
-Allowed exceptions:
-
-- the user explicitly asks to inspect legacy project state
-- a one-time migration is moving selected project rows into `roadmap.md`
-- the user explicitly drills from day-level triage into deep execution state
+Do not inspect gitignored legacy project/session state during the normal
+morning path. If the user needs historical context, ask for the explicit file
+or artifact they want reviewed.
 
 If the user invocation includes fresh context for the day, incorporate it before making recommendations.
 
@@ -125,7 +120,7 @@ Keep it short. If there is no good secondary item, say so instead of padding.
 - Do not silently rewrite `roadmap.md`.
 - Prefer execution evidence over stale planning.
 - Prefer current momentum over speculative new starts.
-- Do not turn this into bootstrap work or project-plan creation; those belong to `init-epic`, `projects`, or `focus`.
+- Do not turn this into bootstrap work or feature planning; those belong to `init-epic`, `spec-new-feature`, or `focus`.
 - If all active work is blocked, say that directly and identify the unblock.
 - Never emit `S01`, `S02`, session IDs, dependency graph labels, or `project.md#s01` anchors in normal human output.
 - Do not expose `Available Sessions`, `Blocked Sessions`, Mermaid dependency graphs, or raw execution artifact internals in the morning board.
