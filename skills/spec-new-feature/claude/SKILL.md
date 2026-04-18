@@ -20,6 +20,15 @@ Use this for non-trivial feature work that needs a spec, decontaminated research
 
 This is also the code-grounded planning bridge for mature `/idea` work. Idea docs provide product and high-level architecture context; this workflow owns approved spec artifacts, decontaminated research, design, code-specific tasks, and optional execution.
 
+## Response Contract
+
+- The universal response contract lives above this skill and applies to
+  non-trivial runs when relevant.
+- `spec-new-feature` implements that contract through `docs/artifacts/<feature>/`
+  when the run creates multiple artifacts or needs durable review/resume.
+- `00_summary.md` is the durable landing page for the artifact set when one is
+  needed.
+
 ## Context
 
 !`~/.claude/skills/spec-new-feature/scripts/new-feature-setup.sh $0`
@@ -30,6 +39,7 @@ Read the reported feature directory and artifact statuses. Resume from the first
 
 ## Artifact Contract
 
+- `00_summary.md` — durable landing page for the artifact set when the run needs one
 - `01_spec.md` — problem framing, users, acceptance criteria, boundaries
 - `02_questions.md` — approved research questions grouped by source
 - `03_research.md` — decontaminated findings, patterns, flagged items, open questions

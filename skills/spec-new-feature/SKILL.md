@@ -19,8 +19,19 @@ Non-trivial feature work through spec, decontaminated research, design decisions
 
 This skill is the code-grounded planning bridge for mature ideas. `/idea` owns product/concept shaping and high-level technical architecture; `spec-new-feature` turns that into approved feature artifacts, research, design, and executable tasks.
 
+## Response Contract
+
+- The universal response contract lives above this skill and applies to
+  non-trivial runs when relevant.
+- `spec-new-feature` implements that contract through `docs/artifacts/<feature>/`
+  when the run creates multiple artifacts or needs durable review/resume.
+- `00_summary.md` is a durable landing page for the artifact set. It is optional for tiny or simple runs, but expected for multi-artifact runs.
+- When present, `00_summary.md` should orient the reader, link through `01_spec.md` to `05_tasks.md`, and embed or link a diagram when that helps.
+- Keep the workflow intact and concise; do not add extra artifact layers unless they materially help the run.
+
 ## Artifact Contract
 
+- `00_summary.md` — durable landing page for the artifact set when the run needs one
 - `01_spec.md` — problem framing, users, acceptance criteria, boundaries
 - `02_questions.md` — approved research questions grouped by source
 - `03_research.md` — decontaminated findings, patterns, flagged items, open questions

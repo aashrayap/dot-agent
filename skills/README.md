@@ -142,6 +142,23 @@ current shape.
 Keep this rule in human-facing docs and the relevant `SKILL.md` files. Do not
 put Excalidraw-specific policy in `skills/AGENTS.md`.
 
+## Human Response Contract
+
+The response packet should stay short and readable: `Result`, optional
+`Visual`, `Gate`, one or more concrete `Next Actions`, and `Details` links.
+Durable summary artifacts are conditional: create them only when the skill owns
+a persistent record or the work benefits from one.
+
+Examples:
+
+- `spec-new-feature`: response packet plus linked spec or artifact set under
+  `docs/artifacts/<feature>/`.
+- `execution-review`: response packet plus a forensic report when the review
+  needs a retained record.
+- `daily-review`: response packet plus the drained daily review record in
+  `state/collab/daily-reviews/`.
+- Small or no-artifact work: response packet only.
+
 ## Research And Subagents
 
 Research-heavy skills keep one parent skill as orchestrator. Use subagents only
