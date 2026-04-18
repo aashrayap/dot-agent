@@ -10,8 +10,8 @@ disable-model-invocation: true
 ## Composes With
 
 - Parent: user request to create, improve, or translate agent instruction files.
-- Children: none.
-- Uses format from: none.
+- Children: `excalidraw-diagram` when instruction changes need a durable repo/runtime contract visual.
+- Uses format from: `excalidraw-diagram` for human-facing instruction architecture or before/after diagrams when useful.
 - Reads state from: repo docs, scripts, manifests, existing AGENTS.md/CLAUDE.md, and verification commands.
 - Writes through: target instruction markdown files only.
 - Hands off to: none.
@@ -20,6 +20,11 @@ disable-model-invocation: true
 Use this when a repository needs agent instructions created from scratch, an
 existing `AGENTS.md` or `CLAUDE.md` tightened, or paired runtime instruction
 files translated while keeping facts aligned.
+
+For substantial instruction rewrites, prefer a visual summary of the intended
+repo/runtime contract when it will help the human reviewer see ownership,
+setup, workflow, or before/after differences. Keep the Markdown instructions as
+the executable contract; diagrams explain the shape.
 
 ## Modes
 

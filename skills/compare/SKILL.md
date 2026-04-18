@@ -9,11 +9,11 @@ disable-model-invocation: true
 ## Composes With
 
 - Parent: user comparison request.
-- Children: none.
-- Uses format from: `explain` Compare and Delta visual modes.
+- Children: `excalidraw-diagram` only when the comparison warrants a durable rendered visual.
+- Uses format from: `explain` Compare and Delta visual modes; optionally `excalidraw-diagram` for architecture/workflow diagrams.
 - Reads state from: requested files, skills, codebases, branches, workflows, or configs.
-- Writes through: `~/.dot-agent/state/collab/compare-history.md` only.
-- Hands off to: none; compare owns final judgment.
+- Writes through: `~/.dot-agent/state/collab/compare-history.md`; optional `.excalidraw` and `.png` diagram artifacts when explicitly useful.
+- Hands off to: `excalidraw-diagram` for rendered diagram artifact creation; compare owns final judgment.
 - Receives back from: none.
 
 Side-by-side comparison of anything structured. Works on files, skills, codebases, branches, CLAUDE/AGENTS files, configs, workflows, implementation-vs-spec checks, and docs.
@@ -48,7 +48,31 @@ Examples:
 3. Identify the type of content (skill, config, markdown doc, codebase, branch, workflow) and adapt section headers accordingly.
 4. Generate comparison using the output format below.
 5. If `-o` specified, write to that path. Otherwise, output directly.
-6. Append an entry to the history file (see History section).
+6. Decide whether a rendered visual would materially help (see Visual Artifact Mode).
+7. Append an entry to the history file (see History section).
+
+## Visual Artifact Mode
+
+Default to Markdown tables and text for narrow comparisons. For human-facing
+architecture, workflow, runtime, state-machine, or handoff comparisons, prefer a
+diagram companion when it will make the shape easier to review. Use
+`excalidraw-diagram` when at least one of these is true:
+
+- the user explicitly asks for an Excalidraw, drawing, diagram, or rendered visual
+- the comparison is an architecture, workflow, runtime, state-machine, or handoff map
+- the output is a durable doc artifact where an editable source plus PNG would help future readers
+- the side-by-side table is likely to hide important flow, ownership, or feedback-loop differences
+
+Do not use Excalidraw for small file diffs, narrow config comparisons, simple
+skill deltas, or cases where a compact table is clearer.
+
+When using `excalidraw-diagram`:
+
+1. Keep the normal compare output as the analytical source of truth.
+2. Create the diagram as a companion artifact, not a replacement for findings.
+3. Use the diagram to show structure, flow, ownership, or divergence.
+4. Save the editable `.excalidraw` source next to the rendered `.png`.
+5. Render, inspect, fix, and rerender before citing the image.
 
 ## Output Format
 

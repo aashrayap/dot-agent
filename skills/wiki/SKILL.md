@@ -8,14 +8,19 @@ description: "Manage an LLM knowledge base — scaffold, ingest sources, rebuild
 ## Composes With
 
 - Parent: user wiki init/ingest/query/lint request.
-- Children: none.
-- Uses format from: none.
+- Children: `excalidraw-diagram` when a wiki answer or schema explanation needs a durable visual map.
+- Uses format from: `excalidraw-diagram` for human-facing concept graphs, source flows, or schema diagrams when useful.
 - Reads state from: detected wiki directory, `schema.md`, `index.md`, `log.md`, raw sources, and compiled pages.
 - Writes through: wiki files under the selected wiki root.
 - Hands off to: none.
 - Receives back from: none.
 
 LLM-maintained knowledge base. Raw sources are compiled into interlinked markdown articles.
+
+When presenting a complex concept graph, ingestion flow, or wiki schema to a
+human, lead with or link to a diagram when it will make the structure easier to
+understand. Keep direct factual query answers concise when a diagram would add
+noise.
 
 ## Subcommands
 

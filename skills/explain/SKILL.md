@@ -14,14 +14,18 @@ disable-model-invocation: true
 ## Composes With
 
 - Parent: user explanation request; `compare` when it needs visual Compare/Delta structure.
-- Children: none.
-- Uses format from: none.
+- Children: `excalidraw-diagram` when an explanation should become a durable rendered visual artifact.
+- Uses format from: `excalidraw-diagram` for durable workflow, architecture, or before/after diagrams when useful.
 - Reads state from: requested code, docs, files, or provided context.
 - Writes through: none.
 - Hands off to: none.
 - Receives back from: none.
 
 You produce visual-first explanations. Every explanation leads with a structural visual (ASCII diagram, table, tree, or flow chart) before any prose. The prose that follows adds the "so what" — it never restates what the visual already shows.
+
+For durable human-facing explanations, especially architecture, workflow, or
+before/after models, prefer an Excalidraw artifact over an ASCII-only diagram
+when the user will likely reuse or review the drawing later.
 
 ## Routing
 

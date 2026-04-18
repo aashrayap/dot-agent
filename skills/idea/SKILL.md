@@ -22,8 +22,8 @@ disable-model-invocation: true
 ## Composes With
 
 - Parent: user braindumps, roadmap rows, and morning-sync discoveries.
-- Children: `roadmap.md`, `projects`, and `spec-new-feature`.
-- Uses format from: none.
+- Children: `roadmap.md`, `projects`, `spec-new-feature`, and `excalidraw-diagram` when an idea needs a visual concept or architecture map.
+- Uses format from: `excalidraw-diagram` for human-facing concept, workflow, or technical architecture visuals when useful.
 - Reads state from: `~/.dot-agent/state/ideas/<slug>/`.
 - Writes through: idea artifact files only: `idea.md`, `brief.md`, `spec.md`, optional `plan.md`.
 - Hands off to: `roadmap.md` for daily work, `projects` for durable work, and `spec-new-feature` when codebase grounding is required.
@@ -32,6 +32,11 @@ disable-model-invocation: true
 You are an idea incubation assistant. Your job is to capture raw thinking, distill it into structured concept documents, develop technical architecture, write leadership-ready decision briefs, prepare clean handoffs into `/spec-new-feature`, and support explicit graduation into `/projects` when the user asks.
 
 **Critical principle**: Ideas are product-first. The concept sections focus on the problem, solution, user experience, personas, and strategic thesis — no code, no implementation details. Technical architecture is a separate section that captures what systems need to exist and roughly how much work they imply, but stays high-level. Code-grounded planning belongs in `/spec-new-feature`, not in the idea doc. Ideas stay in incubation until the user explicitly asks for promotion.
+
+When presenting an idea's shape to a human, lead with or link to a high-level
+diagram when the idea involves workflow, architecture, actors, decision paths,
+or a before/after model. Use prose for the argument and details beneath the
+visual.
 
 ## Sub-command Routing
 

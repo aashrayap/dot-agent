@@ -77,16 +77,25 @@ def roadmap_focus() -> str:
     return " ".join(body)
 
 
-def roadmap_active_item() -> str:
+def roadmap_active_row() -> tuple[str, str]:
     if not ROADMAP_FILE.exists():
-        return ""
+        return "", ""
+    in_active = False
     for line in read_text(ROADMAP_FILE).splitlines():
+        if line == "## Active Projects":
+            in_active = True
+            continue
+        if in_active and line.startswith("## "):
+            break
+        if not in_active:
+            continue
         if not line.startswith("|"):
             continue
         parts = [part.strip() for part in line.strip().strip("|").split("|")]
-        if len(parts) >= 2 and parts[0].lower() == "in progress" and parts[1] not in {"Item", "-"}:
-            return parts[1]
-    return ""
+        if len(parts) >= 5 and parts[0] not in {"Project", "---------"}:
+            if parts[1].lower() == "in progress" and parts[2] not in {"Task", "-"}:
+                return parts[0], parts[2]
+    return "", ""
 
 
 def normalize(text: str) -> str:
@@ -139,15 +148,18 @@ def shell_quote(value: str) -> str:
 
 
 def main() -> int:
+    allow_project_state = os.environ.get("FOCUS_HANDOFF_ALLOW_PROJECTS") == "1"
     current_focus = roadmap_focus()
-    now_item = roadmap_active_item()
+    roadmap_project, now_item = roadmap_active_row()
     if not current_focus and FOCUS_FILE.exists():
         lines = read_text(FOCUS_FILE).splitlines()
         current_focus = first_nonempty_line(section_body(lines, "## Current Focus"))
         now_item = first_list_item(section_body(lines, "## Now"))
-    slugs = active_projects()
+    slugs = active_projects() if allow_project_state else []
 
-    exact_match = exact_slug_match(current_focus, slugs, "current-focus")
+    exact_match = exact_slug_match(roadmap_project, slugs, "roadmap-project")
+    if exact_match is None:
+        exact_match = exact_slug_match(current_focus, slugs, "current-focus")
     if exact_match is None:
         exact_match = exact_slug_match(now_item, slugs, "now-item")
 
@@ -166,10 +178,19 @@ def main() -> int:
     print(f"ROADMAP_FILE={ROADMAP_FILE}")
     print(f"FOCUS_FILE={FOCUS_FILE}")
     print(f"CURRENT_FOCUS={shell_quote(current_focus or 'None set yet.')}")
+    print(f"ROADMAP_ACTIVE_PROJECT={shell_quote(roadmap_project or 'General')}")
     print(f"NOW_ITEM={shell_quote(now_item or 'None')}")
+    print(f"PROJECT_STATE_NORMAL_READS={'yes' if allow_project_state else 'no'}")
     print(f"ACTIVE_PROJECTS={','.join(slugs)}")
 
-    if project_match is None:
+    if not allow_project_state:
+        print("PROJECT_MATCH=")
+        print("MATCH_SOURCE=")
+        print("MATCH_CONFIDENCE=none")
+        print("PROJECT_READY=no")
+        print("PROJECT_REASON=Project handoff is explicit only; normal focus stays on the human roadmap.")
+        print("SUGGESTED_PROJECTS_COMMAND=")
+    elif project_match is None:
         print("PROJECT_MATCH=")
         print("MATCH_SOURCE=")
         print("MATCH_CONFIDENCE=none")

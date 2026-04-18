@@ -7,13 +7,13 @@ description: Evidence-first review of recent local Codex and Claude Code session
 
 ## Composes With
 
-- Parent: day-end or weekly review request.
-- Children: `focus`/roadmap helpers and `projects` helpers for confirmed state changes.
-- Uses format from: none.
-- Reads state from: Codex/Claude session logs, `roadmap.md`, active projects, execution memory, PR signals, and optional Hermes findings.
-- Writes through: `skills/focus/scripts/roadmap.py`, `projects` helpers, and execution-review report/history files.
-- Hands off to: `focus` for roadmap cleanup and `projects` for durable closure updates.
-- Receives back from: `spec-new-feature` and `projects` through execution memory and PR refs.
+- Parent: forensic execution review, workflow diagnosis, session-review, or weekly retrospective request.
+- Children: runtime evidence scripts, optional Hermes findings, and `excalidraw-diagram` when a forensic review needs a durable workflow or session-shape visual.
+- Uses format from: `excalidraw-diagram` for human-facing session pipeline, workflow, or before/after visuals when useful.
+- Reads state from: Codex/Claude session logs, execution-review evidence/history, PR signals, and optional Hermes findings. Roadmap/project files may be read only as evidence when the user explicitly asks to diagnose a session or workstream.
+- Writes through: execution-review report/history files only.
+- Hands off to: `daily-review` for human day-end closure, recap, and roadmap drainage; `spec-new-feature`, `focus`, or `projects` only as recommended follow-up surfaces.
+- Receives back from: `spec-new-feature`, `projects`, PR refs, and prior execution-review reports as evidence.
 
 Use the shared execution-review workflow from Codex.
 
@@ -32,6 +32,8 @@ Use the shared execution-review workflow from Codex.
 Then follow the shared evidence-first review contract:
 - inspect only the sessions that matter
 - score response fit, skill leverage, verification, focus, grounding, and efficiency
-- for daily review requests, run the shared Daily Closure Loop and project ribbon rules
+- for Codex transcript reviews, apply the shared typed pipeline: intake, orient, plan/announce, act, verify, synthesize, handoff
+- for day-end closure requests, hand off human closure, recap, and roadmap drainage to `daily-review`
 - keep full session ids in every citation; add turn indices when the inspected payload exposes them
 - keep Hermes findings clearly separate when present
+- use or link an Excalidraw diagram for non-trivial workflow/session-shape explanations; keep exact scores and citations in text

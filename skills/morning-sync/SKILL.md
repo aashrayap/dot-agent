@@ -1,9 +1,9 @@
 ---
 name: morning-sync
 description: >
-  Run the day-start operating loop across focus and active projects. Use when the
-  user asks what to work on this morning, wants a daily sync, or wants a
-  concise summary of what should happen next.
+  Run the day-start operating loop from the human roadmap. Use when the user
+  asks what to work on this morning, wants a daily sync, or wants a concise
+  summary of what should happen next.
 argument-hint: [notes]
 disable-model-invocation: true
 ---
@@ -13,34 +13,46 @@ disable-model-invocation: true
 ## Composes With
 
 - Parent: first morning call from the user.
-- Children: `focus` for roadmap mutations, `projects` for durable workstreams, `idea` for new concepts, `spec-new-feature` only after user chooses implementation.
-- Uses format from: none.
-- Reads state from: `~/.dot-agent/state/collab/roadmap.md`, active `projects/*/project.md`, optional `projects/*/execution.md`, and PR/review queues when available.
+- Children: `focus` for roadmap mutations, `idea` for new concepts, `spec-new-feature` only after user chooses implementation, and `excalidraw-diagram` when the day shape needs a durable visual. Use `projects` only for explicit legacy inspection, one-time migration, or user-requested deep execution drill-down.
+- Uses format from: `excalidraw-diagram` for human-facing workflow or before/after visuals when useful.
+- Reads state from: `~/.dot-agent/state/collab/roadmap.md` by default; optional external PR/review queues when available. Do not read `~/.dot-agent/state/projects/*` in the normal morning path.
 - Writes through: `focus`/`roadmap.py` only when the user asks for an updating sync.
-- Hands off to: `focus` for board edits; `projects` for durable work; `idea` for incubation.
-- Receives back from: `execution-review` through completed-row drainage history.
+- Hands off to: `focus` for board edits; `idea` for incubation; `spec-new-feature` for deep implementation planning; `projects` only for explicit legacy or execution drill-down.
+- Receives back from: `daily-review` through completed-row drainage history.
 
 ## Context
 
 Run `~/.dot-agent/skills/morning-sync/scripts/morning-sync-setup.sh` first.
 
-This skill is the first morning call. It runs on top of the `roadmap` and
-`projects` layers. It should be opinionated and concise. The goal is not to
-restate every project; the goal is to help a human decide what deserves
+This skill is the first morning call. It runs on top of the human-readable
+`roadmap.md` day board. It should be opinionated and concise. The goal is not
+to restate every artifact; the goal is to help a human decide what deserves
 attention now.
 
 Use `morning-sync` when the user asks what to work on this morning, wants a
-daily sync, or wants to start the day. It summarizes the daily board and active
-projects; it does not replace project planning. If the user still needs a
-coordination repo, use `init-epic` first.
+daily sync, or wants to start the day. It summarizes the daily board's focus,
+active projects, review queue, and parked/blocker rows. It does not replace
+project planning. If the user still needs a coordination repo, use `init-epic`
+first.
+
+When the sync is explaining a non-trivial workflow shift, multi-workstream
+board, or before/after change, point to an existing diagram or create a small
+Excalidraw view. For a normal short daily sync, bullets are enough.
 
 ## Inputs
 
 Always read:
 
 - `~/.dot-agent/state/collab/roadmap.md`
-- active `~/.dot-agent/state/projects/*/project.md`
-- active `~/.dot-agent/state/projects/*/execution.md` when present
+
+Do not read `~/.dot-agent/state/projects/*/project.md` or
+`~/.dot-agent/state/projects/*/execution.md` during the normal morning path.
+
+Allowed exceptions:
+
+- the user explicitly asks to inspect legacy project state
+- a one-time migration is moving selected project rows into `roadmap.md`
+- the user explicitly drills from day-level triage into deep execution state
 
 If the user invocation includes fresh context for the day, incorporate it before making recommendations.
 
@@ -50,13 +62,13 @@ If the user invocation includes fresh context for the day, incorporate it before
 
 - Confirm that `roadmap.md` exists and is in the canonical schema.
 - Check whether the roadmap looks stale relative to today.
-- Warn if it contains `Completed` rows that were not drained by `execution-review`.
-- Check whether `In Progress` rows align with active project state.
+- Warn if it contains `Completed` rows that were not drained by `daily-review`.
+- Check whether focus, active project rows, review queue, and parked/blocker rows are internally consistent.
 - Call out contradictions plainly.
 
 ### 2. Pull new work
 
-- Review active projects for current slices, unresolved follow-ups, and fresh execution momentum.
+- Review `roadmap.md` active project rows for current tasks, unresolved follow-ups, and fresh human intent.
 - Prefer continuing something already in motion over starting a new track.
 - Only pull in new work if:
   - the current focus is empty
@@ -65,14 +77,15 @@ If the user invocation includes fresh context for the day, incorporate it before
 
 ### 3. Surface PR / review queue
 
-- Read each project's `## PRs` table in `execution.md`.
-- Surface items whose status suggests attention is needed now, such as:
+- Read the `## Review Queue` section in `roadmap.md`.
+- Surface rows whose status suggests attention is needed now, such as:
   - `review`
   - `needs-review`
   - `waiting`
   - `follow-up`
   - `blocked`
-- If no useful queue is recorded in execution memory, say so briefly instead of inventing one.
+- If optional external GitHub or Linear signals are available in the current session, mention them as external signals rather than treating them as roadmap state.
+- If no useful queue is recorded, say so briefly instead of inventing one.
 
 ### 4. Recommend the day shape
 
@@ -89,29 +102,19 @@ Treat this as read-only unless the user explicitly asks to update `roadmap.md`.
 Use this exact structure:
 
 ```markdown
-## Focus health
-- <fresh or stale, with any contradiction worth calling out>
+## Focus
+- <plain-language current focus>
 
-## Continue now
-- <the best current path>
+## Active Projects
+- <project or workstream>: <high-level task>
 
-## Pull in next
-- <optional secondary item worth starting or reviving>
-
-## PR / review queue
+## Review Queue
 - <items that need review attention now, or "No tracked queue">
 
 ## Blocked / ignore
 - <things that should wait>
 
-## Proposed focus
-Focus: <one sentence>
-In progress:
-- <item>
-Queued:
-- <item>
-
-## Proposed roadmap changes
+## Suggested Board Changes
 - <add/move/complete/drop row, or "No changes">
 ```
 
@@ -124,4 +127,6 @@ Keep it short. If there is no good secondary item, say so instead of padding.
 - Prefer current momentum over speculative new starts.
 - Do not turn this into bootstrap work or project-plan creation; those belong to `init-epic`, `projects`, or `focus`.
 - If all active work is blocked, say that directly and identify the unblock.
-- If the project system lacks enough PR status detail to form a real review queue, say that the queue depends on better `execution.md` maintenance rather than pretending the data exists.
+- Never emit `S01`, `S02`, session IDs, dependency graph labels, or `project.md#s01` anchors in normal human output.
+- Do not expose `Available Sessions`, `Blocked Sessions`, Mermaid dependency graphs, or raw execution artifact internals in the morning board.
+- If the roadmap lacks enough PR status detail to form a real review queue, say that the board needs a review-row update rather than pretending the data exists.

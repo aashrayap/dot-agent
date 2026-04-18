@@ -8,8 +8,8 @@ description: Full feature workflow — spec, research, design, tasks, execute.
 ## Composes With
 
 - Parent: `idea` or `projects` when work needs code-grounded planning.
-- Children: none.
-- Uses format from: none.
+- Children: `excalidraw-diagram` when a feature plan needs a durable workflow, architecture, or before/after visual.
+- Uses format from: `excalidraw-diagram` for human-facing planning and design visuals when useful.
 - Reads state from: idea `spec.md`/`plan.md`, thin project `Current Slice`, repo docs/code, and feature artifacts.
 - Writes through: `docs/artifacts/<feature>/` for feature artifacts; returns PRs/pivots/follow-ups to `projects`.
 - Hands off to: `projects` after execution or when durable memory is needed.
@@ -26,6 +26,11 @@ This skill is the code-grounded planning bridge for mature ideas. `/idea` owns p
 - `03_research.md` — decontaminated findings, patterns, flagged items, open questions
 - `04_design.md` — design decisions, principles, file map, unresolved risks
 - `05_tasks.md` — execution-ready task breakdown
+
+When the feature involves workflow, architecture, state flow, or a before/after
+model that a human needs to understand, add or update a companion Excalidraw
+diagram under `docs/diagrams/` and link it from the relevant artifact. Do not
+force a diagram for small mechanical changes or line-level fixes.
 
 Each artifact tracks `status` in YAML frontmatter: `pending` → `draft` → `approved`/`complete`.
 

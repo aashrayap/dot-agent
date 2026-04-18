@@ -5,11 +5,10 @@ TODAY=$(date +%Y-%m-%d)
 DOT_AGENT_HOME="${DOT_AGENT_HOME:-$HOME/.dot-agent}"
 DOT_AGENT_STATE_HOME="${DOT_AGENT_STATE_HOME:-$DOT_AGENT_HOME/state}"
 COLLAB_DIR="${DOT_AGENT_STATE_HOME}/collab"
-PROJECTS_DIR="${DOT_AGENT_STATE_HOME}/projects"
 FOCUS_FILE="${COLLAB_DIR}/focus.md"
 ROADMAP_SCRIPT="${DOT_AGENT_HOME}/skills/focus/scripts/roadmap.py"
 
-mkdir -p "$COLLAB_DIR" "$PROJECTS_DIR"
+mkdir -p "$COLLAB_DIR"
 
 CREATED_FOCUS="no"
 MIGRATED_FOCUS="no"
@@ -131,29 +130,6 @@ ROADMAP_FILE="$(printf "%s\n" "$ROADMAP_OUTPUT" | sed -n 's/^ROADMAP_FILE=//p')"
 
 echo "ROADMAP_FILE=$ROADMAP_FILE"
 echo "FOCUS_FILE=$FOCUS_FILE"
-echo "PROJECTS_DIR=$PROJECTS_DIR"
 echo "CREATED_FOCUS=$CREATED_FOCUS"
 echo "MIGRATED_FOCUS=$MIGRATED_FOCUS"
-echo "ACTIVE_PROJECTS_BEGIN"
-
-if [[ -d "$PROJECTS_DIR" ]]; then
-  for dir in "$PROJECTS_DIR"/*/; do
-    [[ -d "$dir" ]] || continue
-
-    slug="$(basename "$dir")"
-    project_file="${dir}project.md"
-    execution_file="${dir}execution.md"
-
-    [[ -f "$project_file" ]] || continue
-
-    status="$(head -10 "$project_file" | grep -m1 'status:' | sed 's/.*status: *//' || echo "unknown")"
-
-    if [[ "$status" == "complete" ]]; then
-      continue
-    fi
-
-    echo "${slug}|${status}|${project_file}|${execution_file}"
-  done
-fi
-
-echo "ACTIVE_PROJECTS_END"
+echo "PROJECT_STATE_NORMAL_READS=no"

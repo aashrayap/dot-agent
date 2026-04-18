@@ -1,138 +1,124 @@
 # dot-agent
 
-Ash's personal agent harness for Claude Code and Codex across work and personal
-computers.
+Ash's personal agent harness for Claude Code and Codex.
 
-Clone this repo as `~/.dot-agent/` on each machine Ash uses. The repo is the
-versioned source of truth for Ash's runtime defaults, skills, and local harness
-shape. Runtime installs still live in `~/.claude/` and `~/.codex/`. Mutable
-machine-local artifacts live under the gitignored `state/` subtree inside
-`~/.dot-agent/`. `setup.sh` fails fast unless the repo lives at that canonical
-path.
+![dot-agent runtime architecture](docs/diagrams/dot-agent-runtime-architecture.png)
 
-This is not a shared team distribution. Keep it optimized for Ash's work and
-personal computer workflows.
+`~/.dot-agent/` is the versioned source of truth. Runtime homes are install
+targets. Machine-local state stays under the gitignored `state/` tree.
 
-## Repo Layout
+## Architecture
 
 ```text
 ~/.dot-agent/
-├── claude/          # repo-side Claude config
-├── codex/           # repo-side Codex config
-├── skills/          # single source of truth for skills
-├── state/           # gitignored machine-local artifacts
-│   ├── collab/
-│   ├── projects/
-│   └── ideas/
-├── .gitignore
-├── README.md
-└── setup.sh
+├── AGENTS.md        # repo/group-level harness instructions
+├── claude/          # Claude runtime config source and pointer file
+├── codex/           # Codex config/rules source
+├── skills/          # shared skill source of truth
+├── state/           # gitignored local state and tool caches
+├── docs/            # tracked harness docs and diagrams
+├── setup.sh
+└── README.md
 ```
 
-## Installed Layout
-
-After `./setup.sh`, the machine-level layout on each computer is:
+Installed runtime shape:
 
 ```text
-~/
-├── .dot-agent/      # this repo
-├── .claude/         # Claude runtime install
-│   ├── CLAUDE.md
-│   ├── settings.json
-│   ├── statusline-enhanced.sh
-│   └── skills/
-└── .codex/          # Codex runtime install
-    ├── AGENTS.md
-    ├── config.toml
-    ├── rules/
-    └── skills/
+~/.claude/
+├── CLAUDE.md
+├── settings.json
+├── statusline-enhanced.sh
+└── skills/
+
+~/.codex/
+├── AGENTS.md
+├── config.toml
+├── rules/
+└── skills/
 ```
 
 ## Setup
 
-Clone the repo into the canonical local path:
+Clone at the canonical path and run setup:
 
 ```bash
 git clone https://github.com/aashrayap/dot-agent.git ~/.dot-agent
-cd ~/.dot-agent
+~/.dot-agent/setup.sh
 ```
 
-Then run setup:
-
-```bash
-./setup.sh
-```
-
-What `setup.sh` does:
-
-- symlinks Claude repo config into `~/.claude/`
-- symlinks Codex repo config into `~/.codex/`
-- links skills into each runtime based on `skill.toml`
-- creates `state/{collab,projects,ideas}`
-- backs up conflicting legacy runtime files under `state/backups/setup/`
-
-Run the same setup command on both work and personal machines after pulling the
-latest repo changes:
+After pulling or changing skills/config:
 
 ```bash
 git -C ~/.dot-agent pull --ff-only
 ~/.dot-agent/setup.sh
 ```
 
-## Versioned vs Local
+`setup.sh`:
 
-- Track Ash's portable runtime defaults here.
-- Keep project-specific instructions in the active repository, not in this repo-level baseline.
-- Keep personal context, risky bypass flags, and extra machine-local permissions such as `skipDangerousModePermissionPrompt` or extra `Bash(...)` allow-rules out of tracked config.
-- Keep machine-specific state under `~/.dot-agent/state/`; do not expect state to be identical across work and personal computers unless explicitly synced.
-- Keep statusline behavior cheap and predictable. It should not poll git or network state.
-- Update the repo explicitly: `git -C ~/.dot-agent pull --ff-only && ~/.dot-agent/setup.sh`
-- Follow the skill composition contract in `skills/AGENTS.md` when creating or materially rewriting skills.
+- symlinks Claude config into `~/.claude/`
+- symlinks root `AGENTS.md` into `~/.codex/AGENTS.md`
+- symlinks Codex config/rules into `~/.codex/`
+- installs skills into both runtimes based on `skill.toml`
+- creates `state/{collab,projects,ideas}`
+- backs up conflicting legacy runtime files under `state/backups/setup/`
 
-## Skill Layout
+## Versioned Vs Local
 
-- Keep runtime config separate: `claude/` for Claude, `codex/` for Codex.
-- Keep skills unified under `skills/`.
-- Prefer shared skill content with thin runtime wrappers only where needed.
-- Put runtime-specific wrappers inside the skill folder, not in separate top-level skill trees.
+Track portable runtime defaults here. Keep these out of tracked config:
 
-Example:
+- private context
+- machine-local trusted project paths
+- risky permission bypass flags
+- one-off local commands or allow rules
+- generated state and tool caches
 
-```text
-skills/review/
-├── SKILL.md
-├── codex/
-│   └── SKILL.md
-├── scripts/
-└── skill.toml
-```
+Use `state/` for local operating memory:
 
-`skill.toml` controls which runtimes receive the skill and which entrypoint each runtime should use.
+- `state/collab/roadmap.md`
+- `state/projects/<slug>/project.md`
+- `state/projects/<slug>/execution.md`
+- `state/ideas/<slug>/`
+- `state/tools/`
 
-## Mutable State
+## Human Daily Loop
 
-Shared mutable artifacts belong under `~/.dot-agent/state/`, not in tracked source directories and not in runtime homes.
+The normal day-start surface is the human roadmap, not project/session memory.
 
-Examples:
+- `state/collab/roadmap.md` is the day board: focus, active projects, review
+  queue, and parked or blocked work.
+- `morning-sync` reads roadmap rows by default and returns plain-language
+  project/task bullets.
+- `focus` mutates the roadmap and keeps the board human-scannable.
+- `daily-review` owns day-end closure, recap, and completed-row drainage.
+- `projects` preserves durable execution history, but normal morning/focus
+  output should not depend on `projects/*` internals.
+- `spec-new-feature` owns deep code-grounded planning and implementation
+  artifacts.
+- `execution-review` stays forensic: session quality, verification, skill use,
+  and failure analysis.
 
-- daily operating board: `~/.dot-agent/state/collab/roadmap.md`
-- legacy focus compatibility file: `~/.dot-agent/state/collab/focus.md`
-- compare history: `~/.dot-agent/state/collab/compare-history.md`
-- thin project state: `~/.dot-agent/state/projects/<slug>/project.md`
-- optional project execution memory: `~/.dot-agent/state/projects/<slug>/execution.md`
-- idea incubation docs: `~/.dot-agent/state/ideas/<slug>/{idea.md,brief.md,spec.md,plan.md}`
+Session IDs, dependency graphs, and `project.md#s01` anchors belong in deep
+execution artifacts or legacy project state, not in the daily board.
 
-Daily operating loop:
+## Human Review Surfaces
 
-- `/morning-sync` is the first morning call over roadmap plus active projects
-- `/focus` mutates the roadmap
-- `/projects` is the thin durable bridge between roadmap rows and `/spec-new-feature`
+Review the contract layer first:
 
-## Skill Migration Rules
+1. diagrams for workflow and architecture shape
+2. `README.md` and `AGENTS.md` for repo/runtime intent
+3. `skills/README.md`, `skills/AGENTS.md`, `SKILL.md`, and `skill.toml` for
+   skill behavior
+4. code sampling when setup, runtime, state mutation, renderers, adapters, or
+   generated outputs change
 
-- Do not hardcode `~/.claude` or `~/.codex` inside shared skill content.
-- Shared mutable artifacts belong in `~/.dot-agent/state/`.
-- Put runtime-specific behavior in `claude/` or `codex/` wrappers inside each skill when necessary.
-- Keep shared scripts, assets, and references in the root skill folder.
-- Reserve `.claude` and `.codex` for live runtime directories, not repo roots.
-- See `skills/README.md` for the skill routing pattern.
+Human-presenting skills should point to an existing Excalidraw diagram or create
+one when they explain non-trivial workflow, architecture, planning, review, or
+decision state. Text should deepen the drawing rather than make the human infer
+the shape from prose first.
+
+## Skills
+
+Skills live under `skills/` and install through `setup.sh`. Use
+`skills/AGENTS.md` for the strict agent-facing authoring contract, and
+`skills/README.md` for the human-facing skill architecture, setup, and
+composability guide.

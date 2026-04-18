@@ -9,8 +9,8 @@ disable-model-invocation: true
 ## Composes With
 
 - Parent: `idea` or `projects` when work needs code-grounded planning.
-- Children: none.
-- Uses format from: none.
+- Children: `excalidraw-diagram` when a feature plan needs a durable workflow, architecture, or before/after visual.
+- Uses format from: `excalidraw-diagram` for human-facing planning and design visuals when useful.
 - Reads state from: idea `spec.md`/`plan.md`, thin project `Current Slice`, repo docs/code, and feature artifacts.
 - Writes through: `docs/artifacts/<feature>/` for feature artifacts; returns PRs/pivots/follow-ups to `projects`.
 - Hands off to: `projects` after execution or when durable memory is needed.
@@ -53,6 +53,9 @@ Track progress via `status` frontmatter: `pending` → `draft` → `approved`/`c
 - No code in L1–L3. Implementation details belong in L4 task specs only.
 - Code-specific files, functions, schemas, API routes, packages, migrations, and verify commands belong in L4 task specs, not in earlier artifacts, unless they are evidence found during research.
 - Read CLAUDE.md and README.md files before L3 — only from the working directory and its subdirectories. NEVER traverse parent directories to find these files.
+- When the feature involves workflow, architecture, state flow, or a before/after
+  model that a human needs to understand, add or update a companion Excalidraw
+  diagram and link it from the relevant artifact.
 - Questions must be specific and falsifiable.
 - The question list is a checkpoint. Stop for approval before research unless the user clearly asks to continue without pausing.
 - Keep uncertainty visible. Low-confidence findings, conflicting evidence, or unknown execution paths stay open until resolved.

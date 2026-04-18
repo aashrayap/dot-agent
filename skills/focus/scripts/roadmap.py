@@ -20,6 +20,12 @@ STATUSES = {
     "completed": "Completed",
     "complete": "Completed",
     "blocked": "Blocked",
+    "review": "Review",
+    "needs-review": "Needs Review",
+    "needs review": "Needs Review",
+    "waiting": "Waiting",
+    "follow-up": "Follow-up",
+    "follow up": "Follow-up",
     "dropped": "Dropped",
 }
 
@@ -37,7 +43,7 @@ def parse_args() -> argparse.Namespace:
 
     add = sub.add_parser("add", help="Add a row")
     add.add_argument("--date", default=date.today().isoformat())
-    add.add_argument("--section", default="Uncategorized")
+    add.add_argument("--section", default="Active Projects")
     add.add_argument("--status", default="Queued")
     add.add_argument("--item", required=True)
     add.add_argument("--link", default="-")
@@ -131,18 +137,19 @@ def legacy_items(header: str) -> list[str]:
 def new_roadmap() -> str:
     today = date.today().isoformat()
     focus = focus_section_from_legacy()
-    rows: list[str] = []
+    active_rows: list[str] = []
+    parked_rows: list[str] = []
     for item in legacy_items("## Now"):
-        rows.append(f"| In Progress | {cell(item)} | - | - | migrated from focus.md |")
+        active_rows.append(f"| General | In Progress | {cell(item)} | - | migrated from focus.md |")
     for item in legacy_items("## Next"):
-        rows.append(f"| Queued | {cell(item)} | - | - | migrated from focus.md |")
+        active_rows.append(f"| General | Queued | {cell(item)} | - | migrated from focus.md |")
     for item in legacy_items("## Later / Parking Lot"):
-        rows.append(f"| Queued | {cell(item)} | - | - | parking lot |")
+        parked_rows.append(f"| {cell(item)} | parking lot | - |")
     for item in legacy_items("## Blockers"):
-        rows.append(f"| Blocked | {cell(item)} | - | - | blocker |")
+        parked_rows.append(f"| {cell(item)} | blocker | - |")
 
-    if not rows:
-        rows.append("| Queued | - | - | - | - |")
+    if not active_rows:
+        active_rows.append("| General | Queued | - | - | - |")
 
     return "\n".join(
         [
@@ -157,11 +164,22 @@ def new_roadmap() -> str:
             "",
             focus,
             "",
-            "## Uncategorized",
+            "## Active Projects",
             "",
-            "| Status | Item | Link | Spec / Idea / Project | Notes |",
-            "|--------|------|------|-----------------------|-------|",
-            *rows,
+            "| Project | Status | Task | Link | Notes |",
+            "|---------|--------|------|------|-------|",
+            *active_rows,
+            "",
+            "## Review Queue",
+            "",
+            "| Item | Source | Status | Notes |",
+            "|------|--------|--------|-------|",
+            "",
+            "## Parked / Blocked",
+            "",
+            "| Item | Reason | Revisit |",
+            "|------|--------|---------|",
+            *parked_rows,
         ]
     )
 
@@ -173,15 +191,47 @@ def ensure_roadmap() -> None:
     write_text(ROADMAP_FILE, new_roadmap())
 
 
-def table_header() -> list[str]:
+def normalized_section(section: str) -> str:
+    value = " ".join(section.strip().lower().split())
+    aliases = {
+        "active": "Active Projects",
+        "active projects": "Active Projects",
+        "projects": "Active Projects",
+        "review": "Review Queue",
+        "review queue": "Review Queue",
+        "parked": "Parked / Blocked",
+        "blocked": "Parked / Blocked",
+        "parked / blocked": "Parked / Blocked",
+        "parked/blocked": "Parked / Blocked",
+    }
+    return aliases.get(value, section.strip() or "Active Projects")
+
+
+def table_header(section: str) -> list[str]:
+    section = normalized_section(section)
+    if section == "Active Projects":
+        return [
+            "| Project | Status | Task | Link | Notes |",
+            "|---------|--------|------|------|-------|",
+        ]
+    if section == "Review Queue":
+        return [
+            "| Item | Source | Status | Notes |",
+            "|------|--------|--------|-------|",
+        ]
+    if section == "Parked / Blocked":
+        return [
+            "| Item | Reason | Revisit |",
+            "|------|--------|---------|",
+        ]
     return [
-        "| Status | Item | Link | Spec / Idea / Project | Notes |",
-        "|--------|------|------|-----------------------|-------|",
+        "| Project | Status | Task | Link | Notes |",
+        "|---------|--------|------|------|-------|",
     ]
 
 
 def section_bounds(lines: list[str], section: str) -> tuple[int, int] | None:
-    header = f"## {section}"
+    header = f"## {normalized_section(section)}"
     try:
         start = lines.index(header)
     except ValueError:
@@ -195,11 +245,12 @@ def section_bounds(lines: list[str], section: str) -> tuple[int, int] | None:
 
 
 def ensure_section(lines: list[str], section: str) -> list[str]:
+    section = normalized_section(section)
     if section_bounds(lines, section):
         return lines
     if lines and lines[-1].strip():
         lines.append("")
-    lines.extend([f"## {section}", "", *table_header()])
+    lines.extend([f"## {section}", "", *table_header(section)])
     return lines
 
 
@@ -231,14 +282,33 @@ def set_focus(text: str, date_value: str) -> None:
 
 
 def add_row(section: str, status: str, item: str, link: str, source: str, notes: str, date_value: str) -> None:
+    section = normalized_section(section)
     ensure_roadmap()
     lines = ensure_section(update_frontmatter(read_text(ROADMAP_FILE).splitlines(), date_value), section)
     bounds = section_bounds(lines, section)
     if not bounds:
         raise SystemExit(f"ERROR: failed to create section {section!r}")
-    _, end = bounds
-    row = f"| {normalize_status(status)} | {cell(item)} | {cell(link)} | {cell(source)} | {cell(notes)} |"
-    lines = lines[:end] + [row] + lines[end:]
+    start, end = bounds
+    if section == "Active Projects":
+        project = cell(source if source != "-" else "General")
+        row = f"| {project} | {normalize_status(status)} | {cell(item)} | {cell(link)} | {cell(notes)} |"
+    elif section == "Review Queue":
+        row = f"| {cell(item)} | {cell(source)} | {normalize_status(status)} | {cell(notes)} |"
+    elif section == "Parked / Blocked":
+        reason = cell(notes if notes != "-" else source)
+        revisit = cell(link)
+        row = f"| {cell(item)} | {reason} | {revisit} |"
+    else:
+        row = f"| {cell(source if source != '-' else 'General')} | {normalize_status(status)} | {cell(item)} | {cell(link)} | {cell(notes)} |"
+    insert_at = end
+    while insert_at > start and not lines[insert_at - 1].strip():
+        insert_at -= 1
+    body = lines[start + 1 : insert_at]
+    if any(line.strip() in {"| General | Queued | - | - | - |", "| - | - | - |"} for line in body):
+        body = [line for line in body if line.strip() not in {"| General | Queued | - | - | - |", "| - | - | - |"}]
+        lines = lines[: start + 1] + body + lines[insert_at:]
+        insert_at = start + 1 + len(body)
+    lines = lines[:insert_at] + [row] + lines[insert_at:]
     write_text(ROADMAP_FILE, "\n".join(lines))
 
 
@@ -246,15 +316,32 @@ def split_row(line: str) -> list[str]:
     return [part.strip() for part in line.strip().strip("|").split("|")]
 
 
-def row_matches(line: str, item: str) -> bool:
+def item_column(section: str) -> int:
+    section = normalized_section(section)
+    if section == "Active Projects":
+        return 2
+    return 0
+
+
+def status_column(section: str) -> int | None:
+    section = normalized_section(section)
+    if section == "Active Projects":
+        return 1
+    if section == "Review Queue":
+        return 2
+    return None
+
+
+def row_matches(line: str, item: str, section: str) -> bool:
     parts = split_row(line)
-    return len(parts) >= 2 and item.lower() in parts[1].lower()
+    idx = item_column(section)
+    return len(parts) > idx and item.lower() in parts[idx].lower()
 
 
 def mutate_row(item: str, section: str | None, date_value: str, *, status: str | None = None, drop: bool = False) -> None:
     ensure_roadmap()
     lines = update_frontmatter(read_text(ROADMAP_FILE).splitlines(), date_value)
-    sections = [section] if section else [line[3:] for line in lines if line.startswith("## ") and line != "## Focus"]
+    sections = [normalized_section(section)] if section else [line[3:] for line in lines if line.startswith("## ") and line != "## Focus"]
     changed = False
     for section_name in sections:
         bounds = section_bounds(lines, section_name)
@@ -263,15 +350,18 @@ def mutate_row(item: str, section: str | None, date_value: str, *, status: str |
         start, end = bounds
         new_body: list[str] = []
         for line in lines[start + 1 : end]:
-            if line.startswith("|") and row_matches(line, item):
+            if line.startswith("|") and row_matches(line, item, section_name):
                 if drop:
                     changed = True
                     continue
                 if status:
                     parts = split_row(line)
-                    if len(parts) >= 5:
-                        parts[0] = normalize_status(status)
-                        line = "| " + " | ".join(parts[:5]) + " |"
+                    idx = status_column(section_name)
+                    if idx is None:
+                        raise SystemExit(f"ERROR: section {section_name!r} has no status column")
+                    if len(parts) > idx:
+                        parts[idx] = normalize_status(status)
+                        line = "| " + " | ".join(parts) + " |"
                         changed = True
             new_body.append(line)
         lines = lines[: start + 1] + new_body + lines[end:]

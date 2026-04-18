@@ -1,76 +1,198 @@
 # Skills
 
-`skills/` is the single source of truth for shared Claude and Codex skills.
+`skills/` is the source of truth for shared Claude and Codex skills.
 
-The canonical repo root is `~/.dot-agent/`. Mutable outputs belong under
-`~/.dot-agent/state/`, not in runtime homes or tracked repo directories.
+![Skill composability workflow](../docs/diagrams/skill-composability-workflow.png)
 
-Read `skills/AGENTS.md` before adding or materially rewriting a skill. New and
-rewritten skills must include the composition contract described there.
+## Authoring Contract
 
-## Layout
+Every retained skill must have:
 
-Portable skills can keep a single root `SKILL.md`:
+- `SKILL.md`
+- `skill.toml`
+- a strict `## Composes With` section in `SKILL.md`
+
+Minimum shape:
 
 ```text
-skills/explain/
+skills/<name>/
 ├── SKILL.md
 └── skill.toml
 ```
 
-Skills with runtime-specific entrypoints keep wrappers inside the skill folder:
+Expanded shape:
 
 ```text
-skills/review/
+skills/<name>/
 ├── SKILL.md
-├── codex/
-│   └── SKILL.md
-├── scripts/
+├── claude/SKILL.md      # optional thin runtime wrapper
+├── codex/SKILL.md       # optional thin runtime wrapper
+├── scripts/             # deterministic helpers
+├── references/          # schemas, patterns, setup notes
+├── assets/              # templates and static output assets
+├── shared/              # runtime-neutral support
 └── skill.toml
 ```
 
-Codex-only skills keep only a Codex wrapper:
+`## Composes With` schema:
 
-```text
-skills/create-agents-md/
-├── codex/
-│   └── SKILL.md
-└── skill.toml
+```markdown
+## Composes With
+
+- Parent:
+- Children:
+- Uses format from:
+- Reads state from:
+- Writes through:
+- Hands off to:
+- Receives back from:
 ```
 
-## Routing
+Fill unused rows with `none`. Keep entries concrete: name the owning skill,
+state file, helper script, artifact path, or runtime surface.
 
-The repo-root `setup.sh` reads `skill.toml` when present.
+## Runtime Setup
 
-- `targets` decides whether a skill is linked to Claude, Codex, or both.
-- `default_entry` points at a shared `SKILL.md`.
-- `claude_entry` and `codex_entry` override the shared entry per runtime.
+`setup.sh` reads `skill.toml`.
 
-If `skill.toml` is missing, the skill defaults to Claude-only and links the root `SKILL.md`.
+Portable shared skill:
 
-## Shared State
-
-When a skill needs persistent mutable storage, write it under:
-
-```text
-~/.dot-agent/state/
-├── collab/
-├── projects/
-└── ideas/
+```toml
+name = "wiki"
+targets = ["claude", "codex"]
+default_entry = "SKILL.md"
 ```
 
-Examples:
-- daily operating board: `~/.dot-agent/state/collab/roadmap.md`
-- legacy focus compatibility file: `~/.dot-agent/state/collab/focus.md`
-- compare history: `~/.dot-agent/state/collab/compare-history.md`
-- thin project state: `~/.dot-agent/state/projects/<slug>/project.md`
-- optional project execution memory: `~/.dot-agent/state/projects/<slug>/execution.md`
-- idea incubation docs: `~/.dot-agent/state/ideas/<slug>/{idea.md,brief.md,spec.md,plan.md}`
+Shared skill with runtime wrappers:
 
-Typical layering:
+```toml
+name = "spec-new-feature"
+targets = ["claude", "codex"]
+default_entry = "SKILL.md"
+claude_entry = "claude/SKILL.md"
+codex_entry = "codex/SKILL.md"
+```
 
-- `focus` mutates the roadmap
-- `morning-sync` reads the roadmap plus active projects and proposes what should happen next
-- `projects` is the thin durable bridge between roadmap rows and deep implementation
-- `spec-new-feature` owns deep code-grounded planning and implementation artifacts
-- `execution-review` drains completed roadmap rows and writes closure through owning helpers
+Codex-only skill:
+
+```toml
+name = "morning-sync"
+targets = ["codex"]
+default_entry = "SKILL.md"
+```
+
+Runtime install behavior:
+
+| Runtime | Behavior | Implication |
+|---------|----------|-------------|
+| Claude | Symlinks selected entrypoint and shared dirs | Repo edits are visible immediately |
+| Codex | Copies selected payload and shared dirs | Rerun `setup.sh` after skill edits |
+
+Shared dirs installed with a skill:
+
+- `scripts/`
+- `assets/`
+- `references/`
+- `shared/`
+
+## Composability Model
+
+Skills should compose instead of duplicating ownership.
+
+| Pattern | Meaning | Example |
+|---------|---------|---------|
+| Parent | Skill owns the current user request | `morning-sync` owns day-start summary |
+| Child | Skill may be invoked as a narrower surface | `focus` mutates roadmap rows |
+| Uses format | Borrow presentation without handing off ownership | `compare` uses `explain` visual modes |
+| Reads state | Observe another surface without writing it | `morning-sync` reads roadmap rows |
+| Writes through | Mutate only through the owning helper | `daily-review` drains completed rows through `focus` |
+| Hands off | Transfer ownership to a better surface | `projects` hands code-grounded work to `spec-new-feature` |
+| Receives back | Accept delivery reality from another workflow | `projects` receives PRs and pivots |
+
+Default ownership:
+
+- `roadmap.md`: `focus`
+- `state/projects/<slug>/`: `projects`
+- `state/ideas/<slug>/`: `idea`
+- `docs/artifacts/<feature>/`: `spec-new-feature`
+- `state/collab/daily-reviews/`: `daily-review`
+- forensic session reports: `execution-review`
+
+## Human Presentation
+
+Human-presenting skills should be visual-first when they explain workflow,
+architecture, planning, review, decisions, or proposed state.
+
+Default ladder:
+
+1. Link an existing Excalidraw diagram or create a new one for the shape of the
+   work.
+2. Give a short prose summary that names the decision or proposed state.
+3. Use text, tables, file references, acceptance criteria, or code review for
+   drill-down.
+
+This applies most often to `morning-sync`, `focus`, `daily-review`,
+`execution-review`, `spec-new-feature`, `projects`, `idea`, `compare`,
+`explain`, and `create-agents-md`.
+
+Do not force a new diagram for one-line status updates, direct command output,
+small mechanical edits, narrow line-specific review findings, or transient
+progress messages. Reuse an existing diagram when it already explains the
+current shape.
+
+Keep this rule in human-facing docs and the relevant `SKILL.md` files. Do not
+put Excalidraw-specific policy in `skills/AGENTS.md`.
+
+## Research And Subagents
+
+Research-heavy skills keep one parent skill as orchestrator. Use subagents only
+when the user explicitly authorizes delegation or parallel work.
+
+- Explorer: read-only factual investigation.
+- Worker / Implementor: bounded file-scoped edits.
+- Gate / Verifier: independent validation of changed files and commands.
+
+For decontaminated research, Explorer sees approved questions or source paths,
+not the desired answer. The parent skill reconciles conflicts and writes the
+artifact through the owning surface.
+
+## Dependency-Bearing Skills
+
+If a skill has executable support:
+
+1. Keep the model-facing workflow in `SKILL.md`.
+2. Put helper code in `scripts/`.
+3. Put setup notes, schemas, and external references in `references/`.
+4. Put templates/static output assets in `assets/`.
+5. Keep caches, virtual environments, browser installs, and generated state out
+   of tracked source.
+6. Run `~/.dot-agent/setup.sh` and verify both runtime installs.
+
+## Excalidraw Diagram Skill
+
+`excalidraw-diagram` is the diagramming surface for durable visual artifacts.
+
+Use it when a workflow, architecture, or research artifact should have an
+editable Excalidraw source and a rendered PNG.
+
+Artifact contract:
+
+```text
+docs/diagrams/<slug>.excalidraw   # editable source of truth
+docs/diagrams/<slug>.png          # rendered image for docs/review
+```
+
+Render with:
+
+```bash
+~/.dot-agent/skills/excalidraw-diagram/scripts/render-excalidraw.sh \
+  docs/diagrams/<slug>.excalidraw \
+  docs/diagrams/<slug>.png
+```
+
+The renderer is cached under `~/.dot-agent/state/tools/`, not vendored into
+tracked skill source. The skill workflow is:
+
+```text
+describe concept -> create .excalidraw -> render PNG -> inspect -> fix -> rerender
+```
