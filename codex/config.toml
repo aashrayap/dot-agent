@@ -3,8 +3,16 @@ model_reasoning_effort = "xhigh"
 personality = "pragmatic"
 service_tier = "fast"
 
+[features]
+codex_hooks = true
+
 [notice]
 hide_rate_limit_model_nudge = true
 
 [notice.model_migrations]
 "gpt-5.3-codex" = "gpt-5.4"
+
+[marketplaces.caveman-repo]
+last_updated = "2026-04-18T19:54:59Z"
+source_type = "git"
+source = "https://github.com/JuliusBrussee/caveman.git"
