@@ -14,6 +14,7 @@ from codex_adapter import fetch_codex_sessions
 from review_context import load_focus_context
 from review_schema import aggregate_normalized_sessions, format_seconds, iso, parse_window, to_dt, utc_now
 from review_scoring import (
+    artifact_contract_risk_sessions,
     build_layer_allocation,
     recommendations_from_layer_allocation,
     recommendations_from_scores,
@@ -54,10 +55,12 @@ def _representative_sessions(payload: dict[str, Any]) -> dict[str, list[dict[str
     risky_verify = [s for s in sessions if int(s.get("edits") or 0) > 0 and int(s.get("verifications") or 0) == 0]
     risky_fit = [s for s in sessions if sum(int(v or 0) for v in ((s.get("response_fit") or {}).get("feedback_signals") or {}).values()) > 0]
     failing = [s for s in sessions if int(s.get("exec_failures") or 0) > 0]
+    artifact_risks = artifact_contract_risk_sessions(payload)
     return {
         "top_by_wall": by_wall[:3],
         "verification_risks": risky_verify[:3],
         "response_fit_risks": risky_fit[:3],
+        "artifact_contract_risks": artifact_risks[:3],
         "failing_sessions": failing[:3],
     }
 
@@ -78,6 +81,10 @@ def _recurring_patterns(payload: dict[str, Any], recent_history: list[dict[str, 
     )
     if fit_feedback_sessions:
         patterns.append(f"{fit_feedback_sessions} session(s) showed response-fit correction signals.")
+
+    artifact_risk_count = len(artifact_contract_risk_sessions(payload))
+    if artifact_risk_count:
+        patterns.append(f"{artifact_risk_count} session(s) showed possible artifact contract drift.")
 
     if recent_history:
         same_window = [entry for entry in recent_history if entry.get("window") == payload.get("selection", {}).get("window")]
@@ -294,6 +301,7 @@ def _render_report(
         ("Top Sessions By Wall Time", representatives["top_by_wall"]),
         ("Verification Risks", representatives["verification_risks"]),
         ("Response Fit Risks", representatives["response_fit_risks"]),
+        ("Artifact Contract Risks", representatives["artifact_contract_risks"]),
         ("Failing Sessions", representatives["failing_sessions"]),
     ]
     for title, items in rep_sections:
