@@ -2,7 +2,7 @@
 
 Ash's personal agent harness for Claude Code and Codex.
 
-![dot-agent runtime architecture](docs/diagrams/dot-agent-runtime-architecture.png)
+![dot-agent setup and audit flow](docs/diagrams/dot-agent-runtime-architecture.png)
 
 `~/.dot-agent/` is the versioned source of truth. Runtime homes are install
 targets. Machine-local state stays under the gitignored `state/` tree.
@@ -15,6 +15,7 @@ targets. Machine-local state stays under the gitignored `state/` tree.
 ├── claude/          # Claude runtime config source and pointer file
 ├── codex/           # Codex config/rules source
 ├── skills/          # shared skill source of truth
+├── scripts/         # setup audit and helper scripts
 ├── state/           # gitignored local state and tool caches
 ├── docs/            # tracked harness docs and diagrams
 ├── setup.sh
