@@ -30,6 +30,12 @@ scripts, state files, artifact directories, or runtime surfaces.
 Each skill should install through `~/.dot-agent/setup.sh`; do not manually copy
 tracked skill files into runtime homes except when debugging setup.
 
+This `AGENTS.md` is author-time policy for the source tree. It is not installed
+as runtime context for individual skills. Any rule needed while a skill is being
+used must live in that skill's selected entrypoint, or in an installed
+`scripts/`, `references/`, `assets/`, or `shared/` file that the entrypoint
+explicitly tells the runtime to read.
+
 Required minimum:
 
 ```text

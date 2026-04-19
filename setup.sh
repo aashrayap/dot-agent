@@ -286,6 +286,49 @@ cleanup_legacy_paths() {
   done
 }
 
+run_python_audit() {
+  local script="$1"
+
+  if [[ ! -f "$script" ]]; then
+    echo "WARN: Missing audit script: $script"
+    return
+  fi
+
+  if command -v uv >/dev/null 2>&1; then
+    if ! (
+      cd "$DOT_AGENT_SOURCE_ROOT"
+      DOT_AGENT_HOME="$DOT_AGENT_HOME" \
+      CLAUDE_HOME="$CLAUDE_DST" \
+      CODEX_HOME="$CODEX_DST" \
+      uv run python "$script"
+    ); then
+      echo "WARN: Audit script failed: $script"
+    fi
+    return
+  fi
+
+  if command -v python3 >/dev/null 2>&1; then
+    if ! (
+      DOT_AGENT_HOME="$DOT_AGENT_HOME" \
+      CLAUDE_HOME="$CLAUDE_DST" \
+      CODEX_HOME="$CODEX_DST" \
+      python3 "$script"
+    ); then
+      echo "WARN: Audit script failed: $script"
+    fi
+    return
+  fi
+
+  echo "WARN: Skipping audit script because Python is unavailable: $script"
+}
+
+run_instruction_audits() {
+  echo
+  run_python_audit "$DOT_AGENT_SOURCE_ROOT/scripts/skill-instruction-audit.py"
+  echo
+  run_python_audit "$DOT_AGENT_SOURCE_ROOT/scripts/repo-instruction-audit.py"
+}
+
 cleanup_legacy_paths
 link_claude_payload
 link_codex_payload
@@ -298,3 +341,4 @@ echo "Shared state home is $DOT_AGENT_STATE_HOME"
 if [[ -d "$BACKUP_ROOT" ]]; then
   echo "Backups stored in $BACKUP_ROOT"
 fi
+run_instruction_audits

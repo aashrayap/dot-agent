@@ -33,9 +33,9 @@ Use `scripts/fetch-pr-context.sh` when the repo has an open GitHub PR and review
 
 This is the default unless the user explicitly asks for a lightweight review.
 
-Use the standard roles from `skills/AGENTS.md` when delegation is authorized:
-Explorer for territory/change/reviewer investigation, Worker / Implementor for
-requested fixes, and Gate / Verifier for post-fix validation.
+When delegation is authorized, use portable roles inline: Explorer for
+territory/change/reviewer investigation, Worker / Implementor for requested
+fixes, and Gate / Verifier for post-fix validation.
 
 Run three staged passes:
 

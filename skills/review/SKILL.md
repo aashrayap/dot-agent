@@ -33,9 +33,8 @@ when it makes the reviewed shape easier to understand.
 
 - All subagents: `subagent_type: "Explore"`, `model: "sonnet"`.
 - Prefix every subagent prompt with the Tooling Block below.
-- Role mapping follows `skills/AGENTS.md`: territory/change/reviewer tracks use
-  Explorer; requested fixes use Worker / Implementor; post-fix validation uses
-  Gate / Verifier.
+- Role mapping: territory/change/reviewer tracks use Explorer; requested fixes
+  use Worker / Implementor; post-fix validation uses Gate / Verifier.
 
 ### Tooling Block
 
