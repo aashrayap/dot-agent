@@ -1,5 +1,11 @@
 # dot-agent Instructions
 
+## Human Response Contract
+
+- For non-trivial work, final responses should return a human-readable packet: `Result`, optional `Visual`, `Gate`, one or more concrete `Next Actions`, and `Details` links.
+- Treat chat as the receipt; create durable artifacts only when the work must survive beyond chat, be linked from roadmap/PR/docs, be resumed by another session, or when multiple artifacts need a landing page.
+- Keep this concise and runtime-portable.
+
 This repo is Ash's personal agent harness for Claude Code and Codex.
 Codex is Ash's strongly preferred runtime right now; keep the harness portable,
 but bias day-to-day workflow and setup decisions toward Codex unless the user
@@ -34,9 +40,3 @@ asks otherwise.
 - Use `skill.toml` to declare runtime targets and entrypoints.
 - Keep shared skill behavior at the skill root; use thin runtime wrappers only when needed.
 - Put deterministic helpers in `scripts/`, lookup docs in `references/`, output templates in `assets/`, and runtime-neutral support in `shared/`.
-
-## Human Response Contract
-
-- For non-trivial work, final responses should return a human-readable packet: `Result`, optional `Visual`, `Gate`, one or more concrete `Next Actions`, and `Details` links.
-- Treat chat as the receipt; create durable artifacts only when the work must survive beyond chat, be linked from roadmap/PR/docs, be resumed by another session, or when multiple artifacts need a landing page.
-- Keep this concise and runtime-portable.
