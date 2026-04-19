@@ -2,7 +2,7 @@
 
 `skills/` is the source of truth for shared Claude and Codex skills.
 
-![Skill workflow prune map](../docs/diagrams/skill-workflow-prune-map.png)
+![Current skills setup and workflows](../docs/diagrams/skills-current-state-workflows.png)
 
 ## Authoring Contract
 
