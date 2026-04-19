@@ -240,11 +240,10 @@ The orchestrator performs decomposition directly — do NOT delegate to a subage
 
 After `05_tasks.md` approved, execute wave by wave:
 
-Use the standard roles from `skills/AGENTS.md`: Worker / Implementor for
-file-scoped edits and Gate / Verifier for post-wave validation. In Claude Code,
-these may map to named agents such as Sushant's `task-implementor` and
-`gating-agent`; in Codex, use the available worker/explorer roles only when
-delegation is authorized.
+Use portable roles: Worker / Implementor for file-scoped edits and Gate /
+Verifier for post-wave validation. In Claude Code, these may map to named agents
+such as Sushant's `task-implementor` and `gating-agent`; in Codex, use the
+available worker/explorer roles only when delegation is authorized.
 
 1. **Per wave** — One agent per task, parallel. Do NOT use `isolation: "worktree"`. Task decomposition guarantees no file conflicts, so worktrees add cherry-pick overhead without benefit.
 2. **Agent prompt:**

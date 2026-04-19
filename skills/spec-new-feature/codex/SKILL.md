@@ -161,9 +161,9 @@ Tasks should be self-contained enough to execute without re-reading the entire d
 
 If the user asks to execute:
 
-- use the standard roles from `skills/AGENTS.md` when delegation is authorized:
-  Explorer for factual investigation, Worker / Implementor for file-scoped
-  edits, and Gate / Verifier for post-wave validation
+- use portable roles when delegation is authorized: Explorer for factual
+  investigation, Worker / Implementor for file-scoped edits, and Gate / Verifier
+  for post-wave validation
 - follow task dependency order
 - parallelize only file-disjoint tasks
 - run the verify commands after each task or task wave

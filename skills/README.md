@@ -144,10 +144,21 @@ put Excalidraw-specific policy in `skills/AGENTS.md`.
 
 ## Human Response Contract
 
-The response packet should stay short and readable: `Result`, optional
-`Visual`, `Gate`, one or more concrete `Next Actions`, and `Details` links.
+The response packet should stay short and readable: `Result`, `Visual`, `Gate`,
+`Ledger`, one or more concrete `Next Actions`, and `Details` links.
+
+`Visual` is always a slot. For workflow, architecture, planning, review,
+decision, or multi-artifact work, link an existing diagram or create/render one.
+For narrow mechanical work, say why no visual was useful.
+
+Use `Ledger` when the session has multiple user requests, corrections, or
+follow-ups. Track `Captured`, `Done`, `Not Done`, and `Parked` so nothing
+disappears into chat.
+
 Durable summary artifacts are conditional: create them only when the skill owns
-a persistent record or the work benefits from one.
+a persistent record or the work benefits from one. Before final response, map
+the latest user requests to the packet. Every request should be done, parked, or
+called out as not done.
 
 Examples:
 

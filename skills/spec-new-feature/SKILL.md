@@ -115,7 +115,7 @@ Use the idea-spec / idea-plan separation:
 
 ## Subagent Roles
 
-Use the standard roles from `skills/AGENTS.md` when delegation is authorized:
+Use portable roles when delegation is authorized:
 
 - **Explorer** for decontaminated research, path verification, and factual
   codebase questions.

@@ -62,6 +62,8 @@ git -C ~/.dot-agent pull --ff-only
 - installs skills into both runtimes based on `skill.toml`
 - creates `state/{collab,ideas}`
 - backs up conflicting legacy runtime files under `state/backups/setup/`
+- runs read-only skill and repo instruction audits
+- reports drift, but does not patch project-local instruction files
 
 ## Versioned Vs Local
 
