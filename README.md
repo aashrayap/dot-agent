@@ -55,6 +55,12 @@ git -C ~/.dot-agent pull --ff-only
 ~/.dot-agent/setup.sh
 ```
 
+To run only instruction drift checks without reinstalling runtime files:
+
+```bash
+~/.dot-agent/setup.sh --check-instructions
+```
+
 `setup.sh`:
 
 - symlinks Claude config into `~/.claude/`
@@ -65,6 +71,7 @@ git -C ~/.dot-agent pull --ff-only
 - backs up conflicting legacy runtime files under `state/backups/setup/`
 - runs read-only skill and repo instruction audits
 - reports drift, but does not patch project-local instruction files
+- supports `--check-instructions` for audit-only verification
 
 ## Versioned Vs Local
 

@@ -1,10 +1,38 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ $# -gt 0 ]]; then
-  echo "ERROR: setup.sh takes no arguments"
-  echo "Usage: ./setup.sh"
+MODE="install"
+
+usage() {
+  echo "Usage: ./setup.sh [--check-instructions]"
+  echo
+  echo "Modes:"
+  echo "  ./setup.sh                 Install runtime config, then run instruction audits."
+  echo "  ./setup.sh --check-instructions"
+  echo "                             Run instruction audits only; do not install or patch."
+}
+
+if [[ $# -gt 1 ]]; then
+  echo "ERROR: setup.sh takes at most one argument"
+  usage
   exit 1
+fi
+
+if [[ $# -eq 1 ]]; then
+  case "$1" in
+    --check-instructions)
+      MODE="check-instructions"
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "ERROR: unknown argument: $1"
+      usage
+      exit 1
+      ;;
+  esac
 fi
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
@@ -328,6 +356,11 @@ run_instruction_audits() {
   echo
   run_python_audit "$DOT_AGENT_SOURCE_ROOT/scripts/repo-instruction-audit.py"
 }
+
+if [[ "$MODE" == "check-instructions" ]]; then
+  run_instruction_audits
+  exit 0
+fi
 
 cleanup_legacy_paths
 link_claude_payload
