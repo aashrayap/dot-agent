@@ -15,6 +15,7 @@ from typing import Any, Iterable
 
 
 RESPONSE_CONTRACT_ANCHOR = "Human Response Contract"
+SESSION_FOCUS_ANCHOR = "This Session Focus"
 RUNTIME_PREFERENCE_ANCHOR = "Codex is Ash's strongly preferred runtime"
 
 
@@ -211,6 +212,8 @@ def file_status(path: Path) -> tuple[str, list[str]]:
     missing: list[str] = []
     if RESPONSE_CONTRACT_ANCHOR not in text:
         missing.append("response-contract")
+    if SESSION_FOCUS_ANCHOR not in text:
+        missing.append("session-focus")
     if RUNTIME_PREFERENCE_ANCHOR not in text:
         missing.append("runtime-preference")
     if missing:
