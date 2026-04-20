@@ -134,6 +134,25 @@ Default ownership:
 - `AGENTS.md`/`CLAUDE.md` creation or translation: `create-agents-md`
 - external remote-review packets: `handoff-research-pro`
 
+## External Review Gate
+
+![Research Pro review gate](../docs/diagrams/research-pro-review-gate.png)
+
+`handoff-research-pro` packages a selective external critique gate. Use it when
+the next decision would be expensive to unwind:
+
+- after `idea` if product, strategy, or external assumptions need falsification
+- during `spec-new-feature` before design or task artifacts become execution
+  direction
+- before merge for instruction-heavy, architecture-heavy, migration-heavy, or
+  easy-to-rationalize changes
+
+The gate is packet-first. The packet should pin the target and review mode,
+state source/access policy, name assumptions to falsify and reviewer blind
+spots, and define how returned findings feed back into fixes, PR notes,
+roadmap rows, feature tasks, or handoff docs. Do not justify the gate by model
+price alone; use it where independent synthesis can change a decision.
+
 ## Human Presentation
 
 Human-presenting skills should be visual-first when they explain workflow,

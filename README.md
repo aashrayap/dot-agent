@@ -123,6 +123,12 @@ one when they explain non-trivial workflow, architecture, planning, review, or
 decision state. Text should deepen the drawing rather than make the human infer
 the shape from prose first.
 
+`handoff-research-pro` is the external critique gate for expensive-to-unwind
+decisions. It packages repo context, review target, source policy, assumptions
+to falsify, blind spots, validation, and findings intake into
+`docs/handoffs/<slug>-research-pro-review.md`; it does not replace local
+implementation, tests, or repo-grounded review.
+
 ## Skills
 
 Skills live under `skills/` and install through `setup.sh`. Use
