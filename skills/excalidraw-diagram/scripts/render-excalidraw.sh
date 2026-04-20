@@ -6,8 +6,8 @@ usage() {
 Usage:
   render-excalidraw.sh <input.excalidraw> [output.png] [--scale N] [--width PX]
 
-Renders an Excalidraw JSON file to PNG using the upstream renderer cached under
-~/.dot-agent/state/tools/excalidraw-diagram-skill.
+Renders an Excalidraw JSON file to PNG using the skill's tracked offline
+renderer assets.
 USAGE
 }
 
@@ -61,57 +61,57 @@ if [[ -n "$OUTPUT" ]]; then
   OUTPUT="$(cd "$(dirname "$OUTPUT")" && pwd -P)/$(basename "$OUTPUT")"
 fi
 
-if ! command -v git >/dev/null 2>&1; then
-  echo "ERROR: git is required to fetch the Excalidraw renderer." >&2
-  exit 1
-fi
-
 if ! command -v uv >/dev/null 2>&1; then
   echo "ERROR: uv is required to run the Excalidraw renderer." >&2
   exit 1
 fi
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+SKILL_DIR="$(cd "$SCRIPT_DIR/.." && pwd -P)"
+RENDERER_SRC_DIR="$SKILL_DIR/assets/renderer"
+
 DOT_AGENT_HOME="${DOT_AGENT_HOME:-$HOME/.dot-agent}"
 DOT_AGENT_STATE_HOME="${DOT_AGENT_STATE_HOME:-$DOT_AGENT_HOME/state}"
 TOOLS_DIR="$DOT_AGENT_STATE_HOME/tools"
-RENDERER_DIR="$TOOLS_DIR/excalidraw-diagram-skill"
-RENDERER_REF_DIR="$RENDERER_DIR/references"
-RENDERER_URL="https://github.com/coleam00/excalidraw-diagram-skill.git"
-DEFAULT_RENDERER_REF="8646fcc9f74f38539c6cdb4c969723336a96ddcd"
-RENDERER_REF="${EXCALIDRAW_RENDERER_REF:-$DEFAULT_RENDERER_REF}"
+RENDERER_STATE_DIR="$TOOLS_DIR/excalidraw-diagram-renderer"
+RENDERER_VENV="$RENDERER_STATE_DIR/.venv"
+PLAYWRIGHT_BROWSERS_PATH="$RENDERER_STATE_DIR/playwright-browsers"
 
-mkdir -p "$TOOLS_DIR"
-
-checkout_renderer_ref() {
-  git -C "$RENDERER_DIR" fetch --depth 1 origin "$RENDERER_REF"
-  git -C "$RENDERER_DIR" checkout --detach FETCH_HEAD
-}
-
-if [[ ! -d "$RENDERER_DIR/.git" ]]; then
-  git clone --no-checkout "$RENDERER_URL" "$RENDERER_DIR"
-  checkout_renderer_ref
-elif [[ "$(git -C "$RENDERER_DIR" rev-parse HEAD)" != "$RENDERER_REF" ]]; then
-  checkout_renderer_ref
-elif [[ "${EXCALIDRAW_RENDERER_UPDATE:-0}" == "1" ]]; then
-  checkout_renderer_ref
-fi
-
-if [[ ! -f "$RENDERER_REF_DIR/render_excalidraw.py" ]]; then
-  echo "ERROR: renderer script missing: $RENDERER_REF_DIR/render_excalidraw.py" >&2
+if [[ ! -d "$RENDERER_SRC_DIR" ]]; then
+  echo "ERROR: renderer assets missing: $RENDERER_SRC_DIR" >&2
   exit 1
 fi
 
+if [[ ! -f "$RENDERER_SRC_DIR/render_excalidraw.py" ]]; then
+  echo "ERROR: renderer script missing: $RENDERER_SRC_DIR/render_excalidraw.py" >&2
+  exit 1
+fi
+
+if [[ ! -f "$RENDERER_SRC_DIR/dist/excalidraw-export.bundle.js" ]]; then
+  echo "ERROR: local Excalidraw browser bundle missing." >&2
+  echo "Run: $SKILL_DIR/scripts/build-renderer-bundle.sh" >&2
+  exit 1
+fi
+
+mkdir -p "$RENDERER_STATE_DIR" "$PLAYWRIGHT_BROWSERS_PATH"
+
 (
-  cd "$RENDERER_REF_DIR"
-  uv sync
-  if [[ ! -f .playwright-chromium-ready ]]; then
-    uv run playwright install chromium
-    touch .playwright-chromium-ready
+  cd "$RENDERER_SRC_DIR"
+  UV_PROJECT_ENVIRONMENT="$RENDERER_VENV" uv sync --frozen
+  if [[ ! -f "$RENDERER_STATE_DIR/.playwright-chromium-ready" ]]; then
+    PLAYWRIGHT_BROWSERS_PATH="$PLAYWRIGHT_BROWSERS_PATH" \
+      UV_PROJECT_ENVIRONMENT="$RENDERER_VENV" \
+      uv run playwright install chromium
+    touch "$RENDERER_STATE_DIR/.playwright-chromium-ready"
   fi
 
   if [[ -n "$OUTPUT" ]]; then
-    uv run python render_excalidraw.py "$INPUT" --output "$OUTPUT" --scale "$SCALE" --width "$WIDTH"
+    PLAYWRIGHT_BROWSERS_PATH="$PLAYWRIGHT_BROWSERS_PATH" \
+      UV_PROJECT_ENVIRONMENT="$RENDERER_VENV" \
+      uv run python render_excalidraw.py "$INPUT" --output "$OUTPUT" --scale "$SCALE" --width "$WIDTH"
   else
-    uv run python render_excalidraw.py "$INPUT" --scale "$SCALE" --width "$WIDTH"
+    PLAYWRIGHT_BROWSERS_PATH="$PLAYWRIGHT_BROWSERS_PATH" \
+      UV_PROJECT_ENVIRONMENT="$RENDERER_VENV" \
+      uv run python render_excalidraw.py "$INPUT" --scale "$SCALE" --width "$WIDTH"
   fi
 )

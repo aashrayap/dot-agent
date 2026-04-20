@@ -55,13 +55,14 @@ Use the bundled wrapper:
 ```
 
 The wrapper installs the upstream renderer into
-`~/.dot-agent/state/tools/excalidraw-diagram-skill/` on first use, then runs its
-Playwright-based render pipeline. This keeps third-party code and dependency
-caches out of tracked dot-agent source.
+`~/.dot-agent/state/tools/excalidraw-diagram-renderer/` on first use, then runs
+the skill's tracked Playwright-based render pipeline. The browser export bundle
+is local to this skill; rendering must not depend on a CDN or make HTTP(S)
+requests from the Playwright page.
 
-The renderer is pinned to the tested upstream commit documented in
+The renderer dependency and offline bundle are documented in
 `references/upstream-renderer.md`. Read that file before changing renderer setup
-behavior or updating the pin.
+behavior, package pins, or bundle generation.
 
 ## Artifact Rules
 
@@ -71,8 +72,10 @@ behavior or updating the pin.
 - Track the PNG when a tracked Markdown doc embeds it.
 - Keep generated dependency state under `~/.dot-agent/state/tools/`, not under
   `skills/`.
-- Do not vendor external renderer code into this repo unless the licensing and
-  maintenance decision is explicit.
+- Do not use hand-drawn or fallback PNGs as Excalidraw delivery unless the final
+  answer explicitly marks them as fallback/non-rendered.
+- Do not cite a PNG as rendered unless `render-excalidraw.sh` produced it from
+  the matching `.excalidraw` source.
 
 ## Design Rules
 
