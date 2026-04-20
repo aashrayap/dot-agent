@@ -11,17 +11,12 @@ This is a final design-quality review for agent instruction surfaces and a new
 handoff skill. It is not a broad product review unless you have time for the
 bonus scope.
 
-Current working branch during packaging: `main`.
+Current working branch during packaging: `progressive-disclosure-handoff`.
 
 ## Review Ref
 
-Remote review is blocked until this local work is published. Before sending
-this packet to a remote-only reviewer, create a branch or PR and replace this
-section with one of:
-
-- Branch: `<remote-branch-name>`
-- Compare URL: `<compare-url>`
-- PR URL: `<pull-request-url>`
+- Branch: `progressive-disclosure-handoff`
+- PR URL: https://github.com/aashrayap/dot-agent/pull/35
 
 ## Goal
 
@@ -195,8 +190,8 @@ findings from primary review findings.
 - Repo instruction audit reported unrelated local warnings for
   `/Users/ash/Documents` and `/Users/ash/Documents/2026/semi-stocks-2`. Treat
   those as out of scope for this review.
-- Remote publication: not done at packet time. This packet must include a branch,
-  compare URL, or PR URL before another remote-only review.
+- Remote publication: PR opened at
+  https://github.com/aashrayap/dot-agent/pull/35.
 
 ## Known Out Of Scope
 
