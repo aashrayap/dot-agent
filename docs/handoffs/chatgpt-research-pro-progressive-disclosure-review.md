@@ -12,11 +12,21 @@ handoff skill. It is not a broad product review unless you have time for the
 bonus scope.
 
 Current working branch during packaging: `progressive-disclosure-handoff`.
+Merged into `main` as `b856a808086a9e5b5716f20bda004095d17cffac`.
 
 ## Review Ref
 
-- Branch: `progressive-disclosure-handoff`
 - PR URL: https://github.com/aashrayap/dot-agent/pull/35
+- Merged main tree:
+  https://github.com/aashrayap/dot-agent/tree/b856a808086a9e5b5716f20bda004095d17cffac
+- Main branch:
+  https://github.com/aashrayap/dot-agent/tree/main
+- Direct proof paths:
+  - https://github.com/aashrayap/dot-agent/blob/main/docs/harness-runtime-reference.md
+  - https://github.com/aashrayap/dot-agent/blob/main/skills/references/skill-authoring-contract.md
+  - https://github.com/aashrayap/dot-agent/blob/main/skills/create-agents-md/claude/SKILL.md
+  - https://github.com/aashrayap/dot-agent/blob/main/skills/create-agents-md/assets/CLAUDE.template.md
+  - https://github.com/aashrayap/dot-agent/blob/main/skills/create-agents-md/references/progressive-disclosure.md
 
 ## Goal
 
