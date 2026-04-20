@@ -1,9 +1,9 @@
 ---
 name: create-agents-md
-description: Create, improve, or translate agent instruction markdown such as AGENTS.md and CLAUDE.md from Codex.
+description: Create, improve, or translate agent instruction markdown such as AGENTS.md and CLAUDE.md from Claude.
 ---
 
-# Create Agent Instructions From Codex
+# Create Agent Instructions From Claude
 
 ## Composes With
 
@@ -15,16 +15,15 @@ description: Create, improve, or translate agent instruction markdown such as AG
 - Hands off to: none.
 - Receives back from: none.
 
-Use the shared `create-agents-md` workflow from Codex. The root skill is the
-source of truth; this entrypoint only adds Codex-facing runtime bias.
+Use the shared `create-agents-md` workflow from Claude. The root skill is the
+source of truth; this entrypoint only adds Claude-facing runtime bias.
 
-Prefer `AGENTS.md` for Codex-native targets. Keep it plain Markdown: short
-always-on operating guidance, "Read When Needed" links, and headed conditional
-sections.
+Prefer `CLAUDE.md` for Claude-native targets. Keep foundational guidance visible
+and use narrow `<important if="...">` blocks for task-specific instructions.
 
-When improving or translating Claude-facing files, preserve Claude-specific
-`<important if>` blocks only in `CLAUDE.md`; do not introduce them into
-`AGENTS.md`.
+When improving or translating Codex-facing files, keep Claude XML out of
+`AGENTS.md`; translate conditional guidance into plain Markdown headings and
+"Read When Needed" links.
 
 Follow the shared composition and mode contract from the root skill:
 

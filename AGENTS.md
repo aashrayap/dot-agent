@@ -1,5 +1,13 @@
 # dot-agent Instructions
 
+This repo is Ash's personal agent harness for Claude Code and Codex.
+Codex is Ash's strongly preferred runtime right now; keep the harness portable,
+but bias day-to-day workflow and setup decisions toward Codex unless the user
+asks otherwise.
+
+Use this file as always-on operating guidance. Pull deeper harness facts only
+when the current task needs them.
+
 ## Human Response Contract
 
 - For non-trivial work, final responses should return a concise human-readable
@@ -21,37 +29,58 @@
   request should be done, parked, or called out as not done.
 - Keep this concise and runtime-portable.
 
-This repo is Ash's personal agent harness for Claude Code and Codex.
-Codex is Ash's strongly preferred runtime right now; keep the harness portable,
-but bias day-to-day workflow and setup decisions toward Codex unless the user
-asks otherwise.
+## Operating Loop
 
-## Runtime Context
+- Start by reading the closest project instructions and the files that define
+  the work surface.
+- Prefer small, reversible edits that preserve portable harness behavior.
+- Keep private context, machine-local paths, risky permission bypasses, and
+  one-off local overrides out of tracked config.
+- Use existing scripts, manifests, skills, and state helpers before inventing a
+  parallel workflow.
+- Verify with the narrowest command that proves the change, then report the
+  gate clearly.
 
-- Treat this file as base runtime context, not project-specific context.
-- Follow repository-local instructions in the active workspace when present.
-- Keep private context, machine-local paths, risky permission bypasses, and one-off local overrides out of tracked config.
-- Prefer changes that preserve durable judgment, domain knowledge, evals, decision loops, and reusable workflow leverage.
-- Keep tactical harness work migration-ready; avoid over-investing in tool-specific tricks likely to be replaced by a runtime release.
+## Planning
 
-## Repo Shape
+- Use chat as the receipt unless durable state is needed for handoff, roadmap,
+  PR review, or multi-artifact work.
+- Create durable artifacts only when they will be resumed, linked, reviewed, or
+  reused.
+- Promote long-lived plans into the owning surface: roadmap rows, feature
+  specs, idea artifacts, handoff docs, or PRs.
+- Keep tactical harness work migration-ready; avoid over-investing in tricks
+  likely to be replaced by runtime releases.
 
-- `claude/` and `codex/` hold repo-side runtime config installed by `setup.sh`.
-- `skills/` is the source of truth for shared skills.
-- `state/` is gitignored machine-local state for roadmap, projects, ideas, reviews, and tool caches.
-- Runtime homes are install targets, not sources of truth: `~/.claude/` and `~/.codex/`.
+## Coding
 
-## Setup Contract
+- Read repo reality before editing: scripts, manifests, setup paths, existing
+  instructions, and nearby patterns.
+- Preserve durable judgment, domain knowledge, evals, decision loops, and
+  reusable workflow leverage.
+- Keep shared behavior at the source of truth; avoid patching installed runtime
+  homes except when debugging setup.
+- After changing skills or runtime config, run the setup/audit path when useful
+  so installed payloads do not drift.
 
-- Clone this repo at `~/.dot-agent/`.
-- Run `~/.dot-agent/setup.sh` after pulling or changing skills/config.
-- Do not manually copy tracked skill/config files into runtime homes except when debugging setup.
-- Keep project-specific instructions in the active project repo, not in this baseline harness.
+## Review
 
-## Skill Contract
+- Review for behavioral regressions, instruction drift, missing verification,
+  and contradictions between Claude and Codex surfaces.
+- Lead with concrete findings and file paths when reviewing; keep summaries
+  secondary.
+- If a request is not completed, explicitly mark it as not done or parked in
+  the final packet.
 
-- When creating or materially rewriting a skill, follow `skills/AGENTS.md`.
-- Every retained skill needs a strict `## Composes With` section.
-- Use `skill.toml` to declare runtime targets and entrypoints.
-- Keep shared skill behavior at the skill root; use thin runtime wrappers only when needed.
-- Put deterministic helpers in `scripts/`, lookup docs in `references/`, output templates in `assets/`, and runtime-neutral support in `shared/`.
+## Progressive Disclosure
+
+Read these only when the task needs that layer:
+
+- Harness layout, runtime install targets, setup rules, and skill packaging:
+  `~/.dot-agent/docs/harness-runtime-reference.md`
+- Skill authoring policy while creating or materially rewriting skills:
+  `~/.dot-agent/skills/AGENTS.md`
+- Skill catalog, install model, and current workflow diagrams:
+  `~/.dot-agent/skills/README.md`
+- Machine-local roadmap, ideas, reviews, and caches: files under
+  `~/.dot-agent/state/` through their owning skills or helper scripts.

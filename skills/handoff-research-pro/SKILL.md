@@ -1,0 +1,94 @@
+---
+name: handoff-research-pro
+description: Create a single Markdown handoff packet for ChatGPT Research Pro or another remote-only external reviewer. Use when the user asks to package context, summarize goals/direction, prepare an outside review brief, or hand off local work where the reviewer has repo access but not this machine/runtime.
+---
+
+# Handoff Research Pro
+
+## Composes With
+
+- Parent: user request to package context for ChatGPT Research Pro or another remote-only reviewer.
+- Children: `review` for severity-first reviewer output, `compare` for branch/file comparisons, and `excalidraw-diagram` when the handoff needs a durable visual.
+- Uses format from: `review` for finding-oriented output expectations and existing `docs/handoffs/` packets for durable handoff shape.
+- Reads state from: current chat intent, git status, branch, git diff, changed files, validation output, repo docs, and any explicitly relevant external/local context.
+- Writes through: `docs/handoffs/<slug>-research-pro-review.md`.
+- Hands off to: external reviewer/model via the generated Markdown packet.
+- Receives back from: reviewer findings pasted into chat or saved as follow-up handoff.
+
+Create one portable review brief that gives an external model enough context to
+review the change without access to this machine. The packet should point to
+repo files where possible and inline any important non-repo context.
+
+## Core Metrics
+
+- Portable: repo-relative paths are preferred, but non-repo/local context is
+  allowed when relevant. If the reviewer cannot access it remotely, include the
+  important facts directly in the handoff file.
+- Scoped but not boxed in: list primary files as starting points, not hard
+  boundaries. Tell the reviewer to inspect adjacent code/docs when needed.
+- Complete: include goal, direction, changed files, what changed, validation,
+  risks, review questions, and desired output format.
+- Evidence-backed: map claims to files, diffs, commands, chat-derived intent,
+  or explicitly inlined local context.
+- Reviewable: ask concrete questions and requested finding format; avoid
+  generic "thoughts?" prompts.
+- Composable: preserve relevant `## Composes With` contracts and call out
+  related skills or workflows.
+- Token-aware: summarize diffs and point to files; do not paste huge patches
+  unless remote access cannot reconstruct the necessary context.
+- Handoff-durable: write one Markdown artifact under `docs/handoffs/`.
+- Gate-visible: record validation commands, pass/fail status, and known
+  warnings or unverified gaps.
+
+## Workflow
+
+1. Inspect current state:
+   - `git status --short`
+   - current branch
+   - `git diff --stat`
+   - changed filenames
+   - relevant validation output already run in this session
+2. Read enough changed files and nearby docs to understand intent. Do not treat
+   changed files as the full review boundary when adjacent code matters.
+3. Separate context into:
+   - primary review starting points
+   - broader codebase areas the reviewer may inspect
+   - important local/external facts to inline
+   - validation evidence
+   - unrelated dirty files or out-of-scope work
+4. Create or update `docs/handoffs/<slug>-research-pro-review.md` from
+   `assets/research-pro-brief.template.md`.
+5. Keep all paths repo-relative unless the path itself is part of the issue.
+   For non-repo paths, summarize the needed facts so the handoff remains
+   self-contained.
+6. Ask for findings-first reviewer output with severities, paths, issue,
+   impact, and suggested fix.
+7. Run `git diff --check`.
+
+## Packet Rules
+
+- Use `Files To Review` for primary starting points.
+- Add `Review Breadth` to explicitly allow broader repo inspection.
+- Add `Non-Repo Context Included` when local/runtime/external facts matter.
+- Add `Known Out Of Scope` for unrelated dirty files and warnings.
+- Add `Bonus Scope` only when the user wants opportunistic wider audit.
+- Do not create multiple docs unless the handoff spans multiple independent
+  review tracks.
+- Do not require access to runtime homes, machine-local state, browser tabs, or
+  private files unless their essential facts are quoted or summarized in the
+  packet.
+
+## Output Path
+
+Default slug:
+
+```text
+docs/handoffs/<topic>-research-pro-review.md
+```
+
+Use the user's requested path when provided.
+
+## Final Response
+
+Return the handoff file path, whether `git diff --check` passed, and any gaps
+that remain for the external reviewer.

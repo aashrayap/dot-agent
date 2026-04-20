@@ -5,7 +5,7 @@ argument-hint: [create|improve|translate] [path]
 disable-model-invocation: true
 ---
 
-# Create AGENTS.md
+# Create Agent Instructions
 
 ## Composes With
 
@@ -17,14 +17,28 @@ disable-model-invocation: true
 - Hands off to: none.
 - Receives back from: none.
 
-Use this when a repository needs agent instructions created from scratch, an
-existing `AGENTS.md` or `CLAUDE.md` tightened, or paired runtime instruction
-files translated while keeping facts aligned.
+Use this runtime-neutral workflow when a repository needs agent instructions
+created from scratch, an existing `AGENTS.md` or `CLAUDE.md` tightened, or
+paired Claude/Codex instruction files translated while keeping facts aligned.
 
 For substantial instruction rewrites, prefer a visual summary of the intended
 repo/runtime contract when it will help the human reviewer see ownership,
 setup, workflow, or before/after differences. Keep the Markdown instructions as
 the executable contract; diagrams explain the shape.
+
+## Core Workflow
+
+1. Gather repo reality from current docs, code layout, scripts, manifests,
+   existing instruction files, and verification commands.
+2. Classify content as always-on, conditional, referenced, or deleted.
+3. Preserve accurate project identity, repo map, commands, paths, and
+   verification expectations.
+4. Keep always-on guidance focused on how the agent operates across planning,
+   coding, execution, review, and human communication.
+5. Move setup details, long directory maps, examples, and infrequent contracts
+   behind "Read When Needed" links or runtime-native conditional sections.
+6. Remove stale snippets, vague policy text, duplicated facts, and linter
+   territory.
 
 ## Modes
 
@@ -40,29 +54,18 @@ If the mode is omitted, infer it:
 - existing target file -> `improve`
 - two runtime files named -> `translate`
 
-## Shared Rules
-
-- Gather repo reality from current docs, code layout, scripts, manifests, and
-  verification commands.
-- Preserve accurate project identity, repo map, commands, paths, and verification
-  expectations.
-- Remove stale snippets, vague policy text, and linter territory.
-- Prefer operational rules that change agent behavior.
-- Keep always-on guidance short and move task-specific rules into conditional
-  sections.
-- Do not invent commands or conventions. Ask or mark a placeholder when
-  uncertain.
-
 ## Create Mode
 
 Use the template at `assets/AGENTS.template.md` as structure, not fixed wording.
+For Claude-facing files, use `assets/CLAUDE.template.md` as structure, not fixed
+wording.
 
-The resulting `AGENTS.md` should include:
+The resulting instruction file should include:
 
-1. core operating rules
-2. coding conventions
-3. workflow expectations
-4. conditional guidance for planning, implementation, and review
+1. short project/runtime identity
+2. human communication contract
+3. operating loop across planning, coding, execution, review, and handoff
+4. progressive disclosure links or runtime-native conditional sections
 5. explicit anti-patterns
 
 ## Improve Mode
@@ -82,14 +85,20 @@ If both repo-local files exist and the user did not name a target, prefer the
 file for the current runtime. Ask one short question only if the target remains
 ambiguous.
 
-## Runtime Structure
+## Runtime Formats
+
+For `AGENTS.md`, do not use Claude XML. Use a short always-on core, a "Read When
+Needed" section, and headed conditional sections such as Planning,
+Implementation, Testing, Review, Release, Setup, or Skill Authoring.
 
 For `CLAUDE.md`, use Claude-native conditional weighting with narrow
-`<important if="...">` blocks where it helps relevance.
+`<important if="...">` blocks where it helps relevance. Do not wrap project
+identity, directory structure, tech stack, or the human response contract if
+they apply to almost every task.
 
-For `AGENTS.md`, do not use Claude XML. Use a short always-on core plus explicit
-conditional sections such as Planning, Implementation, Testing, Review, and
-Anti-Patterns.
+Read `references/progressive-disclosure.md` for substantial rewrites, paired
+Claude/Codex translation, or any long file where task-specific detail is
+crowding out core operating guidance.
 
 When translating across runtimes:
 
@@ -103,4 +112,5 @@ When translating across runtimes:
 - Verify referenced commands and paths still exist.
 - Remove contradictory runtime-specific instructions.
 - Make sure conditions are narrow and actionable.
+- Preserve required composition information for skills.
 - Make sure the file got shorter or sharper, not broader.
