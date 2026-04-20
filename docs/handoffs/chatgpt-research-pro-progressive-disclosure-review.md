@@ -11,22 +11,42 @@ This is a final design-quality review for agent instruction surfaces and a new
 handoff skill. It is not a broad product review unless you have time for the
 bonus scope.
 
-Current working branch during packaging: `progressive-disclosure-handoff`.
+Historical packaging branch: `progressive-disclosure-handoff`.
 Merged into `main` as `b856a808086a9e5b5716f20bda004095d17cffac`.
 
 ## Review Ref
 
-- PR URL: https://github.com/aashrayap/dot-agent/pull/35
-- Merged main tree:
+- Context PR URL: https://github.com/aashrayap/dot-agent/pull/35
+- Context merged tree:
   https://github.com/aashrayap/dot-agent/tree/b856a808086a9e5b5716f20bda004095d17cffac
-- Main branch:
-  https://github.com/aashrayap/dot-agent/tree/main
-- Direct proof paths:
-  - https://github.com/aashrayap/dot-agent/blob/main/docs/harness-runtime-reference.md
-  - https://github.com/aashrayap/dot-agent/blob/main/skills/references/skill-authoring-contract.md
-  - https://github.com/aashrayap/dot-agent/blob/main/skills/create-agents-md/claude/SKILL.md
-  - https://github.com/aashrayap/dot-agent/blob/main/skills/create-agents-md/assets/CLAUDE.template.md
-  - https://github.com/aashrayap/dot-agent/blob/main/skills/create-agents-md/references/progressive-disclosure.md
+
+## Access Protocol
+
+1. Confirm repo access: https://github.com/aashrayap/dot-agent
+2. Use the pinned raw URLs below as primary evidence.
+3. Treat PR, branch, tree, and blob pages as context only; prior Research Pro
+   runs saw stale GitHub UI state.
+4. If any primary raw URL fails, cite the exact URL and stop. Do not fall back
+   to stale branch/cache state.
+
+## Primary Raw URLs
+
+- https://raw.githubusercontent.com/aashrayap/dot-agent/39bb52c0df9f1e5d3cb287d40aafc1d6e3ac0218/AGENTS.md
+- https://raw.githubusercontent.com/aashrayap/dot-agent/39bb52c0df9f1e5d3cb287d40aafc1d6e3ac0218/claude/CLAUDE.md
+- https://raw.githubusercontent.com/aashrayap/dot-agent/39bb52c0df9f1e5d3cb287d40aafc1d6e3ac0218/skills/AGENTS.md
+- https://raw.githubusercontent.com/aashrayap/dot-agent/39bb52c0df9f1e5d3cb287d40aafc1d6e3ac0218/docs/harness-runtime-reference.md
+- https://raw.githubusercontent.com/aashrayap/dot-agent/39bb52c0df9f1e5d3cb287d40aafc1d6e3ac0218/skills/references/skill-authoring-contract.md
+- https://raw.githubusercontent.com/aashrayap/dot-agent/39bb52c0df9f1e5d3cb287d40aafc1d6e3ac0218/skills/create-agents-md/SKILL.md
+- https://raw.githubusercontent.com/aashrayap/dot-agent/39bb52c0df9f1e5d3cb287d40aafc1d6e3ac0218/skills/create-agents-md/codex/SKILL.md
+- https://raw.githubusercontent.com/aashrayap/dot-agent/39bb52c0df9f1e5d3cb287d40aafc1d6e3ac0218/skills/create-agents-md/claude/SKILL.md
+- https://raw.githubusercontent.com/aashrayap/dot-agent/39bb52c0df9f1e5d3cb287d40aafc1d6e3ac0218/skills/create-agents-md/references/progressive-disclosure.md
+- https://raw.githubusercontent.com/aashrayap/dot-agent/39bb52c0df9f1e5d3cb287d40aafc1d6e3ac0218/skills/create-agents-md/assets/AGENTS.template.md
+- https://raw.githubusercontent.com/aashrayap/dot-agent/39bb52c0df9f1e5d3cb287d40aafc1d6e3ac0218/skills/create-agents-md/assets/CLAUDE.template.md
+- https://raw.githubusercontent.com/aashrayap/dot-agent/39bb52c0df9f1e5d3cb287d40aafc1d6e3ac0218/skills/create-agents-md/skill.toml
+- https://raw.githubusercontent.com/aashrayap/dot-agent/39bb52c0df9f1e5d3cb287d40aafc1d6e3ac0218/skills/handoff-research-pro/SKILL.md
+- https://raw.githubusercontent.com/aashrayap/dot-agent/39bb52c0df9f1e5d3cb287d40aafc1d6e3ac0218/skills/handoff-research-pro/assets/research-pro-brief.template.md
+- https://raw.githubusercontent.com/aashrayap/dot-agent/39bb52c0df9f1e5d3cb287d40aafc1d6e3ac0218/skills/handoff-research-pro/skill.toml
+- https://raw.githubusercontent.com/aashrayap/dot-agent/39bb52c0df9f1e5d3cb287d40aafc1d6e3ac0218/skills/README.md
 
 ## Goal
 
