@@ -7,6 +7,22 @@ repository and this Markdown packet only. Use repo-relative paths when opening
 files. If this packet mentions machine-local or external context, the relevant
 facts are included here.
 
+## Review Target And Mode
+
+- Mode: <product/spec critique | architecture/design critique | implementation/PR review |
+  migration/risk review | instruction-surface review>
+- Remote target: <branch, commit SHA, PR URL, tree URL, or compare URL>
+- Base/comparison: <base branch, previous commit, or "none">
+- Requested scrutiny: <what the reviewer should challenge hardest>
+
+## Source And Access Policy
+
+- Primary evidence: <repo paths and this packet | uploaded files | listed URLs>
+- Web/external sources: <not needed | allowed only for listed questions | broad search allowed>
+- Non-repo/local context: <none | summarized in Non-Repo Context Included>
+- Sensitive context check: <no secrets, API keys, private user data, or
+  irrelevant machine-local details included>
+
 ## Goal
 
 - <Why this work started>
@@ -36,6 +52,19 @@ findings tied back to the stated goal.
 - <Important local/runtime/external fact that the reviewer cannot fetch from the remote repo>
 - <Omit this section if no non-repo context matters>
 
+## Assumptions And Blind Spots
+
+Assumptions to falsify:
+
+1. <Assumption> - <current evidence> - <what would disprove it>
+2. <Assumption> - <current evidence> - <what would disprove it>
+
+Reviewer blind spots:
+
+- <Example: no access to local runtime homes, untracked files, browser tabs, or
+  private state unless summarized here>
+- <Example: validation output is quoted from this packet, not independently rerun>
+
 ## What Changed
 
 `<path-or-area>`
@@ -55,6 +84,15 @@ findings tied back to the stated goal.
 ## Known Out Of Scope
 
 - <Unrelated dirty files, unrelated warnings, or intentionally excluded work>
+
+## Findings Intake Plan
+
+Returned findings should be triaged into:
+
+- fix now: <where accepted blocking/high findings should land>
+- backlog: <roadmap row, feature task, or handoff doc for accepted later work>
+- local verification: <findings that need tests, runtime checks, or repo commands>
+- reject with reason: <where rejected findings should be recorded, if anywhere>
 
 ## Review Tasks
 

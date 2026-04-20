@@ -454,41 +454,43 @@ function workflows(elements) {
   elements.push(arrow(1640, 896, 1690, 896, { strokeColor: colors.blueStroke }));
   elements.push(arrow(1825, 896, 1875, 896, { strokeColor: colors.blueStroke }));
 
-  lane(elements, 750, 1020, 1325, 150, "Review and forensics", "Diff checks and evidence reviews.", {
+  lane(elements, 750, 1020, 1325, 150, "Review and external gates", "Local diff checks, portable packets, and evidence loops.", {
     fill: "#fbf9ff",
     stroke: colors.violetStroke,
   });
-  node(elements, 1040, 1048, 175, 66, "git diff\nPR context", {
+  node(elements, 1010, 1048, 150, 66, "git diff\nPR context", {
     fill: colors.gray,
     stroke: colors.grayStroke,
     fontSize: 15,
     wrap: false,
   });
-  node(elements, 1270, 1048, 155, 66, "review", {
+  node(elements, 1210, 1048, 125, 66, "review", {
     fill: colors.blue,
     stroke: colors.blueStroke,
     fontSize: 17,
   });
-  node(elements, 1480, 1048, 215, 66, "execution-review", {
+  node(elements, 1385, 1038, 235, 86, "handoff-\nresearch-pro", {
     fill: colors.violet,
     stroke: colors.violetStroke,
     fontSize: 16,
+    wrap: false,
   });
-  node(elements, 1750, 1048, 115, 66, "compare", {
+  node(elements, 1670, 1048, 150, 66, "external\nreviewer", {
     fill: colors.violet,
     stroke: colors.violetStroke,
-    fontSize: 16,
+    fontSize: 15,
+    wrap: false,
   });
-  node(elements, 1920, 1038, 118, 86, "reports /\nrecs only", {
+  node(elements, 1870, 1038, 170, 86, "findings\nintake", {
     fill: "#ffffff",
     stroke: colors.violetStroke,
     fontSize: 14,
     wrap: false,
   });
-  elements.push(arrow(1220, 1081, 1265, 1081, { strokeColor: colors.blueStroke }));
-  elements.push(arrow(1430, 1081, 1475, 1081, { strokeColor: colors.violetStroke }));
-  elements.push(arrow(1700, 1081, 1745, 1081, { strokeColor: colors.violetStroke }));
-  elements.push(arrow(1870, 1081, 1915, 1081, { strokeColor: colors.violetStroke }));
+  elements.push(arrow(1165, 1081, 1205, 1081, { strokeColor: colors.blueStroke }));
+  elements.push(arrow(1340, 1081, 1380, 1081, { strokeColor: colors.violetStroke }));
+  elements.push(arrow(1625, 1081, 1665, 1081, { strokeColor: colors.violetStroke }));
+  elements.push(arrow(1825, 1081, 1865, 1081, { strokeColor: colors.violetStroke }));
 
   lane(elements, 750, 1205, 1325, 150, "Docs, knowledge, visuals", "Reusable human-facing artifacts.", {
     fill: "#f8fbff",
@@ -523,11 +525,129 @@ function workflows(elements) {
   elements.push(arrow(1568, 1266, 1610, 1266, { strokeColor: colors.violetStroke }));
   elements.push(arrow(1745, 1266, 1785, 1266, { strokeColor: colors.tealStroke }));
 
-  elements.push(text(760, 1335, 1250, "Boundary: normal daily output uses roadmap rows, not session IDs or hidden project state. Deep implementation uses docs/artifacts/<feature>/; forensics writes execution-review reports.", {
+  elements.push(text(760, 1335, 1250, "Boundary: normal daily output uses roadmap rows, not session IDs or hidden project state. Deep implementation uses docs/artifacts/<feature>/; external critique writes docs/handoffs/<slug>-research-pro-review.md.", {
     fontSize: 15,
     color: colors.muted,
     height: 40,
   }));
+}
+
+function researchProGate() {
+  counter = 1;
+  const elements = [];
+
+  elements.push(text(70, 42, 1500, "Research Pro review gate", {
+    fontSize: 34,
+    color: colors.ink,
+    height: 64,
+  }));
+  elements.push(text(72, 100, 1450, "Use a portable packet as a selective external critique gate around expensive-to-unwind decisions.", {
+    fontSize: 16,
+    color: colors.muted,
+    height: 56,
+  }));
+
+  panel(
+    elements,
+    70,
+    180,
+    500,
+    420,
+    "1. Entry gates",
+    "Run only when outside synthesis can change a decision.",
+  );
+  node(elements, 125, 335, 145, 62, "idea", {
+    fill: colors.amber,
+    stroke: colors.amberStroke,
+    fontSize: 18,
+  });
+  node(elements, 330, 325, 165, 82, "spec-new-\nfeature", {
+    fill: colors.blue,
+    stroke: colors.blueStroke,
+    fontSize: 16,
+    wrap: false,
+  });
+  node(elements, 225, 460, 170, 82, "pre-merge\nrisk", {
+    fill: colors.violet,
+    stroke: colors.violetStroke,
+    fontSize: 16,
+    wrap: false,
+  });
+
+  panel(
+    elements,
+    650,
+    180,
+    560,
+    420,
+    "2. Packet contract",
+    "The handoff is the product; strong review depends on strong packaging.",
+  );
+  node(elements, 700, 325, 190, 74, "target +\nmode", {
+    fill: colors.blue,
+    stroke: colors.blueStroke,
+    fontSize: 16,
+    wrap: false,
+  });
+  node(elements, 970, 325, 190, 74, "source +\naccess policy", {
+    fill: colors.teal,
+    stroke: colors.tealStroke,
+    fontSize: 15,
+    wrap: false,
+  });
+  node(elements, 700, 455, 190, 74, "assumptions\n+ blind spots", {
+    fill: colors.violet,
+    stroke: colors.violetStroke,
+    fontSize: 15,
+    wrap: false,
+  });
+  node(elements, 970, 455, 190, 74, "validation +\nknown gaps", {
+    fill: colors.gray,
+    stroke: colors.grayStroke,
+    fontSize: 15,
+    wrap: false,
+  });
+
+  panel(
+    elements,
+    1290,
+    180,
+    520,
+    420,
+    "3. Findings loop",
+    "External review returns findings that local work must triage.",
+  );
+  node(elements, 1340, 330, 190, 82, "ChatGPT\nResearch Pro", {
+    fill: colors.violet,
+    stroke: colors.violetStroke,
+    fontSize: 17,
+    wrap: false,
+  });
+  node(elements, 1600, 330, 155, 82, "findings\nfirst", {
+    fill: "#ffffff",
+    stroke: colors.violetStroke,
+    fontSize: 16,
+    wrap: false,
+  });
+  node(elements, 1435, 460, 290, 74, "fix now / backlog /\nverify / reject", {
+    fill: colors.green,
+    stroke: colors.greenStroke,
+    fontSize: 15,
+    wrap: false,
+  });
+
+  elements.push(arrow(575, 390, 645, 390, { strokeColor: colors.amberStroke }));
+  elements.push(arrow(1215, 390, 1285, 390, { strokeColor: colors.violetStroke }));
+  elements.push(arrow(1535, 371, 1595, 371, { strokeColor: colors.violetStroke }));
+  elements.push(arrow(1678, 415, 1590, 455, { strokeColor: colors.greenStroke }));
+
+  elements.push(text(90, 650, 1580, "Thesis: use the highest-scrutiny surface where independent falsification matters. Local agents still own repo-grounded execution, tests, and accepted fixes.", {
+    fontSize: 16,
+    color: colors.ink,
+    height: 56,
+  }));
+
+  return doc(elements);
 }
 
 function runtimeRoster(elements) {
@@ -536,7 +656,7 @@ function runtimeRoster(elements) {
     70,
     1420,
     2060,
-    245,
+    330,
     "4. Runtime targets today",
     "skill.toml decides whether a skill installs into Claude, Codex, or both.",
   );
@@ -557,6 +677,7 @@ function runtimeRoster(elements) {
     "explain",
     "create-agents-md",
     "excalidraw-diagram",
+    "handoff-research-pro",
   ];
   let x = 360;
   let y = 1516;
@@ -573,14 +694,14 @@ function runtimeRoster(elements) {
     }
   }
 
-  elements.push(text(120, 1610, 210, "Codex only", {
+  elements.push(text(120, 1665, 210, "Codex only", {
     fontSize: 22,
     color: colors.greenStroke,
     height: 46,
   }));
   x = 360;
   for (const item of ["morning-sync", "focus", "daily-review", "caveman"]) {
-    const width = badge(elements, x, 1600, item, {
+    const width = badge(elements, x, 1655, item, {
       fill: colors.green,
       stroke: colors.greenStroke,
       fontSize: 13,
@@ -603,3 +724,7 @@ function render() {
 const fullPath = path.join(outDir, "skills-current-state-workflows.excalidraw");
 fs.writeFileSync(fullPath, `${JSON.stringify(render(), null, 2)}\n`);
 console.log(fullPath);
+
+const researchProPath = path.join(outDir, "research-pro-review-gate.excalidraw");
+fs.writeFileSync(researchProPath, `${JSON.stringify(researchProGate(), null, 2)}\n`);
+console.log(researchProPath);

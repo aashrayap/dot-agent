@@ -19,6 +19,24 @@ Create one portable review brief that gives an external model enough context to
 review the change without access to this machine. The packet should point to
 repo files where possible and inline any important non-repo context.
 
+## Review Gate Thesis
+
+Use this as a selective external critique gate, not as a default step for every
+spec or diff. The leverage comes from independent synthesis over a strong,
+portable packet; do not justify the gate by model price alone.
+
+Best fits:
+
+- after `idea` when product, strategy, or external assumptions need
+  falsification before code-grounded planning
+- during `spec-new-feature` before design or task artifacts become execution
+  direction
+- before merge for instruction-heavy, architecture-heavy, migration-heavy, or
+  easy-to-rationalize changes
+
+Skip for small mechanical fixes, formatting, or changes where local runtime and
+test access are the main evidence.
+
 ## Core Metrics
 
 - Portable: repo-relative paths are preferred, but non-repo/local context is
@@ -26,8 +44,9 @@ repo files where possible and inline any important non-repo context.
   important facts directly in the handoff file.
 - Scoped but not boxed in: list primary files as starting points, not hard
   boundaries. Tell the reviewer to inspect adjacent code/docs when needed.
-- Complete: include goal, direction, changed files, what changed, validation,
-  risks, review questions, and desired output format.
+- Complete: include review target and mode, source/access policy, goal,
+  direction, changed files, what changed, assumptions to falsify, validation,
+  risks, review questions, desired output format, and findings intake plan.
 - Evidence-backed: map claims to files, diffs, commands, chat-derived intent,
   or explicitly inlined local context.
 - Reviewable: ask concrete questions and requested finding format; avoid
@@ -36,6 +55,8 @@ repo files where possible and inline any important non-repo context.
   related skills or workflows.
 - Token-aware: summarize diffs and point to files; do not paste huge patches
   unless remote access cannot reconstruct the necessary context.
+- Source-aware: say whether external web/source lookup is allowed, required, or
+  out of scope; for repo review, treat the repo and packet as primary evidence.
 - Handoff-durable: write one Markdown artifact under `docs/handoffs/`.
 - Gate-visible: record validation commands, pass/fail status, and known
   warnings or unverified gaps.
@@ -54,8 +75,11 @@ repo files where possible and inline any important non-repo context.
    - primary review starting points
    - broader codebase areas the reviewer may inspect
    - important local/external facts to inline
+   - source/access policy, including sensitive context checks
+   - assumptions to falsify and reviewer blind spots
    - validation evidence
    - unrelated dirty files or out-of-scope work
+   - where accepted findings should be routed next
 4. Create or update `docs/handoffs/<slug>-research-pro-review.md` from
    `assets/research-pro-brief.template.md`.
 5. Keep all paths repo-relative unless the path itself is part of the issue.
@@ -69,8 +93,15 @@ repo files where possible and inline any important non-repo context.
 
 - Use `Files To Review` for primary starting points.
 - Add `Review Breadth` to explicitly allow broader repo inspection.
+- Add `Review Target And Mode` so the reviewer knows the exact ref and lens.
+- Add `Source And Access Policy` so web search, repo scope, local facts, and
+  sensitive-context handling are explicit.
+- Add `Assumptions And Blind Spots` to focus critique on falsification and
+  prevent false certainty about local/runtime facts.
 - Add `Non-Repo Context Included` when local/runtime/external facts matter.
 - Add `Known Out Of Scope` for unrelated dirty files and warnings.
+- Add `Findings Intake Plan` so returned findings can become fixes, backlog
+  rows, PR notes, feature tasks, or rejected-with-reason decisions.
 - Add `Bonus Scope` only when the user wants opportunistic wider audit.
 - Do not create multiple docs unless the handoff spans multiple independent
   review tracks.
