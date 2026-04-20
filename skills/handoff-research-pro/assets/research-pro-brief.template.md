@@ -2,10 +2,11 @@
 
 ## Reviewer Context
 
-You are reviewing a repository change. Assume access to the remote Git
-repository and this Markdown packet only. Use repo-relative paths when opening
-files. If this packet mentions machine-local or external context, the relevant
-facts are included here.
+You are reviewing a repository change. Assume access to this Markdown packet
+only unless the packet explicitly says otherwise. Do not assume filesystem
+access. Repo-relative paths in this document are labels for the inline evidence
+blocks below. If this packet mentions machine-local or external context, the
+relevant facts are included here.
 
 ## Review Target And Mode
 
@@ -17,8 +18,9 @@ facts are included here.
 
 ## Access Protocol
 
-1. Confirm repo access: <repo URL>
-2. Use `Primary Raw URLs` as source of truth for primary files.
+1. Confirm whether repo/browser access exists: <repo URL or "packet only">
+2. Use `Inline Evidence` as the minimum source of truth. If repo access exists,
+   use `Primary Raw URLs` as source of truth for primary files.
 3. Treat PR, branch, tree, and blob pages as context only unless they are the
    only published evidence.
 4. If any primary raw URL fails, cite the exact URL and stop. Do not fall back
@@ -54,6 +56,23 @@ Primary starting points, not hard boundaries:
 
 - `<repo-relative-path>`
 - `<repo-relative-path>`
+
+## Inline Evidence
+
+Inline evidence is required for each primary path/area and any other named file
+reference that carries review weight so the reviewer can reason without opening
+repository files. Include the relevant line range and a short excerpt or
+paraphrase plus why it matters to this review.
+
+`<repo-relative-path>` lines `<line-range>`
+
+```text
+<insert minimal snippet or paraphrased evidence>
+```
+
+Explanation: <why the excerpt is sufficient evidence for the claim>
+
+`<repeat for another path as needed>`
 
 ## Review Breadth
 

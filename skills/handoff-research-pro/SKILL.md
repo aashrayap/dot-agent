@@ -17,7 +17,10 @@ description: Create a single Markdown handoff packet for ChatGPT Research Pro or
 
 Create one portable review brief that gives an external model enough context to
 review the change without access to this machine. The packet should point to
-repo files where possible and inline any important non-repo context.
+repo files where possible and inline any important non-repo context. If the
+reviewer does not have filesystem or repo access, every file path named in the
+packet must also be represented inside the handoff with a short excerpt,
+paraphrase, or structured summary.
 
 ## Review Gate Thesis
 
@@ -49,6 +52,9 @@ test access are the main evidence.
   risks, review questions, desired output format, and findings intake plan.
 - Evidence-backed: map claims to files, diffs, commands, chat-derived intent,
   or explicitly inlined local context.
+- Self-contained evidence: include inline text or short snippets for the key
+  claims so the reviewer can validate the packet without raising a repository
+  shell.
 - Reviewable: ask concrete questions and requested finding format; avoid
   generic "thoughts?" prompts.
 - Composable: preserve relevant `## Composes With` contracts and call out
@@ -89,9 +95,12 @@ test access are the main evidence.
 5. Keep all paths repo-relative unless the path itself is part of the issue.
    For non-repo paths, summarize the needed facts so the handoff remains
    self-contained.
-6. Ask for findings-first reviewer output with severities, paths, issue,
+6. For every file path named in `Files To Review` or elsewhere in the packet,
+   add matching inline evidence so the reviewer can work from the handoff
+   alone.
+7. Ask for findings-first reviewer output with severities, paths, issue,
    impact, and suggested fix.
-7. Run `git diff --check`.
+8. Run `git diff --check`.
 
 ## Packet Rules
 
@@ -103,6 +112,10 @@ test access are the main evidence.
   cannot be fetched.
 - Add `Primary Raw URLs` for every primary file when the review depends on
   remote GitHub access.
+- Add `Inline Evidence` for every primary file path and every other named file
+  path that carries review weight.
+- In `Inline Evidence`, embed the smallest useful excerpt, paraphrase, or
+  structured summary plus why it matters.
 - Add `Source And Access Policy` so web search, repo scope, local facts, and
   sensitive-context handling are explicit.
 - Add `Assumptions And Blind Spots` to focus critique on falsification and
