@@ -2,94 +2,44 @@
 
 This directory is the source of truth for shared Claude and Codex skills.
 
-## Authoring Contract
+Use this file as the always-on skill authoring contract. Pull the detailed
+schema and setup rules only when the current edit needs them.
 
-Every retained skill must declare how it composes with the harness. Add a
-`## Composes With` section near the top of each `SKILL.md` when creating or
-materially rewriting a skill.
+## Skill Work Loop
 
-Required schema:
+- Keep `SKILL.md` lean: trigger, composition, core workflow, and direct links to
+  deeper files.
+- Move setup notes, schemas, examples, and provider/runtime variants into
+  `references/`, `scripts/`, `assets/`, or `shared/`.
+- Preserve runtime portability unless a skill's `skill.toml` targets only one
+  runtime.
+- Use existing skill owners before adding a new top-level skill.
+- Verify source entries and installed payloads with setup/audit commands when
+  skill edits should propagate.
 
-```markdown
-## Composes With
+## Composition
 
-- Parent:
-- Children:
-- Uses format from:
-- Reads state from:
-- Writes through:
-- Hands off to:
-- Receives back from:
-```
-
-Fill unused rows with `none`. Keep entries concrete: skill names, helper
-scripts, state files, artifact directories, or runtime surfaces.
-
-## Setup Contract
-
-Each skill should install through `~/.dot-agent/setup.sh`; do not manually copy
-tracked skill files into runtime homes except when debugging setup.
-
-This `AGENTS.md` is author-time policy for the source tree. It is not installed
-as runtime context for individual skills. Any rule needed while a skill is being
-used must live in that skill's selected entrypoint, or in an installed
-`scripts/`, `references/`, `assets/`, or `shared/` file that the entrypoint
-explicitly tells the runtime to read.
-
-Required minimum:
-
-```text
-skills/<name>/
-├── SKILL.md
-└── skill.toml
-```
-
-Manifest baseline:
-
-```toml
-name = "<name>"
-targets = ["claude", "codex"]
-default_entry = "SKILL.md"
-```
-
-Use `claude_entry` or `codex_entry` only for thin runtime wrappers. Keep shared
-workflow logic at the skill root.
-
-Shared directories installed with the selected entrypoint:
-
-- `scripts/` for deterministic helpers
-- `references/` for schemas, setup notes, and lookup docs
-- `assets/` for templates and static output assets
-- `shared/` for runtime-neutral support files
-
-Claude receives symlinks. Codex receives copied payloads, so rerun setup after
-skill edits.
-
-## Composition Rules
-
-- Prefer composing an existing owner over adding a new top-level skill.
-- `focus` owns the daily roadmap.
-- `idea` owns incubation artifacts.
-- `spec-new-feature` owns deep code-grounded feature artifacts.
-- `execution-review` owns forensic retrospective review and session-quality recommendations.
-- Durable delivery state belongs in roadmap rows, feature artifacts, PRs, or
-  explicit handoff docs. Do not recreate a hidden project/session service layer.
+- Every retained skill needs a strict `## Composes With` section near the top of
+  `SKILL.md` when creating or materially rewriting it.
+- Keep composition rows concrete: skill names, helper scripts, state files,
+  artifact directories, or runtime surfaces.
+- Fill unused rows with `none`.
 - Mutate another skill's state only through that skill's helper scripts or
   documented write path.
 
-## Subagent Roles
+## Runtime Packaging
 
-Use portable role contracts. Codex should spawn subagents only when the user has
-explicitly authorized delegation or parallel work.
+- Each skill should install through `~/.dot-agent/setup.sh`.
+- Use `skill.toml` to declare targets and selected entrypoints.
+- Keep shared workflow logic at the skill root; use thin `claude/` or `codex/`
+  wrappers only when runtime-specific syntax is necessary.
+- Claude receives symlinks. Codex receives copied payloads, so rerun setup after
+  skill edits that should affect Codex.
 
-- Explorer: read-only factual investigation with evidence.
-- Worker / Implementor: bounded edits in an assigned file/module scope.
-- Gate / Verifier: independent validation, tests, and pass/fail findings.
+## Read When Needed
 
-The parent skill remains responsible for decomposition, context curation, and
-final synthesis. Delegated tasks need role, goal, scope, inputs, output schema,
-stop conditions, and verification expectations.
-
-For decontaminated research, Explorer sees approved questions or source paths,
-not the desired answer. The parent skill reconciles findings and writes the
-artifact through the owning surface.
+- Detailed authoring schema, manifest baseline, shared directory meanings,
+  source-only policy, skill ownership map, and subagent role contracts:
+  `skills/references/skill-authoring-contract.md`
+- Human-facing catalog and current diagrams: `skills/README.md`
+- Runtime install mechanics: `../setup.sh`
