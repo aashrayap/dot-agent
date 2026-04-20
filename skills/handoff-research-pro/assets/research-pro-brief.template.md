@@ -11,9 +11,18 @@ facts are included here.
 
 - Mode: <product/spec critique | architecture/design critique | implementation/PR review |
   migration/risk review | instruction-surface review>
-- Remote target: <branch, commit SHA, PR URL, tree URL, or compare URL>
+- Remote target: <commit SHA and optional PR URL, tree URL, or compare URL>
 - Base/comparison: <base branch, previous commit, or "none">
 - Requested scrutiny: <what the reviewer should challenge hardest>
+
+## Access Protocol
+
+1. Confirm repo access: <repo URL>
+2. Use `Primary Raw URLs` as source of truth for primary files.
+3. Treat PR, branch, tree, and blob pages as context only unless they are the
+   only published evidence.
+4. If any primary raw URL fails, cite the exact URL and stop. Do not fall back
+   to stale branch/cache state.
 
 ## Source And Access Policy
 
@@ -22,6 +31,11 @@ facts are included here.
 - Non-repo/local context: <none | summarized in Non-Repo Context Included>
 - Sensitive context check: <no secrets, API keys, private user data, or
   irrelevant machine-local details included>
+
+## Primary Raw URLs
+
+- <https://raw.githubusercontent.com/<owner>/<repo>/<commit>/<path>>
+- <https://raw.githubusercontent.com/<owner>/<repo>/<commit>/<path>>
 
 ## Goal
 

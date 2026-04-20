@@ -15,7 +15,9 @@ feature: skills-readme-current-state-diagram
 ### Codebase
 
 **Which README contains the diagram?**
-Answer: `skills/README.md` embeds `../docs/diagrams/skill-workflow-prune-map.png`.
+Answer: `skills/README.md` embeds
+`../docs/diagrams/skills-current-state-workflows.png` and
+`../docs/diagrams/research-pro-review-gate.png`.
 Confidence: high.
 Evidence: `skills/README.md` first section.
 Conflicts: none.

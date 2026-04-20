@@ -113,4 +113,6 @@ When translating across runtimes:
 - Remove contradictory runtime-specific instructions.
 - Make sure conditions are narrow and actionable.
 - Preserve required composition information for skills.
+- Compare the human response contract across `AGENTS.md`, `CLAUDE.md`, and
+  human-facing companion docs such as `skills/README.md` when touched.
 - Make sure the file got shorter or sharper, not broader.

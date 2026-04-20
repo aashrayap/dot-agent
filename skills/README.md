@@ -181,8 +181,12 @@ put Excalidraw-specific policy in `skills/AGENTS.md`.
 
 ## Human Response Contract
 
-The response packet should stay short and readable: `Result`, `Visual`, `Gate`,
-`Ledger`, one or more concrete `Next Actions`, and `Details` links.
+The response packet should stay short and readable: `This Session Focus`,
+`Result`, `Visual`, `Gate`, `Ledger`, one or more concrete `Next Actions`, and
+`Details` links.
+
+`This Session Focus` is the first slot. Keep it to 1-2 short lines that remind
+Ash why the session started and where the work stands.
 
 `Visual` is always a slot. For workflow, architecture, planning, review,
 decision, or multi-artifact work, link an existing diagram or create/render one.

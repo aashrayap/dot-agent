@@ -57,6 +57,9 @@ test access are the main evidence.
   unless remote access cannot reconstruct the necessary context.
 - Source-aware: say whether external web/source lookup is allowed, required, or
   out of scope; for repo review, treat the repo and packet as primary evidence.
+- Ref-pinned: for GitHub remote reviews, include immutable commit SHAs and
+  pinned raw file URLs for primary evidence. PR, branch, tree, and blob pages
+  may be helpful context, but they must not be the only source of truth.
 - Handoff-durable: write one Markdown artifact under `docs/handoffs/`.
 - Gate-visible: record validation commands, pass/fail status, and known
   warnings or unverified gaps.
@@ -76,6 +79,7 @@ test access are the main evidence.
    - broader codebase areas the reviewer may inspect
    - important local/external facts to inline
    - source/access policy, including sensitive context checks
+   - immutable refs and raw URLs for primary remote evidence
    - assumptions to falsify and reviewer blind spots
    - validation evidence
    - unrelated dirty files or out-of-scope work
@@ -94,6 +98,11 @@ test access are the main evidence.
 - Use `Files To Review` for primary starting points.
 - Add `Review Breadth` to explicitly allow broader repo inspection.
 - Add `Review Target And Mode` so the reviewer knows the exact ref and lens.
+- Add `Access Protocol` for remote GitHub reviews: confirm repo access, use
+  pinned raw URLs as primary evidence, and fail closed if any primary raw URL
+  cannot be fetched.
+- Add `Primary Raw URLs` for every primary file when the review depends on
+  remote GitHub access.
 - Add `Source And Access Policy` so web search, repo scope, local facts, and
   sensitive-context handling are explicit.
 - Add `Assumptions And Blind Spots` to focus critique on falsification and
@@ -108,6 +117,19 @@ test access are the main evidence.
 - Do not require access to runtime homes, machine-local state, browser tabs, or
   private files unless their essential facts are quoted or summarized in the
   packet.
+- Do not let the reviewer fall back to stale PR, branch, tree, or blob pages
+  when pinned raw URLs fail. Tell them to report the exact failed URL and stop.
+
+## Remote Review Lint
+
+Before finishing a GitHub remote-review packet, check:
+
+- primary evidence includes a commit SHA, not only a branch or PR URL
+- every primary file has a pinned raw URL when the reviewer may use a browser
+- dynamic PR/tree/blob links are labeled as context, not source of truth
+- packet says what to do when a URL fails
+- local/runtime facts needed for review are inlined in the packet
+- unrelated dirty files are named as out of scope
 
 ## Output Path
 
