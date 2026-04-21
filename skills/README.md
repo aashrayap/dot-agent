@@ -86,6 +86,7 @@ codex_entry = "codex/SKILL.md"
 `improve-agents-md` owns improvement, creation, and translation of both Codex
 `AGENTS.md` and Claude `CLAUDE.md` surfaces. Bias toward tightening existing
 files in place; fall back to creation when no useful instruction file exists.
+Use it to establish the Human Response Contract explicitly when a repo lacks it.
 Keep shared instruction-generation logic at the skill root; use runtime
 wrappers only for Claude/Codex formatting bias.
 

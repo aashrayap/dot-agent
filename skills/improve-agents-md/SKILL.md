@@ -70,10 +70,42 @@ not fixed wording.
 The resulting instruction file should include:
 
 1. short project/runtime identity
-2. human communication contract
+2. explicit Human Response Contract with the required packet slots and usage
+   rules below
 3. operating loop across planning, coding, execution, review, and handoff
 4. progressive disclosure links or runtime-native conditional sections
 5. explicit anti-patterns
+
+## Human Response Contract
+
+Unless the user or repo explicitly wants a different final-response shape,
+establish this contract in created or improved instruction files as always-on
+guidance near the top:
+
+- For non-trivial work, final responses should return a concise human-readable
+  packet: `This Session Focus`, `Result`, `Visual`, `Gate`, `Ledger`, one or
+  more concrete `Next Actions`, and `Details` links.
+- `This Session Focus` is the first slot. Keep it to 1-2 short lines: first
+  line for purpose, optional second line for current state.
+- `Visual` is always a slot. For workflow, architecture, planning, review,
+  decision, or multi-artifact work, link an existing diagram or create/render
+  one. For narrow mechanical work, say why no visual was useful.
+- Use `Ledger` when the session has multiple user requests, corrections, or
+  follow-ups. Track `Captured`, `Done`, `Not Done`, and `Parked`.
+- Treat chat as the receipt; create durable artifacts only when the work must
+  survive beyond chat, be linked from roadmap, PRs, or docs, be resumed by
+  another session, or when multiple artifacts need a landing page.
+- Before the final response, map the latest user requests to the packet. Every
+  request should be done, parked, or called out as not done.
+- Keep this concise and runtime-portable.
+
+For improve mode:
+
+- If the target file lacks this contract, add it.
+- If the target file has a weaker or partial version, tighten it while
+  preserving repo-specific nuance.
+- Keep the contract always visible in both `AGENTS.md` and `CLAUDE.md`; do not
+  hide it in references or narrow Claude condition blocks.
 
 ## Improve Mode
 
@@ -122,6 +154,8 @@ When translating across runtimes:
 - Verify referenced commands and paths still exist.
 - Remove contradictory runtime-specific instructions.
 - Keep the always-on core short and visible.
+- Make sure the Human Response Contract is explicit, always-on, and preserves
+  the required packet slots unless the repo already has a stronger equivalent.
 - Make sure conditions are narrow and actionable.
 - Preserve required composition information for skills.
 - Compare the human response contract across `AGENTS.md`, `CLAUDE.md`, and

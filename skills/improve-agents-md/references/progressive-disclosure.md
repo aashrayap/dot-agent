@@ -25,9 +25,14 @@ Classify every section before editing:
 - Deleted: stale snippets, duplicated facts, vague preferences, linter rules,
   and content contradicted by current repo reality.
 
+If the target file lacks a concrete Human Response Contract, establish one
+explicitly. Keep the required packet slots visible near the top instead of
+leaving them implied.
+
 ## Codex `AGENTS.md`
 
 - Keep the file readable as plain Markdown.
+- Keep the Human Response Contract near the top and always visible.
 - Use "Read When Needed" links for deeper contracts.
 - Use headed conditional sections instead of Claude XML.
 - Keep paths concrete and relative when repo-local.
@@ -46,6 +51,8 @@ Good Codex section names:
 ## Claude `CLAUDE.md`
 
 - Keep foundational content always visible when it applies to most tasks.
+- Keep the Human Response Contract always visible near the top; do not wrap it
+  in `<important if="...">`.
 - Use `<important if="...">` only for narrow task conditions.
 - Make conditions specific enough that they should fire only for the intended
   work path.
