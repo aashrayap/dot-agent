@@ -1,6 +1,6 @@
 ---
 name: spec-new-feature
-description: Full feature workflow for Claude Code — spec, decontaminated research via subagents, design decisions, task breakdown, and wave-based execution.
+description: Human-guided feature workflow for Claude Code — spec, direction Q&A, decontaminated research via subagents, design decisions, task breakdown, and wave-based execution.
 disable-model-invocation: true
 ---
 
@@ -16,9 +16,9 @@ disable-model-invocation: true
 - Hands off to: `focus` for roadmap follow-ups, `review` for PR review, or `daily-review` for day-end closure.
 - Receives back from: `focus`, `review`, PR refs, and prior feature artifacts as curated workstream context.
 
-Use this for non-trivial feature work that needs a spec, decontaminated research, design decisions, task breakdown, and optional execution.
+Use this for non-trivial feature work that needs a spec, human direction Q&A, decontaminated research, design decisions, task breakdown, and optional execution.
 
-This is also the code-grounded planning bridge for mature `/idea` work. Idea docs provide product and high-level architecture context; this workflow owns approved spec artifacts, decontaminated research, design, code-specific tasks, and optional execution.
+This is also the code-grounded planning bridge for mature `/idea` work. Idea docs provide product and high-level architecture context; this workflow owns approved spec artifacts, human direction checkpoints, decontaminated research, design, code-specific tasks, and optional execution.
 
 ## Response Contract
 
@@ -40,10 +40,10 @@ Read the reported feature directory and artifact statuses. Resume from the first
 ## Artifact Contract
 
 - `00_summary.md` — durable landing page for the artifact set when the run needs one
-- `01_spec.md` — problem framing, users, acceptance criteria, boundaries
-- `02_questions.md` — approved research questions grouped by source
-- `03_research.md` — decontaminated findings, patterns, flagged items, open questions
-- `04_design.md` — design decisions, principles, file map, unresolved risks
+- `01_spec.md` — problem framing, users, acceptance criteria, boundaries, initial human direction
+- `02_questions.md` — human direction questions plus approved research questions grouped by source
+- `03_research.md` — decontaminated findings, patterns, flagged items, direction options, open questions
+- `04_design.md` — chosen direction, design decisions, principles, file map, unresolved risks
 - `05_tasks.md` — execution-ready task breakdown
 
 Track progress via `status` frontmatter: `pending` → `draft` → `approved`/`complete`.
@@ -51,9 +51,9 @@ Track progress via `status` frontmatter: `pending` → `draft` → `approved`/`c
 ## Principles
 
 - **The spec is the product, the code is the build artifact.** Agents amplify both good and bad specifications.
-- **Humans gate around uncertainty, not between phases.** Handle complexity autonomously. Escalate uncertainty. Clean output → flow to next phase automatically.
+- **Human direction before commitment.** Handle mechanical complexity autonomously, but use back-and-forth Q&A for goals, priorities, tradeoffs, risk tolerance, and direction before design, tasks, or execution.
 - **Known complexity is fine; unknown paths must be flagged.** If you know exactly *what* to do but not *how to write the code*, that's fine — proceed. If you're not confident on the *exact path* to accomplish something (tooling, pipelines, infra), flag it for human confirmation before it becomes a task.
-- **Research decontamination.** Investigation subagents must NOT know what the user wants to build. They receive only factual questions about the codebase — no feature name, no user stories, no desired outcomes. This prevents confirmation bias: agents report what exists, not what supports the plan.
+- **Research decontamination.** Investigation subagents must NOT know what the user wants to build. They receive only factual research questions — no feature name, no user stories, no desired outcomes, no `Human Direction` notes. This prevents confirmation bias: agents report what exists, not what supports the plan.
 
 ## Rules
 
@@ -68,6 +68,8 @@ Track progress via `status` frontmatter: `pending` → `draft` → `approved`/`c
   diagram and link it from the relevant artifact.
 - Questions must be specific and falsifiable.
 - The question list is a checkpoint. Stop for approval before research unless the user clearly asks to continue without pausing.
+- Research-to-design is a checkpoint. Present findings, viable directions, tradeoffs, and blocking questions; get human direction before drafting `04_design.md` unless the human explicitly delegates the choice.
+- Execution requires approved tasks plus explicit human go-ahead.
 - Keep uncertainty visible. Low-confidence findings, conflicting evidence, or unknown execution paths stay open until resolved.
 - **Tooling:** Include the Subagent Tooling Block (below) verbatim at the TOP of every subagent prompt that interacts with the filesystem. Omit it for pure-synthesis subagents whose inputs are inlined.
 - **Model override:** All Explore subagents MUST use `model: "sonnet"`. Haiku does not reliably follow tool-usage instructions and falls back to Bash for file operations, causing permission spam.
@@ -93,7 +95,7 @@ MANDATORY TOOL USAGE — Read this first:
 | `01_spec.md`: `approved`, `02_questions.md`: `pending` | L2 — Draft Questions |
 | `02_questions.md`: `draft` | L2 — Questions Review |
 | `02_questions.md`: `approved`, `03_research.md`: `pending` | L2 — Research |
-| `03_research.md`: `complete`, `04_design.md`: `pending` | L3 — Design |
+| `03_research.md`: `complete`, `04_design.md`: `pending` | L2.5 — Direction Checkpoint |
 | `04_design.md`: `draft` | L3 — Design Review |
 | `04_design.md`: `approved`, `05_tasks.md`: `pending` | L4 — Tasks |
 | `05_tasks.md`: `draft` | L4 — Task Review |
@@ -107,9 +109,10 @@ MANDATORY TOOL USAGE — Read this first:
 
 1. **Listen** — Parse description. Identify core problem, users, outcomes.
 2. **Probe** — Ask the human about: user stories with testable AC (Given/When/Then), edge cases, failure modes, unknowns, assumptions, boundaries, dependencies. The human knows the codebase — lean on them for context rather than scanning code.
-3. **Draft** — Fill in `01_spec.md`.
-4. **Devil's Advocate** — Every AC testable without human judgment? Third-party behaviors documented? Failure mode per external dep? Security explicit? Migration/backward-compat addressed?
-5. **Gate** — Human must approve. Update `status: approved`. Do NOT proceed to L2 until approved.
+3. **Direction Q&A** — Ask 1-5 numbered questions when scope, priority, risk tolerance, or success shape is ambiguous. Record answers under `Human Direction`.
+4. **Draft** — Fill in `01_spec.md`.
+5. **Devil's Advocate** — Every AC testable without human judgment? Third-party behaviors documented? Failure mode per external dep? Security explicit? Migration/backward-compat addressed?
+6. **Gate** — Human must approve. Update `status: approved`. Do NOT proceed to L2 until approved.
 
 If the input references an idea under `~/.dot-agent/state/ideas/<slug>/`, read `idea.md`, `brief.md`, `spec.md`, and `plan.md` when present. Convert the idea into users, acceptance criteria, boundaries, and open questions. If the idea is still missing product clarity, stop and route back to `/idea <slug>`.
 
@@ -117,24 +120,24 @@ If the input references an idea under `~/.dot-agent/state/ideas/<slug>/`, read `
 
 ## L2 — Investigate
 
-**Owner:** AI (autonomous) | **Output:** `02_questions.md`, `03_research.md`
+**Owner:** AI with human checkpoints | **Output:** `02_questions.md`, `03_research.md`
 
 ### Draft Questions
 
-Read `01_spec.md` and generate neutral, factual questions about the codebase. Strip all feature intent — questions must be answerable without knowing what is being built.
+Read `01_spec.md` and generate neutral, factual questions about the codebase. Strip all feature intent from research questions — they must be answerable without knowing what is being built.
 
-Group questions into: `Codebase`, `Docs`, `Patterns`, `External`, `Cross-Ref`.
+Group questions into: `Human Direction`, `Codebase`, `Docs`, `Patterns`, `External`, `Cross-Ref`.
 
 Good question: "How does the notifications service dispatch messages? What transports exist?"
 Bad question: "Can the notifications service support our new bulk-alert feature?" ← leaks intent
 
 Each question must be specific and falsifiable — answerable by reading 1-3 files with a concrete answer. If a question requires "read everything and summarize," split it.
 
-Stop for approval before proceeding to research.
+Stop for approval before proceeding to research. Use the checkpoint to ask whether the human wants to add, remove, or reframe questions before decontaminated research starts.
 
 ### Dispatch Research
 
-**⚠️ DECONTAMINATION RULE:** Investigation subagents must NOT receive the spec, feature name, user stories, or desired outcomes. They receive only `02_questions.md` and their assigned focus area.
+**⚠️ DECONTAMINATION RULE:** Investigation subagents must NOT receive the spec, feature name, user stories, desired outcomes, or `Human Direction` notes. They receive only assigned factual research questions from `02_questions.md` and their focus area.
 
 Dispatch parallel subagents:
 - **Codebase Investigation** — one per area, `subagent_type: "Explore"`, `model: "sonnet"`
@@ -187,7 +190,7 @@ Rules: Only verified info from official docs. Flag UNVERIFIED claims. Include so
 
 ### Synthesize
 
-Fill `03_research.md` with: `Flagged Items`, `Findings` (per-question Q&A with file paths), `Patterns Found`, `Core Docs Summary`, `Open Questions`.
+Fill `03_research.md` with: `Flagged Items`, `Findings` (per-question Q&A with file paths), `Patterns Found`, `Core Docs Summary`, `Direction Options`, `Open Questions`.
 
 **Confidence check** — For every finding: *"Do we know the exact path, or are we assuming?"* If a finding says "may exist", "should work", or "needs verification" — it is **unresolved**. Flag for further investigation or human input.
 
@@ -195,7 +198,20 @@ Fill `03_research.md` with: `Flagged Items`, `Findings` (per-question Q&A with f
 - Spec gaps → loop to L1
 - Unresolved questions needing human → pause and flag
 - Uncertain execution paths → pause and flag to human
-- Clean findings → flow to L3
+- Clean findings → prepare direction checkpoint before L3
+
+### Direction Checkpoint
+
+Before drafting `04_design.md`, present a short direction packet:
+
+- what the evidence rules out
+- viable directions and tradeoffs
+- recommended default, if any
+- numbered questions for the human
+
+Update `03_research.md` with the human answer under `Human Direction` or
+`Direction Options`. Proceed to L3 only after the human chooses a direction or
+explicitly delegates the choice.
 
 ---
 
@@ -203,11 +219,12 @@ Fill `03_research.md` with: `Flagged Items`, `Findings` (per-question Q&A with f
 
 **Owner:** Human at uncertainty, AI otherwise | **Output:** `04_design.md`
 
-1. **Gather Principles** — Dispatch an Explore subagent (`model: "sonnet"`) to find and read all CLAUDE.md and README.md files within the working directory and its subdirectories. Return relevant principles, conventions, and documented workflows.
-2. **Draft Decisions** — For each design choice: Finding, Options, Decision, Principle, Scope (affected files/areas). **Every file reference MUST use the full path from the repo root.** Downstream agents cannot resolve ambiguous paths.
-3. **Human Checkpoint** — Present decisions. Human intervenes when: principles conflict, no precedent exists, or decision forces spec change (→ loop L1). **If the human disagrees or raises questions needing codebase evidence, dispatch a subagent to investigate before responding.**
-4. **Technical Design** — Synthesize approach, data model changes, API contracts, file-level change map. Keep unresolved risks visible.
-5. **Gate** — Human must approve. Update `status: approved`.
+1. **Start from Direction** — Read the direction checkpoint answer first. If it is missing, stop and ask for it.
+2. **Gather Principles** — Dispatch an Explore subagent (`model: "sonnet"`) to find and read all CLAUDE.md and README.md files within the working directory and its subdirectories. Return relevant principles, conventions, and documented workflows.
+3. **Draft Decisions** — For each design choice: Chosen Direction, Finding, Options, Decision, Principle, Scope (affected files/areas). **Every file reference MUST use the full path from the repo root.** Downstream agents cannot resolve ambiguous paths.
+4. **Human Checkpoint** — Present decisions. Human intervenes when: principles conflict, no precedent exists, decision forces spec change (→ loop L1), or tradeoffs need preference. **If the human disagrees or raises questions needing codebase evidence, dispatch a subagent to investigate before responding.**
+5. **Technical Design** — Synthesize approach, data model changes, API contracts, file-level change map. Keep unresolved risks visible.
+6. **Gate** — Human must approve. Update `status: approved`.
 
 ---
 
@@ -232,7 +249,7 @@ The orchestrator performs decomposition directly — do NOT delegate to a subage
    - **Tracking ID:** stable task ID that can be cited from PRs, handoff docs, or roadmap follow-ups
 6. **Self-containment test:** Could an agent implement each task with ONLY the task spec + CLAUDE.md? If not, inline missing context.
 7. If a task needs an unresolved design decision → loop to L3.
-8. Present to human. Execute on approval.
+8. Present to human. Execute only on explicit approval.
 
 ---
 

@@ -58,6 +58,8 @@ feature: $FEATURE_SLUG
 
 ## Boundaries
 
+## Human Direction
+
 ## Risks and Dependencies
 EOF
 
@@ -68,6 +70,8 @@ feature: $FEATURE_SLUG
 ---
 
 # Research Questions: $FEATURE_SLUG
+
+## Human Direction
 
 ## Codebase
 
@@ -96,6 +100,8 @@ feature: $FEATURE_SLUG
 
 ## Core Docs Summary
 
+## Direction Options
+
 ## Open Questions
 EOF
 
@@ -106,6 +112,8 @@ feature: $FEATURE_SLUG
 ---
 
 # Design: $FEATURE_SLUG
+
+## Chosen Direction
 
 ## Relevant Principles
 
