@@ -1,6 +1,6 @@
 ---
 name: spec-new-feature
-description: Full feature workflow — spec, research, design, tasks, execute.
+description: Human-guided feature workflow — spec, direction Q&A, research, design, tasks, execute.
 ---
 
 # Spec New Feature
@@ -15,9 +15,9 @@ description: Full feature workflow — spec, research, design, tasks, execute.
 - Hands off to: `focus` for roadmap follow-ups, `review` for PR review, or `daily-review` for day-end closure.
 - Receives back from: `focus`, `review`, PR refs, and prior feature artifacts as curated workstream context.
 
-Non-trivial feature work through spec, decontaminated research, design decisions, task breakdown, and optional execution.
+Non-trivial feature work through spec, human direction Q&A, decontaminated research, design decisions, task breakdown, and optional execution.
 
-This skill is the code-grounded planning bridge for mature ideas. `/idea` owns product/concept shaping and high-level technical architecture; `spec-new-feature` turns that into approved feature artifacts, research, design, and executable tasks.
+This skill is the code-grounded planning bridge for mature ideas. `/idea` owns product/concept shaping and high-level technical architecture; `spec-new-feature` turns that into approved feature artifacts, human direction checkpoints, research, design, and executable tasks.
 
 ## Response Contract
 
@@ -32,10 +32,10 @@ This skill is the code-grounded planning bridge for mature ideas. `/idea` owns p
 ## Artifact Contract
 
 - `00_summary.md` — durable landing page for the artifact set when the run needs one
-- `01_spec.md` — problem framing, users, acceptance criteria, boundaries
-- `02_questions.md` — approved research questions grouped by source
-- `03_research.md` — decontaminated findings, patterns, flagged items, open questions
-- `04_design.md` — design decisions, principles, file map, unresolved risks
+- `01_spec.md` — problem framing, users, acceptance criteria, boundaries, initial human direction
+- `02_questions.md` — human direction questions plus approved research questions grouped by source
+- `03_research.md` — decontaminated findings, patterns, flagged items, direction options, open questions
+- `04_design.md` — chosen direction, design decisions, principles, file map, unresolved risks
 - `05_tasks.md` — execution-ready task breakdown
 
 When the feature involves workflow, architecture, state flow, or a before/after
@@ -53,7 +53,7 @@ Each artifact tracks `status` in YAML frontmatter: `pending` → `draft` → `ap
 | `01_spec.md`: `approved`, `02_questions.md`: `pending` | L2 — Draft Questions |
 | `02_questions.md`: `draft` | L2 — Questions Review |
 | `02_questions.md`: `approved`, `03_research.md`: `pending` | L2 — Research |
-| `03_research.md`: `complete`, `04_design.md`: `pending` | L3 — Design |
+| `03_research.md`: `complete`, `04_design.md`: `pending` | L2.5 — Direction Checkpoint |
 | `04_design.md`: `draft` | L3 — Design Review |
 | `04_design.md`: `approved`, `05_tasks.md`: `pending` | L4 — Tasks |
 | `05_tasks.md`: `draft` | L4 — Task Review |
@@ -61,11 +61,14 @@ Each artifact tracks `status` in YAML frontmatter: `pending` → `draft` → `ap
 
 ## Invariants
 
-- Research decontamination: investigation receives only the approved questions, never the spec, feature name, or desired solution.
+- Research decontamination: investigation receives only approved factual research questions, never the spec, feature name, desired solution, or `Human Direction` notes.
+- Human direction is the center of the workflow. Use short back-and-forth Q&A to resolve goals, priorities, tradeoffs, and uncertain direction before committing to design, tasks, or execution.
 - Questions must be specific and falsifiable.
 - No code in `01_spec.md`, `02_questions.md`, `03_research.md`, or `04_design.md`.
 - Code-level file paths, function names, schemas, API routes, and test commands belong in `05_tasks.md`, not in earlier artifacts, unless they are evidence gathered during research.
 - The question list is a checkpoint — stop for approval before research unless the user explicitly asks to continue.
+- Research-to-design is a checkpoint — present findings, options, and unresolved questions; get human direction before drafting `04_design.md` unless the user explicitly delegates the choice.
+- Execution requires an approved design/tasks path plus an explicit human go-ahead.
 - Keep uncertainty visible until explicitly resolved.
 - Read `CLAUDE.md` and `README.md` files from the working directory before finalizing `04_design.md`.
 - Preserve existing repo patterns over new abstractions unless the spec explicitly requires a break.
@@ -87,9 +90,39 @@ When invoked from an idea handoff:
 
 The idea handoff should reduce blank-page work, but it does not bypass approvals or research decontamination.
 
+## Human Direction Loop
+
+Use this loop before research, between research and design, during design when
+tradeoffs are unresolved, and before execution:
+
+1. State the decision or uncertainty in one sentence.
+2. Ask the human 1-5 numbered questions or options that can be answered by
+   number or short phrase.
+3. Update the current artifact with `Human Direction`, `Resolved`, and
+   `Still Open` notes.
+4. Continue only when the next phase has enough direction to be defensible.
+
+Default Q&A checkpoints:
+
+- Before `02_questions.md` approval: confirm scope, non-goals, success shape,
+  and what would make the work not worth doing.
+- Before `03_research.md`: confirm the factual research questions are neutral
+  and complete enough.
+- Between `03_research.md` and `04_design.md`: show findings, list viable
+  directions, call out tradeoffs, and ask the human to choose or delegate.
+- Before `05_tasks.md`/execution: confirm delivery slice, risk tolerance, and
+  whether implementation should start now.
+
+If the user asks for uninterrupted planning, make conservative choices, record
+assumptions in the artifact, and still stop before execution.
+
 ## Question Categories
 
-Group questions in `02_questions.md` by source: `Codebase`, `Docs`, `Patterns`, `External`, `Cross-Ref`.
+Group questions in `02_questions.md` by source: `Human Direction`, `Codebase`,
+`Docs`, `Patterns`, `External`, `Cross-Ref`.
+
+Use `Human Direction` for questions the human must answer. Do not send that
+section to decontaminated research agents or treat it as codebase evidence.
 
 Good question: `Where is the retry policy defined, and which services currently use it?`
 
@@ -99,13 +132,21 @@ Bad question: `Can the current retry policy support our new bulk sync flow?`
 
 For every question, capture: `Answer`, `Confidence`, `Evidence`, `Conflicts`, `Open`.
 
-Merge into: `Flagged Items`, `Findings`, `Patterns Found`, `Core Docs Summary`, `Open Questions`.
+Merge into: `Flagged Items`, `Findings`, `Patterns Found`, `Core Docs Summary`, `Direction Options`, `Open Questions`.
+
+Before design, convert the research into a short direction packet:
+
+- what the evidence rules out
+- viable options and tradeoffs
+- recommended default, if any
+- questions the human must answer before design
 
 ## Design And Plan Boundary
 
 Use the idea-spec / idea-plan separation:
 
 - `01_spec.md` and `04_design.md` explain what should exist and why.
+- `04_design.md` starts from the chosen human direction, not from the researcher's preferred implementation.
 - `05_tasks.md` is the first artifact that becomes code-specific.
 - Tasks should name real files, functions, schemas, API routes, packages, migrations, and tests only after codebase research and design are complete.
 - Each task should be independently handoffable to a coding agent.

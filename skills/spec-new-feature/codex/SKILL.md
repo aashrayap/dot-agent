@@ -1,6 +1,6 @@
 ---
 name: spec-new-feature
-description: Plan and optionally execute non-trivial feature work using an artifact-driven workflow with spec, approved research questions, decontaminated research, design decisions, task breakdown, and execution.
+description: Plan and optionally execute non-trivial feature work using human direction Q&A, approved research questions, decontaminated research, design decisions, task breakdown, and execution.
 ---
 
 # Spec New Feature
@@ -15,9 +15,9 @@ description: Plan and optionally execute non-trivial feature work using an artif
 - Hands off to: `focus` for roadmap follow-ups, `review` for PR review, or `daily-review` for day-end closure.
 - Receives back from: `focus`, `review`, PR refs, and prior feature artifacts as curated workstream context.
 
-Use this for new features, significant behavior changes, or multi-file work where the requirements need to be shaped before implementation.
+Use this for new features, significant behavior changes, or multi-file work where the requirements and direction need to be shaped with the human before implementation.
 
-This is also the code-grounded planning bridge for mature `/idea` work. Idea docs provide product and high-level architecture context; this workflow owns approved spec artifacts, decontaminated research, design, code-specific tasks, and optional execution.
+This is also the code-grounded planning bridge for mature `/idea` work. Idea docs provide product and high-level architecture context; this workflow owns approved spec artifacts, human direction checkpoints, decontaminated research, design, code-specific tasks, and optional execution.
 
 ## Response Contract
 
@@ -43,15 +43,18 @@ If the feature already exists, resume from the first incomplete phase instead of
 ## Rules
 
 - Do not explore the codebase before drafting the initial research questions.
+- Use human Q&A to resolve direction before research, between research and design, and before execution.
 - Questions must be specific and falsifiable.
 - The question list is a checkpoint. Get explicit approval before research unless the user clearly asks to continue without pausing.
 - Research is for discovering current reality, not defending a preferred solution.
-- Keep research decontaminated. During the research phase, treat `02_questions.md` as the primary input and avoid pulling in the spec or desired solution while answering the questions.
+- Keep research decontaminated. During the research phase, answer only the factual sections of `02_questions.md`; keep `Human Direction`, the spec, and desired solution out of research prompts.
 - Separate findings by source: `codebase`, `docs`, `patterns`, `external`, and `cross-ref`.
 - Every finding needs evidence and a confidence level.
 - Keep unresolved items unresolved. Do not convert uncertainty into decisions.
 - Prefer local docs and code first. Use external docs only when needed and cite them.
 - Default checkpoints: ask for approval on the question list before research and on the design before execution. If the user explicitly asks for uninterrupted planning, continue and record assumptions clearly.
+- Research-to-design is a checkpoint: present findings, viable directions, tradeoffs, and blocking questions; get human direction before drafting `04_design.md` unless the user explicitly delegates the choice.
+- Execution requires approved tasks plus explicit human go-ahead.
 - Only parallelize research with subagents if the user explicitly asks for delegated or parallel agent work.
 - Code-specific files, function names, schemas, API routes, packages, migrations, and verify commands belong in `05_tasks.md`, not in earlier artifacts, unless they are evidence found during research.
 - When this starts from an idea handoff, preserve the product framing but do not treat the idea's technical architecture as implementation authority until research/design verifies it.
@@ -76,6 +79,7 @@ Capture:
 - acceptance criteria
 - boundaries and non-goals
 - risks, migrations, and external dependencies
+- human direction: priorities, tradeoffs, assumptions, and open choices
 
 Keep this focused on the problem. Do not turn it into implementation notes.
 
@@ -85,6 +89,7 @@ If the input references an idea under `~/.dot-agent/state/ideas/<slug>/`, also r
 
 Write factual questions that must be answered before design:
 
+- human direction questions that still need answers before research or design
 - existing code paths
 - data model constraints
 - documented conventions
@@ -98,6 +103,7 @@ Good question: "Where is the existing job retry policy defined, and which servic
 
 Organize the file into:
 
+- `Human Direction`
 - `Codebase`
 - `Docs`
 - `Patterns`
@@ -108,7 +114,8 @@ Pause for approval after drafting the questions unless the user asked you not to
 
 ### 4. Produce `03_research.md`
 
-Research from the approved questions artifact.
+Research from the approved factual sections of the questions artifact. Do not
+send `Human Direction` notes into decontaminated research.
 
 Work question-by-question. For each question, capture:
 
@@ -124,14 +131,27 @@ Then merge the results into:
 - `Findings` for per-question answers
 - `Patterns Found`
 - `Core Docs Summary`
+- `Direction Options` for viable choices, tradeoffs, and evidence boundaries
 - `Open Questions`
 
 Do not suggest implementations in this phase.
 
+After research, pause with a short direction packet:
+
+- what the evidence rules out
+- viable directions and tradeoffs
+- recommended default, if any
+- numbered questions for the human
+
+Record the human answer in `03_research.md` or `04_design.md`. Continue to design only after the direction is clear or explicitly delegated.
+
 ### 5. Draft `04_design.md`
+
+Start from the chosen human direction.
 
 For each important design choice, record:
 
+- chosen direction
 - decision
 - options considered
 - rationale
@@ -140,7 +160,7 @@ For each important design choice, record:
 
 Also record the relevant repo principles or conventions that shaped the choice.
 
-If the design still depends on unknowns, stop and surface them.
+If the design still depends on unknowns, stop and ask concise numbered questions.
 
 ### 6. Draft `05_tasks.md`
 
@@ -170,6 +190,7 @@ If the user asks to execute:
 - when using workers, run one Gate / Verifier pass over the union of changed
   files before calling a wave complete
 - stop if execution uncovers a design gap that the plan did not resolve
+- stop if execution uncovers a direction gap that needs human judgment
 - hand PRs, pivots, discarded approaches, and follow-ups back to `focus`, `review`, PR descriptions, or the relevant handoff doc instead of creating a parallel idea execution log
 
 ## Non-Goals
