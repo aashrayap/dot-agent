@@ -1,5 +1,9 @@
 # Global Instructions
 
+Keep identity, response contract, and operating loop always visible. Use narrow
+`<important if="...">` blocks only for workflows that should apply
+conditionally.
+
 ## Identity
 
 - [short project/runtime identity]

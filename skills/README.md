@@ -76,17 +76,18 @@ codex_entry = "codex/SKILL.md"
 Dual-runtime instruction-authoring skill:
 
 ```toml
-name = "create-agents-md"
+name = "improve-agents-md"
 targets = ["claude", "codex"]
 default_entry = "SKILL.md"
 claude_entry = "claude/SKILL.md"
 codex_entry = "codex/SKILL.md"
 ```
 
-`create-agents-md` owns creation, improvement, and translation of both Codex
-`AGENTS.md` and Claude `CLAUDE.md` surfaces. Keep shared instruction-generation
-logic at the skill root; use runtime wrappers only for Claude/Codex formatting
-bias.
+`improve-agents-md` owns improvement, creation, and translation of both Codex
+`AGENTS.md` and Claude `CLAUDE.md` surfaces. Bias toward tightening existing
+files in place; fall back to creation when no useful instruction file exists.
+Keep shared instruction-generation logic at the skill root; use runtime
+wrappers only for Claude/Codex formatting bias.
 
 Codex-only skill:
 
@@ -131,7 +132,7 @@ Default ownership:
 - `docs/artifacts/<feature>/`: `spec-new-feature`
 - `state/collab/daily-reviews/`: `daily-review`
 - forensic session reports: `execution-review`
-- `AGENTS.md`/`CLAUDE.md` creation or translation: `create-agents-md`
+- `AGENTS.md`/`CLAUDE.md` improvement, creation, or translation: `improve-agents-md`
 - external remote-review packets: `handoff-research-pro`
 
 ## External Review Gate
@@ -168,7 +169,7 @@ Default ladder:
 
 This applies most often to `morning-sync`, `focus`, `daily-review`,
 `execution-review`, `spec-new-feature`, `idea`, `compare`, `explain`, and
-`create-agents-md`. `handoff-research-pro` links an existing visual only when it
+`improve-agents-md`. `handoff-research-pro` links an existing visual only when it
 materially helps the remote reviewer understand the change.
 
 Do not force a new diagram for one-line status updates, direct command output,

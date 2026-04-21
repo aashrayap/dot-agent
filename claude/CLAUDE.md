@@ -53,8 +53,9 @@ Read `~/.dot-agent/skills/AGENTS.md` before editing. Preserve the skill's
 `## Composes With` contract and runtime entries in `skill.toml`.
 </important>
 
-<important if="you are improving or translating AGENTS.md or CLAUDE.md files">
-Use `~/.dot-agent/skills/create-agents-md` as the owning workflow. Keep always-on
-instructions short, move task-specific details behind narrow conditions, and
-keep Claude-only `<important if>` blocks out of Codex `AGENTS.md`.
+<important if="you are improving, creating, or translating AGENTS.md or CLAUDE.md files">
+Use `~/.dot-agent/skills/improve-agents-md` as the owning workflow. Keep
+always-on instructions short, move task-specific details behind narrow
+conditions, and keep Claude-only `<important if>` blocks out of Codex
+`AGENTS.md`.
 </important>

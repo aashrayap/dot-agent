@@ -1,11 +1,11 @@
 ---
-name: create-agents-md
-description: Create, improve, or translate agent instruction markdown such as AGENTS.md and CLAUDE.md. Use for fresh repo instructions, tightening existing instructions, or keeping Codex and Claude instruction files factually aligned.
+name: improve-agents-md
+description: Improve, create, or translate agent instruction markdown such as AGENTS.md and CLAUDE.md. Use to sharpen existing instructions first, create missing ones when needed, or keep Codex and Claude instruction files factually aligned.
 argument-hint: [create|improve|translate] [path]
 disable-model-invocation: true
 ---
 
-# Create Agent Instructions
+# Improve Agent Instructions
 
 ## Composes With
 
@@ -17,8 +17,8 @@ disable-model-invocation: true
 - Hands off to: none.
 - Receives back from: none.
 
-Use this runtime-neutral workflow when a repository needs agent instructions
-created from scratch, an existing `AGENTS.md` or `CLAUDE.md` tightened, or
+Use this runtime-neutral workflow when a repository needs an existing
+`AGENTS.md` or `CLAUDE.md` sharpened, a missing instruction file created, or
 paired Claude/Codex instruction files translated while keeping facts aligned.
 
 For substantial instruction rewrites, prefer a visual summary of the intended
@@ -30,35 +30,42 @@ the executable contract; diagrams explain the shape.
 
 1. Gather repo reality from current docs, code layout, scripts, manifests,
    existing instruction files, and verification commands.
-2. Classify content as always-on, conditional, referenced, or deleted.
-3. Preserve accurate project identity, repo map, commands, paths, and
+2. Start from the existing instruction file when one exists; only fall back to a
+   fresh create pass when there is no useful file to improve.
+3. Classify content as always-on, conditional, referenced, or deleted.
+4. Preserve accurate project identity, repo map, commands, paths, and
    verification expectations.
-4. Keep always-on guidance focused on how the agent operates across planning,
+5. Keep always-on guidance focused on how the agent operates across planning,
    coding, execution, review, and human communication.
-5. Move setup details, long directory maps, examples, and infrequent contracts
-   behind "Read When Needed" links or runtime-native conditional sections.
-6. Remove stale snippets, vague policy text, duplicated facts, and linter
+6. Keep foundational content visible; move testing, release, setup, skill
+   authoring, and other narrow workflows behind "Read When Needed" links or
+   runtime-native conditional sections.
+7. Remove stale snippets, vague policy text, duplicated facts, and linter
    territory.
 
 ## Modes
 
 | Mode | Use When | Default Target |
 |------|----------|----------------|
-| `create` | No useful file exists, or current file is obsolete enough that salvaging it is wasteful | `./AGENTS.md` |
 | `improve` | A primary agent instruction file exists and should be rewritten in place | user path, `./CLAUDE.md`, then `./AGENTS.md` |
+| `create` | No useful file exists, or current file is obsolete enough that salvaging it is wasteful | `./AGENTS.md` |
 | `translate` | Claude and Codex instruction files need aligned facts with runtime-specific structure | both named files |
 
 If the mode is omitted, infer it:
 
-- no existing target file -> `create`
 - existing target file -> `improve`
+- no existing target file -> `create`
 - two runtime files named -> `translate`
+
+Bias toward `improve`: when a file exists, tighten it in place instead of
+starting from a template.
 
 ## Create Mode
 
-Use the template at `assets/AGENTS.template.md` as structure, not fixed wording.
-For Claude-facing files, use `assets/CLAUDE.template.md` as structure, not fixed
-wording.
+Use create mode only when there is no useful instruction file to salvage.
+Use the template at `assets/AGENTS.template.md` as structure, not fixed
+wording. For Claude-facing files, use `assets/CLAUDE.template.md` as structure,
+not fixed wording.
 
 The resulting instruction file should include:
 
@@ -70,8 +77,8 @@ The resulting instruction file should include:
 
 ## Improve Mode
 
-Patch the target file in place unless the user explicitly asks for a draft in
-chat.
+This is the default path when the target file already exists. Patch the target
+file in place unless the user explicitly asks for a draft in chat.
 
 Target selection order:
 
@@ -96,6 +103,9 @@ For `CLAUDE.md`, use Claude-native conditional weighting with narrow
 identity, directory structure, tech stack, or the human response contract if
 they apply to almost every task.
 
+For both runtimes, prefer restructuring over accretion: pull narrow workflows
+out of the always-on core before adding new rules.
+
 Read `references/progressive-disclosure.md` for substantial rewrites, paired
 Claude/Codex translation, or any long file where task-specific detail is
 crowding out core operating guidance.
@@ -111,6 +121,7 @@ When translating across runtimes:
 
 - Verify referenced commands and paths still exist.
 - Remove contradictory runtime-specific instructions.
+- Keep the always-on core short and visible.
 - Make sure conditions are narrow and actionable.
 - Preserve required composition information for skills.
 - Compare the human response contract across `AGENTS.md`, `CLAUDE.md`, and

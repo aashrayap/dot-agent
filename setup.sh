@@ -309,7 +309,7 @@ cleanup_legacy_paths() {
   cleanup_legacy_path "$CODEX_DST/config.work.toml" ".codex/config.work.toml"
   cleanup_legacy_path "$CODEX_DST/config.personal.toml" ".codex/config.personal.toml"
 
-  for removed_skill in audit cmux improve-agent-md projects qa remove-slop ship; do
+  for removed_skill in audit cmux create-agents-md improve-agent-md projects qa remove-slop ship; do
     cleanup_removed_skill "$removed_skill"
   done
 }

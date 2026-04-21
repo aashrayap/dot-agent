@@ -1,5 +1,8 @@
 # Global Instructions
 
+Keep the always-on core short. Move infrequent workflows into headed sections or
+`Read When Needed` links instead of widening the top of the file.
+
 ## Identity
 - [short project/runtime identity]
 - [instruction precedence rule]

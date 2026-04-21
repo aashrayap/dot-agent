@@ -4,6 +4,9 @@ Use this reference when rewriting long `AGENTS.md` or `CLAUDE.md` files, alignin
 paired Claude/Codex files, or converting setup-heavy instructions into a lean
 operating contract.
 
+Default posture: improve an existing instruction file first. Create from a
+template only when no useful file exists or the current file is beyond salvage.
+
 Reference pattern: HumanLayer's March 17, 2026 note on CLAUDE.md adherence
 recommends keeping foundational content visible while moving task-specific
 Claude guidance into narrow `<important if="...">` blocks:
@@ -46,6 +49,8 @@ Good Codex section names:
 - Use `<important if="...">` only for narrow task conditions.
 - Make conditions specific enough that they should fire only for the intended
   work path.
+- Prefer pulling test, release, setup, and authoring rules out of long always-on
+  prose and into narrow conditional blocks.
 - Keep Claude-only XML out of `AGENTS.md`.
 
 Good Claude conditions:
