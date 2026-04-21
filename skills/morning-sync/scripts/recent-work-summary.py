@@ -54,19 +54,15 @@ class RoadmapRow:
 
 
 @dataclass
-class PRSummary:
+class PRSignal:
     repo: str
-    number: str
-    title: str
     state: str
-    updated_at: str
-    url: str
-    head: str = ""
-    base: str = ""
-    review_decision: str = ""
-    merge_state: str = ""
-    files: list[str] = field(default_factory=list)
-    error: str = ""
+    source: str = "gh"
+    open_count: int = 0
+    recent_merged_count: int = 0
+    closed_unmerged_count: int = 0
+    attention: str = ""
+    note: str = ""
 
 
 @dataclass
@@ -78,8 +74,9 @@ class Workstream:
     runtime_counts: Counter[str] = field(default_factory=Counter)
     band_counts: Counter[str] = field(default_factory=Counter)
     repos: set[Path] = field(default_factory=set)
+    roadmap_repos: set[Path] = field(default_factory=set)
     roadmap_rows: list[RoadmapRow] = field(default_factory=list)
-    prs: list[PRSummary] = field(default_factory=list)
+    pr_signals: list[PRSignal] = field(default_factory=list)
 
 
 def parse_args() -> argparse.Namespace:
@@ -167,6 +164,16 @@ def git_root(cwd: str | None) -> Path | None:
     return Path(root) if root else None
 
 
+def repo_from_link(link: str) -> Path | None:
+    if not link or link == "-" or URL_RE.match(link):
+        return None
+    path = Path(link).expanduser()
+    if not path.exists():
+        return None
+    root = git_root(str(path))
+    return root
+
+
 def workstream_from_session(session: dict[str, Any], roadmap_projects: set[str]) -> str:
     cwd = str(session.get("cwd") or "")
     root = git_root(cwd)
@@ -238,6 +245,10 @@ def build_workstreams(
         stream = streams.setdefault(row.project, Workstream(row.project, roadmap=True))
         stream.roadmap = True
         stream.roadmap_rows.append(row)
+        repo = repo_from_link(row.link)
+        if repo:
+            stream.roadmap_repos.add(repo)
+            stream.repos.add(repo)
 
     for session in sessions:
         name = workstream_from_session(session, roadmap_projects)
@@ -249,7 +260,7 @@ def build_workstreams(
         if band:
             stream.band_counts[band] += 1
         root = git_root(session.get("cwd"))
-        if root:
+        if root and not stream.roadmap_repos:
             stream.repos.add(root)
     return streams
 
@@ -288,45 +299,37 @@ def gh_json(args: list[str], cwd: Path | None = None, timeout: int = 8) -> Any:
     return json.loads(result.stdout or "null")
 
 
-def summarize_pr(repo_root: Path, repo_name: str, item: dict[str, Any]) -> PRSummary:
-    number = str(item.get("number") or "")
-    summary = PRSummary(
+def summarize_pr_signal(repo_name: str, rows: list[dict[str, Any]]) -> PRSignal:
+    open_rows = [row for row in rows if str(row.get("state") or "").upper() == "OPEN"]
+    merged_rows = [row for row in rows if row.get("mergedAt")]
+    closed_unmerged_rows = [
+        row
+        for row in rows
+        if str(row.get("state") or "").upper() == "CLOSED" and not row.get("mergedAt")
+    ]
+    attention = ""
+    if open_rows:
+        first = open_rows[0]
+        review = str(first.get("reviewDecision") or "review ?").lower()
+        attention = f"open PR #{first.get('number')}: {first.get('title')} ({review})"
+    elif merged_rows:
+        attention = "recent merged PR activity"
+    state = "present" if open_rows or merged_rows or closed_unmerged_rows else "empty"
+    return PRSignal(
         repo=repo_name,
-        number=number,
-        title=str(item.get("title") or ""),
-        state=str(item.get("state") or ""),
-        updated_at=str(item.get("updatedAt") or ""),
-        url=str(item.get("url") or ""),
-        head=str(item.get("headRefName") or ""),
-        base=str(item.get("baseRefName") or ""),
-        review_decision=str(item.get("reviewDecision") or ""),
+        state=state,
+        open_count=len(open_rows),
+        recent_merged_count=len(merged_rows),
+        closed_unmerged_count=len(closed_unmerged_rows),
+        attention=attention,
+        note="no recent PR signal" if state == "empty" else "",
     )
-    try:
-        detail = gh_json(
-            [
-                "pr",
-                "view",
-                number,
-                "--repo",
-                repo_name,
-                "--json",
-                "files,mergeStateStatus,statusCheckRollup",
-            ],
-            cwd=repo_root,
-        )
-    except Exception as exc:
-        summary.error = str(exc)
-        return summary
-    summary.merge_state = str(detail.get("mergeStateStatus") or "")
-    files = detail.get("files") or []
-    summary.files = [str(entry.get("path") or "") for entry in files[:6] if entry.get("path")]
-    return summary
 
 
-def fetch_repo_prs(repo_root: Path, limit: int) -> tuple[Path, list[PRSummary], str | None]:
+def fetch_repo_pr_signal(repo_root: Path, limit: int) -> tuple[Path, PRSignal | None]:
     repo_name = remote_repo(repo_root)
     if not repo_name:
-        return repo_root, [], "not a GitHub repo"
+        return repo_root, None
     try:
         rows = gh_json(
             [
@@ -335,38 +338,56 @@ def fetch_repo_prs(repo_root: Path, limit: int) -> tuple[Path, list[PRSummary], 
                 "--repo",
                 repo_name,
                 "--state",
-                "open",
+                "all",
                 "--limit",
                 str(limit),
                 "--json",
-                "number,title,state,url,updatedAt,headRefName,baseRefName,reviewDecision",
+                ",".join(
+                    [
+                        "number",
+                        "title",
+                        "state",
+                        "url",
+                        "updatedAt",
+                        "headRefName",
+                        "baseRefName",
+                        "reviewDecision",
+                        "mergedAt",
+                        "closedAt",
+                        "isDraft",
+                    ]
+                ),
             ],
             cwd=repo_root,
         )
     except Exception as exc:
-        return repo_root, [], str(exc)
-    return repo_root, [summarize_pr(repo_root, repo_name, row) for row in rows], None
+        return repo_root, PRSignal(repo=repo_name, state="unavailable", note=str(exc))
+    return repo_root, summarize_pr_signal(repo_name, rows)
 
 
 def attach_prs(streams: dict[str, Workstream], repo_limit: int, pr_limit: int, skip: bool) -> list[str]:
     if skip:
-        return ["PR check skipped by flag."]
+        return ["Skipped: PR lookup disabled by --skip-prs."]
     if shutil.which("gh") is None:
-        return ["PR check skipped: gh not found."]
+        return ["Unavailable: gh not found."]
     repo_to_streams: dict[Path, list[Workstream]] = defaultdict(list)
     for stream in streams.values():
+        if not stream.roadmap:
+            continue
         for repo in stream.repos:
             repo_to_streams[repo].append(stream)
     repos = sorted(repo_to_streams, key=lambda path: str(path))[:repo_limit]
     errors: list[str] = []
     with ThreadPoolExecutor(max_workers=min(4, max(len(repos), 1))) as pool:
-        futures = {pool.submit(fetch_repo_prs, repo, pr_limit): repo for repo in repos}
+        futures = {pool.submit(fetch_repo_pr_signal, repo, pr_limit): repo for repo in repos}
         for future in as_completed(futures):
-            repo, prs, error = future.result()
-            if error:
-                errors.append(f"{repo.name}: {error}")
+            repo, signal = future.result()
+            if signal is None:
+                continue
+            if signal.state == "unavailable":
+                errors.append(f"{repo.name}: {signal.note}")
             for stream in repo_to_streams.get(repo, []):
-                stream.prs.extend(prs)
+                stream.pr_signals.append(signal)
     return errors
 
 
@@ -407,13 +428,67 @@ def total_wall_human(sessions: list[dict[str, Any]]) -> str:
     return format_seconds(seconds)
 
 
+def total_wall_seconds(sessions: list[dict[str, Any]]) -> int:
+    return sum(int(item.get("wall_seconds") or 0) for item in sessions)
+
+
+def session_key(session: dict[str, Any]) -> str:
+    return str(session.get("ended_at") or session.get("started_at") or "")
+
+
+def session_has_unverified_edit(session: dict[str, Any]) -> bool:
+    return int(session.get("edits") or 0) > 0 and int(session.get("verifications") or 0) == 0
+
+
+def pr_open_count(stream: Workstream) -> int:
+    return sum(signal.open_count for signal in stream.pr_signals)
+
+
+DISPOSABLE_LABEL_PATTERNS = (
+    "reply with exactly ok",
+    "explain database connection pooling in one sentence",
+    "codex-hook-smoke",
+    "codex-global-hook-smoke",
+    "codex-caveman",
+    "tesy",
+)
+
+
+def is_disposable_stream(stream: Workstream) -> bool:
+    haystack = " ".join(
+        [
+            stream.name,
+            *(
+                str(session.get("label") or session.get("first_user_message") or "")
+                for session in stream.sessions
+            ),
+        ]
+    ).lower()
+    return any(pattern in haystack for pattern in DISPOSABLE_LABEL_PATTERNS)
+
+
+def should_show_user_decides(stream: Workstream) -> bool:
+    if stream.roadmap or not stream.sessions:
+        return False
+    if is_disposable_stream(stream):
+        return bool(stream.band_counts.get("today") and len(stream.sessions) >= 2)
+    if stream.band_counts.get("today") or stream.band_counts.get("primary"):
+        return True
+    if len(stream.sessions) >= 2:
+        return True
+    return total_wall_seconds(stream.sessions) >= 15 * 60
+
+
 def stream_state(stream: Workstream) -> str:
-    edit_without_verify = any(int(s.get("edits") or 0) > 0 and int(s.get("verifications") or 0) == 0 for s in stream.sessions)
+    latest = max(stream.sessions, key=session_key) if stream.sessions else None
+    edit_without_verify = any(session_has_unverified_edit(s) for s in stream.sessions)
     failures = sum(int(s.get("exec_failures") or 0) for s in stream.sessions)
     if not stream.roadmap:
         return "not on roadmap"
-    if edit_without_verify:
+    if latest and session_has_unverified_edit(latest):
         return "open gate"
+    if edit_without_verify:
+        return "verification risk"
     if failures:
         return "rough edges"
     if stream.band_counts.get("primary") or stream.band_counts.get("today"):
@@ -427,8 +502,10 @@ def suggested_next(stream: Workstream) -> str:
         return "user decides"
     if state == "open gate":
         return "verify gate"
-    if stream.prs:
-        return "review PRs"
+    if state == "verification risk":
+        return "check verification"
+    if pr_open_count(stream):
+        return "review PR signal"
     if stream.band_counts.get("primary") or stream.band_counts.get("today"):
         return "continue or park"
     return "keep visible"
@@ -450,7 +527,8 @@ def last_touched(stream: Workstream, today: date) -> str:
 def evidence_cell(stream: Workstream) -> str:
     runtimes = ", ".join(f"{name}:{count}" for name, count in sorted(stream.runtime_counts.items()))
     wall = total_wall_human(stream.sessions)
-    pr_bit = f"; PRs:{len(stream.prs)}" if stream.prs else ""
+    open_prs = pr_open_count(stream)
+    pr_bit = f"; open PRs:{open_prs}" if open_prs else ""
     roadmap_bit = "; roadmap" if stream.roadmap else ""
     return f"{len(stream.sessions)} sessions ({runtimes}; {wall}){pr_bit}{roadmap_bit}"
 
@@ -491,12 +569,16 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
     streams = build_workstreams(sessions, roadmap_rows, today)
     pr_errors = attach_prs(streams, args.repo_limit, args.pr_limit, args.skip_prs)
     ordered = sorted_streams(streams)
-    tracked = [stream for stream in ordered if stream.roadmap or stream.sessions]
-    user_decides = [stream for stream in ordered if stream.sessions and not stream.roadmap]
+    raw_user_decides = [stream for stream in ordered if stream.sessions and not stream.roadmap]
+    user_decides = [stream for stream in raw_user_decides if should_show_user_decides(stream)]
+    omitted_user_decides = len(raw_user_decides) - len(user_decides)
+    visible_user_decides = {id(stream) for stream in user_decides}
+    tracked = [stream for stream in ordered if stream.roadmap or id(stream) in visible_user_decides]
     open_gates = [
         stream
         for stream in tracked
-        if stream_state(stream) in {"open gate", "rough edges"} or any(pr.error for pr in stream.prs)
+        if stream_state(stream) in {"open gate", "verification risk", "rough edges"}
+        or any(signal.state == "unavailable" for signal in stream.pr_signals)
     ]
     return {
         "date": today.isoformat(),
@@ -516,7 +598,7 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
                 "state": stream_state(stream),
                 "suggested_next": suggested_next(stream),
                 "roadmap": stream.roadmap,
-                "prs": [pr.__dict__ for pr in stream.prs],
+                "pr_signals": [signal.__dict__ for signal in stream.pr_signals],
             }
             for stream in tracked
         ],
@@ -529,10 +611,11 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
             }
             for stream in user_decides
         ],
+        "omitted_user_decides": omitted_user_decides,
         "current_commitments": [
             f"{row.project}: {row.task} ({row.status})"
             for row in roadmap_rows
-            if row.status.lower() in {"in progress", "review", "needs review", "waiting", "follow-up", "blocked"}
+            if row.status.lower() in {"queued", "in progress", "review", "needs review", "waiting", "follow-up", "blocked"}
         ],
         "open_gates": [
             f"{stream.name}: {stream_state(stream)}"
@@ -574,6 +657,8 @@ def render_markdown(payload: dict[str, Any]) -> str:
             lines.append(f"- {item['workstream']}: {item['subcategory']} ({item['last_touched']}; {item['evidence']})")
     else:
         lines.append("- No untracked recent work found.")
+    if payload.get("omitted_user_decides"):
+        lines.append(f"- Omitted {payload['omitted_user_decides']} stale or disposable row(s).")
     lines.append("")
     lines.append("## Current commitments")
     if payload["current_commitments"]:
@@ -589,23 +674,52 @@ def render_markdown(payload: dict[str, Any]) -> str:
     lines.append("")
     lines.append("## Recent PRs")
     any_prs = False
+    any_checked = False
+    any_unavailable = False
+    reported_global_pr_error = False
     for stream in payload["streams"]:
-        if not stream["prs"]:
+        signals = stream.get("pr_signals") or []
+        actionable = [signal for signal in signals if signal.get("state") == "present"]
+        unavailable = [signal for signal in signals if signal.get("state") == "unavailable"]
+        empty = [signal for signal in signals if signal.get("state") == "empty"]
+        if empty:
+            any_checked = True
+        if unavailable:
+            any_unavailable = True
+            lines.append(f"- {stream['workstream']}: PR lookup unavailable ({unavailable[0].get('note')})")
             continue
+        if not actionable:
+            continue
+        any_checked = True
         any_prs = True
-        lines.append(f"- {stream['workstream']}")
-        for pr in stream["prs"][:4]:
-            files = ", ".join(pr.get("files") or [])
-            files_bit = f"; files: {files}" if files else ""
-            error_bit = f"; detail: {pr['error']}" if pr.get("error") else ""
-            lines.append(
-                f"  - PR #{pr['number']}: {pr['title']} ({pr['state']}; {pr.get('review_decision') or 'review ?'}{files_bit}{error_bit})"
-            )
+        open_count = sum(int(signal.get("open_count") or 0) for signal in actionable)
+        merged_count = sum(int(signal.get("recent_merged_count") or 0) for signal in actionable)
+        closed_count = sum(int(signal.get("closed_unmerged_count") or 0) for signal in actionable)
+        attention = next((signal.get("attention") for signal in actionable if signal.get("attention")), "")
+        bits = []
+        if open_count:
+            bits.append(f"{open_count} open")
+        if merged_count:
+            bits.append(f"{merged_count} recently merged")
+        if closed_count:
+            bits.append(f"{closed_count} closed unmerged")
+        detail = "; ".join(bits) if bits else "recent PR activity"
+        suffix = f"; {attention}" if attention else ""
+        lines.append(f"- {stream['workstream']}: {detail}{suffix}")
     if not any_prs:
-        lines.append("- No open PRs found, or PR lookup skipped/unavailable.")
+        if any_unavailable:
+            pass
+        elif any_checked:
+            lines.append("- No open or recently updated PRs found for mapped GitHub repos.")
+        elif payload["pr_errors"]:
+            lines.append(f"- {payload['pr_errors'][0]}")
+            reported_global_pr_error = True
+        else:
+            lines.append("- No mapped GitHub repos found for PR lookup.")
     if payload["pr_errors"]:
         for error in payload["pr_errors"][:4]:
-            lines.append(f"  - PR check note: {error}")
+            if not any_unavailable and not reported_global_pr_error:
+                lines.append(f"  - PR check note: {error}")
     lines.append("")
     lines.append("## Hermes")
     lines.append(f"- {payload['hermes']}")
