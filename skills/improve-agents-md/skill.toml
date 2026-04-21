@@ -1,4 +1,4 @@
-name = "create-agents-md"
+name = "improve-agents-md"
 targets = ["claude", "codex"]
 default_entry = "SKILL.md"
 claude_entry = "claude/SKILL.md"

@@ -4,6 +4,9 @@ Use this reference when rewriting long `AGENTS.md` or `CLAUDE.md` files, alignin
 paired Claude/Codex files, or converting setup-heavy instructions into a lean
 operating contract.
 
+Default posture: improve an existing instruction file first. Create from a
+template only when no useful file exists or the current file is beyond salvage.
+
 Reference pattern: HumanLayer's March 17, 2026 note on CLAUDE.md adherence
 recommends keeping foundational content visible while moving task-specific
 Claude guidance into narrow `<important if="...">` blocks:
@@ -22,9 +25,14 @@ Classify every section before editing:
 - Deleted: stale snippets, duplicated facts, vague preferences, linter rules,
   and content contradicted by current repo reality.
 
+If the target file lacks a concrete Human Response Contract, establish one
+explicitly. Keep the required packet slots visible near the top instead of
+leaving them implied.
+
 ## Codex `AGENTS.md`
 
 - Keep the file readable as plain Markdown.
+- Keep the Human Response Contract near the top and always visible.
 - Use "Read When Needed" links for deeper contracts.
 - Use headed conditional sections instead of Claude XML.
 - Keep paths concrete and relative when repo-local.
@@ -43,9 +51,13 @@ Good Codex section names:
 ## Claude `CLAUDE.md`
 
 - Keep foundational content always visible when it applies to most tasks.
+- Keep the Human Response Contract always visible near the top; do not wrap it
+  in `<important if="...">`.
 - Use `<important if="...">` only for narrow task conditions.
 - Make conditions specific enough that they should fire only for the intended
   work path.
+- Prefer pulling test, release, setup, and authoring rules out of long always-on
+  prose and into narrow conditional blocks.
 - Keep Claude-only XML out of `AGENTS.md`.
 
 Good Claude conditions:
