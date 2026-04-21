@@ -14,10 +14,10 @@ disable-model-invocation: true
 ## Composes With
 
 - Parent: `morning-sync` for day-start orchestration.
-- Children: `idea` when a row is still conceptual; `spec-new-feature` when a row needs deep planning; `excalidraw-diagram` when a roadmap change needs a durable visual.
+- Children: `idea` when a row is still conceptual; `spec-new-feature` when a row needs deep planning; `excalidraw-diagram` when a roadmap change needs a durable visual; `morning-working-doc.py` for approved one-day focus packets.
 - Uses format from: `excalidraw-diagram` for human-facing roadmap, workflow, or before/after visuals when useful.
 - Reads state from: `~/.dot-agent/state/collab/roadmap.md` by default; legacy `focus.md` only for compatibility or migration.
-- Writes through: `skills/focus/scripts/roadmap.py` for roadmap mutations and daily-review drainage.
+- Writes through: `skills/focus/scripts/roadmap.py` for roadmap mutations and daily-review drainage; `skills/focus/scripts/morning-working-doc.py` for approved morning working docs.
 - Hands off to: `morning-sync` for first morning call; `daily-review` for completed-row drainage; `spec-new-feature` for deep planning.
 - Receives back from: `daily-review` when completed rows were drained or left ambiguous.
 
@@ -30,6 +30,7 @@ Deterministic helpers:
 - `~/.dot-agent/skills/focus/scripts/roadmap.py`
 - `~/.dot-agent/skills/focus/scripts/focus-update.py`
 - `~/.dot-agent/skills/focus/scripts/focus-handoff.py`
+- `~/.dot-agent/skills/focus/scripts/morning-working-doc.py`
 
 Read `~/.dot-agent/state/collab/roadmap.md` every time. Keep
 `~/.dot-agent/state/collab/focus.md` as a legacy compatibility file, not the
@@ -49,6 +50,11 @@ This skill is the active control surface for:
 
 `daily-review` closes the day. `execution-review` is forensic. Focus works in
 the present.
+
+When `morning-sync` proposes changes across multiple projects, do not bulk
+apply them. Ask which stream should carry forward, then mutate only the
+selected roadmap rows. Create a morning working doc only after explicit user
+approval.
 
 When a focus change is structural, such as reshaping the board, splitting
 workstreams, or explaining why work moves between active/review/parked states,
@@ -137,6 +143,27 @@ Use this when the user provides new notes, corrections, or asks to edit the page
 When the resulting state is already obvious, prefer `roadmap.py` instead of
 manual markdown editing.
 
+### Create Morning Working Doc
+
+Use this only after Ash approves carrying a selected focus stream forward.
+
+1. Keep `roadmap.md` as the control plane.
+2. Prefer one local working doc for the morning, not one doc per project:
+
+```text
+~/.dot-agent/state/collab/morning/YYYY-MM-DD.md
+```
+
+3. Write it with `skills/focus/scripts/morning-working-doc.py --write`.
+4. Include only:
+   - `Goal`
+   - `Evidence`
+   - `Important Docs`
+   - `Next Step`
+   - `Gate`
+5. Link the working doc from the selected roadmap row only if it should remain
+   visible beyond chat.
+
 ### Review What To Do Next
 
 Use this when the user asks what they should work on now, what matters next, or wants a focus review.
@@ -209,6 +236,8 @@ Use this when the user wants to turn a focus item into executable planning.
 - Keep the file human-scannable in under a minute.
 - Do not turn `roadmap.md` into a second project tracker.
 - `roadmap.md` is the day-level control plane. Do not recreate hidden project/session state behind it.
+- Do not bulk-apply multi-project morning suggestions. Mutate only selected streams.
+- Do not create morning working docs during read-only review.
 - Never emit `S01`, `S02`, session IDs, dependency graph labels, or `project.md#s01` anchors in normal human output.
 - Do not expose `Available Sessions`, `Blocked Sessions`, Mermaid dependency graphs, or raw execution artifact internals in focus output.
 - If the roadmap is missing a useful workstream/task row, suggest a plain-language board edit instead of reaching into hidden state.

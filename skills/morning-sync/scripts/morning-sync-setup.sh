@@ -4,6 +4,8 @@ set -euo pipefail
 TODAY=$(date +%Y-%m-%d)
 DOT_AGENT_HOME="${DOT_AGENT_HOME:-$HOME/.dot-agent}"
 FOCUS_SETUP="${DOT_AGENT_HOME}/skills/focus/scripts/focus-setup.sh"
+RECENT_WORK_SCRIPT="${DOT_AGENT_HOME}/skills/morning-sync/scripts/recent-work-summary.py"
+WORKING_DOC_SCRIPT="${DOT_AGENT_HOME}/skills/focus/scripts/morning-working-doc.py"
 
 SETUP_OUTPUT="$("$FOCUS_SETUP")"
 ROADMAP_FILE="$(printf "%s\n" "$SETUP_OUTPUT" | sed -n 's/^ROADMAP_FILE=//p')"
@@ -32,4 +34,6 @@ echo "FOCUS_LAST_TOUCHED=$focus_last_touched"
 echo "FOCUS_STALE=$focus_stale"
 echo "MIGRATED_FOCUS=$MIGRATED_FOCUS"
 echo "ROADMAP_SOURCE=human-roadmap"
-echo "PROJECT_STATE_NORMAL_READS=no"
+echo "PROJECT_STATE_NORMAL_READS=recent-work-summary-only"
+echo "RECENT_WORK_SCRIPT=$RECENT_WORK_SCRIPT"
+echo "WORKING_DOC_SCRIPT=$WORKING_DOC_SCRIPT"
