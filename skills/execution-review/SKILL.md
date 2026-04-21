@@ -12,8 +12,8 @@ description: Review recent Codex and Claude Code sessions to diagnose response f
 - Uses format from: `excalidraw-diagram` for human-facing session pipeline, workflow, or before/after visuals when useful.
 - Reads state from: Codex/Claude session logs, execution-review evidence/history, PR signals, roadmap rows when relevant, and optional Hermes findings.
 - Writes through: execution-review report/history files only.
-- Hands off to: `daily-review` for human day-end closure, recap, and roadmap drainage; `spec-new-feature`, `focus`, or `review` only as recommended follow-up surfaces.
-- Receives back from: `spec-new-feature`, `focus`, `review`, PR refs, and prior execution-review reports as evidence.
+- Hands off to: `morning-sync` for lightweight day-start evidence intake, `daily-review` for human day-end closure, recap, and roadmap drainage; `spec-new-feature`, `focus`, or `review` only as recommended follow-up surfaces.
+- Receives back from: `morning-sync`, `spec-new-feature`, `focus`, `review`, PR refs, and prior execution-review reports as evidence.
 
 Use this when the user wants forensic review of agent sessions, workflow diagnosis, response-style analysis, skill-usage analysis, verification analysis, or a structured retrospective across recent local agent sessions.
 
@@ -43,6 +43,18 @@ The review system is evidence-first:
 - windowed mode reconstructs what happened, evaluates agent quality, and identifies risks or follow-up recommendations
 - Hermes findings are optional additive inputs, not the source of truth for raw telemetry
 - the strategic/tactical/disposable lens should inform whether time is going to durable domain advantage, useful workflow acceleration, or disposable runtime/tool churn
+
+## Morning Intake Boundary
+
+`morning-sync` may consume a lightweight summary of execution-review evidence
+through `skills/morning-sync/scripts/recent-work-summary.py`. That path is not
+a forensic review. It should compress recent Codex/Claude activity into broad
+workstreams, hide raw session ids, show Hermes only as a tiny status line, and
+hand any roadmap write back to `focus`.
+
+Use full `execution-review` when the user asks for audit, scoring, transcript
+inspection, failed-gate diagnosis, response-fit analysis, or detailed Hermes
+findings.
 
 ## Forensic Review Workflow
 
