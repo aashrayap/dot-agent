@@ -45,12 +45,16 @@ Excalidraw view. For a normal short daily sync, bullets are enough.
 Always read:
 
 - `~/.dot-agent/state/collab/roadmap.md`
-- `~/.dot-agent/skills/morning-sync/scripts/recent-work-summary.py --skip-prs`
+- `~/.dot-agent/skills/morning-sync/scripts/recent-work-summary.py`
 
 The recent-work helper may read Codex/Claude runtime evidence through the
 `execution-review` adapters. It compresses this evidence into workstreams and
 must not expose raw session ids, dependency graph labels, transcript anchors,
 or forensic scores in normal morning output.
+
+Use `--skip-prs` only for an explicit offline or fastest-path run. In normal
+morning sync, let the helper attempt PR lookup and clearly distinguish skipped,
+unavailable, empty, and present PR states.
 
 If the user needs forensic historical context, hand off to `execution-review`
 instead of expanding the morning packet.
@@ -84,8 +88,12 @@ If the user invocation includes fresh context for the day, incorporate it before
 ### 3. Surface PR / review queue
 
 - Read the `## Review Queue` section in `roadmap.md`.
-- Let the recent-work helper check recent PRs where available. Present PRs
-  nested under their workstream, with high-level status/diff areas only.
+- Let the recent-work helper check recent PRs where available. Present PR
+  signal as a compact workstream summary: open count, recent merged count,
+  closed-unmerged count when relevant, and one attention line for an open PR.
+  Do not list every recent PR in the normal morning board.
+- If the helper cannot reach GitHub but another current-session external signal
+  is available, mention it as external PR signal rather than roadmap state.
 - Surface rows whose status suggests attention is needed now, such as:
   - `review`
   - `needs-review`
@@ -136,7 +144,7 @@ Use this exact structure:
 
 ## Recent PRs
 - <workstream>
-  - <PR number/title/status/high-level changed area>
+  - <open count / recent merged count / attention line, or lookup state>
 
 ## Hermes
 - Hermes: <no findings / count + short title>
@@ -167,4 +175,6 @@ Keep it short. If there is no good secondary item, say so instead of padding.
 - Never emit `S01`, `S02`, session IDs, dependency graph labels, or `project.md#s01` anchors in normal human output.
 - Do not expose `Available Sessions`, `Blocked Sessions`, Mermaid dependency graphs, or raw execution artifact internals in the morning board.
 - Keep Hermes as a tiny status line. Deeper Hermes details belong in `execution-review`.
+- Distinguish PR lookup states plainly: skipped by policy, unavailable,
+  checked empty, or present summary.
 - If the roadmap lacks enough PR status detail to form a real review queue, say that the board needs a review-row update rather than pretending the data exists.
