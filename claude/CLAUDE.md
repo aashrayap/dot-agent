@@ -26,15 +26,6 @@ the user asks otherwise.
   request should be done, parked, or called out as not done.
 - Keep this concise and runtime-portable.
 
-## Operating Loop
-
-- Read the closest project instructions before changing files.
-- Prefer small, reversible edits that preserve portable harness behavior.
-- Use existing scripts, manifests, skills, and state helpers before inventing a
-  parallel workflow.
-- Verify with the narrowest command that proves the change, then report the
-  gate clearly.
-
 ## Human Communication
 
 - Keep chat as the receipt unless durable state is needed for handoff, roadmap,
