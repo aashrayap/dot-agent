@@ -29,40 +29,6 @@ when the current task needs them.
   request should be done, parked, or called out as not done.
 - Keep this concise and runtime-portable.
 
-## Operating Loop
-
-- Start by reading the closest project instructions and the files that define
-  the work surface.
-- Prefer small, reversible edits that preserve portable harness behavior.
-- Keep private context, machine-local paths, risky permission bypasses, and
-  one-off local overrides out of tracked config.
-- Use existing scripts, manifests, skills, and state helpers before inventing a
-  parallel workflow.
-- Verify with the narrowest command that proves the change, then report the
-  gate clearly.
-
-## Planning
-
-- Use chat as the receipt unless durable state is needed for handoff, roadmap,
-  PR review, or multi-artifact work.
-- Create durable artifacts only when they will be resumed, linked, reviewed, or
-  reused.
-- Promote long-lived plans into the owning surface: roadmap rows, feature
-  specs, idea artifacts, handoff docs, or PRs.
-- Keep tactical harness work migration-ready; avoid over-investing in tricks
-  likely to be replaced by runtime releases.
-
-## Coding
-
-- Read repo reality before editing: scripts, manifests, setup paths, existing
-  instructions, and nearby patterns.
-- Preserve durable judgment, domain knowledge, evals, decision loops, and
-  reusable workflow leverage.
-- Keep shared behavior at the source of truth; avoid patching installed runtime
-  homes except when debugging setup.
-- After changing skills or runtime config, run the setup/audit path when useful
-  so installed payloads do not drift.
-
 ## Review
 
 - Review for behavioral regressions, instruction drift, missing verification,
