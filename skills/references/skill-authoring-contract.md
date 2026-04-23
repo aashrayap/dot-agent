@@ -5,8 +5,8 @@ entrypoints, auditing skill installation, or delegating skill implementation.
 
 ## Composes With Schema
 
-Every retained skill must declare how it composes with the harness. Add this
-section near the top of each `SKILL.md`:
+Every retained skill must declare how it composes with the harness. Keep this
+section near the top of each `SKILL.md` so the runtime can read it:
 
 ```markdown
 ## Composes With
@@ -22,6 +22,9 @@ section near the top of each `SKILL.md`:
 
 Fill unused rows with `none`. Keep entries concrete: skill names, helper
 scripts, state files, artifact directories, or runtime surfaces.
+
+`skill.toml` carries the machine-checkable version of the same structure. See
+`skills/references/skill-manifest-schema.md`.
 
 ## Source-Only Policy
 
@@ -45,6 +48,7 @@ Manifest baseline:
 name = "<name>"
 targets = ["claude", "codex"]
 default_entry = "SKILL.md"
+schema_version = 1
 ```
 
 Use `claude_entry` or `codex_entry` only for thin runtime wrappers. Keep shared

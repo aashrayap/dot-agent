@@ -1,3 +1,27 @@
 name = "explain"
 targets = ["claude", "codex"]
 default_entry = "SKILL.md"
+schema_version = 1
+
+[composition]
+parents = ["visual-reasoning", "compare"]
+children = ["excalidraw-diagram"]
+formats = ["excalidraw-diagram"]
+reads = ["requested code", "docs", "files", "provided context"]
+writes = []
+delegates = []
+handoffs = []
+
+[contract]
+inputs = ["explanation request", "code or concept"]
+outputs = ["visual-first explanation"]
+scripts = []
+references = []
+assets = []
+state_reads = []
+state_writes = []
+tools = []
+
+[invoke]
+implicit = true
+explicit = ["explain"]

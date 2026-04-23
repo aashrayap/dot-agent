@@ -1,3 +1,27 @@
 name = "devon-branding"
 targets = ["claude", "codex"]
 default_entry = "SKILL.md"
+schema_version = 1
+
+[composition]
+parents = []
+children = []
+formats = []
+reads = ["requested design files", "references/devon-brand-standards.md"]
+writes = ["requested UI, theme, token, document, presentation, or review artifact"]
+delegates = []
+handoffs = []
+
+[contract]
+inputs = ["Devon branding request", "brand compliance review"]
+outputs = ["brand-aligned artifact or review findings"]
+scripts = []
+references = ["references/devon-brand-standards.md"]
+assets = []
+state_reads = []
+state_writes = []
+tools = []
+
+[invoke]
+implicit = true
+explicit = ["devon-branding"]

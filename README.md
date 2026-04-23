@@ -65,13 +65,25 @@ To run only instruction drift checks without reinstalling runtime files:
 
 - symlinks Claude config into `~/.claude/`
 - symlinks root `AGENTS.md` into `~/.codex/AGENTS.md`
-- symlinks Codex config, hooks, and rules into `~/.codex/`
+- symlinks Codex config and hooks into `~/.codex/`
+- syncs Codex rules into `~/.codex/rules/`
 - installs skills into both runtimes based on `skill.toml`
 - creates `state/{collab,ideas}`
 - backs up conflicting legacy runtime files under `state/backups/setup/`
 - runs read-only skill and repo instruction audits
 - reports drift, but does not patch project-local instruction files
 - supports `--check-instructions` for audit-only verification
+
+Additional read-only checks:
+
+```bash
+python3 ~/.dot-agent/scripts/validate-skill-manifests.py
+python3 ~/.dot-agent/skills/context-surface-audit/scripts/context-surface-audit.py --format text
+```
+
+The manifest validator checks local `skill.toml` schema and selected entries.
+The context audit reports word counts, duplicate anchors, runtime install
+shape, and schema coverage without reading transcript content.
 
 ## Versioned Vs Local
 
@@ -135,3 +147,7 @@ Skills live under `skills/` and install through `setup.sh`. Use
 `skills/AGENTS.md` for the strict agent-facing authoring contract, and
 `skills/README.md` for the human-facing skill architecture, setup, and
 composability guide.
+
+`SKILL.md` stays runtime-readable. Local `skill.toml` carries schema v1 for
+composition, contract, path, and invocation validation; see
+`skills/references/skill-manifest-schema.md`.

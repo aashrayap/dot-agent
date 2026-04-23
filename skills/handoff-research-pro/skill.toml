@@ -1,3 +1,27 @@
 name = "handoff-research-pro"
 targets = ["claude", "codex"]
 default_entry = "SKILL.md"
+schema_version = 1
+
+[composition]
+parents = []
+children = ["review", "compare", "excalidraw-diagram"]
+formats = ["review"]
+reads = ["current chat intent", "git status", "git diff", "changed files", "validation output", "repo docs"]
+writes = ["docs/handoffs/<slug>-research-pro-review.md"]
+delegates = []
+handoffs = []
+
+[contract]
+inputs = ["remote review brief request", "handoff packet request"]
+outputs = ["docs/handoffs/<slug>-research-pro-review.md"]
+scripts = []
+references = ["../references/output-packet.md"]
+assets = ["assets/research-pro-brief.template.md"]
+state_reads = []
+state_writes = []
+tools = ["git", "rg"]
+
+[invoke]
+implicit = true
+explicit = ["handoff-research-pro"]

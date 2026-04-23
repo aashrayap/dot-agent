@@ -1,0 +1,27 @@
+name = "context-surface-audit"
+targets = ["claude", "codex"]
+default_entry = "SKILL.md"
+schema_version = 1
+
+[composition]
+parents = ["spec-new-feature", "execution-review"]
+children = ["execution-review"]
+formats = []
+reads = ["AGENTS.md", "claude/CLAUDE.md", "skills/*/SKILL.md", "skills/*/skill.toml", "~/.codex", "~/.claude"]
+writes = []
+delegates = []
+handoffs = ["execution-review", "spec-new-feature"]
+
+[contract]
+inputs = ["context budget review", "harness reduction audit", "manifest coverage check"]
+outputs = ["text or json structural audit"]
+scripts = ["scripts/context-surface-audit.py"]
+references = []
+assets = []
+state_reads = []
+state_writes = []
+tools = ["python3"]
+
+[invoke]
+implicit = true
+explicit = ["context-surface-audit", "context audit"]

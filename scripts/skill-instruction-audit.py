@@ -5,7 +5,13 @@ import argparse
 import json
 import os
 import sys
-import tomllib
+try:
+    import tomllib
+except ModuleNotFoundError:
+    try:
+        import tomli as tomllib
+    except ModuleNotFoundError:
+        import toml_compat as tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any

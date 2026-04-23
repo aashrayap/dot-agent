@@ -36,8 +36,18 @@ packaging, repo layout, or migration-sensitive behavior.
 
 - When creating or materially rewriting a skill, follow `skills/AGENTS.md`.
 - Every retained skill needs a strict `## Composes With` section.
-- Use `skill.toml` to declare runtime targets and entrypoints.
+- Use `skill.toml` to declare runtime targets, entrypoints, and local schema v1
+  composition/contract fields.
 - Keep shared skill behavior at the skill root; use thin runtime wrappers only
   when needed.
 - Put deterministic helpers in `scripts/`, lookup docs in `references/`,
   output templates in `assets/`, and runtime-neutral support in `shared/`.
+
+## Deterministic Checks
+
+- `./setup.sh --check-instructions`: installed skill and repo instruction drift.
+- `python3 scripts/validate-skill-manifests.py`: local skill manifest schema,
+  entrypoint, composition, and dependency-path validation.
+- `python3 skills/context-surface-audit/scripts/context-surface-audit.py --format text`:
+  root/skill word counts, duplicate anchors, runtime surface shape, and schema
+  coverage without transcript content.

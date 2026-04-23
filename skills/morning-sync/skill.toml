@@ -1,3 +1,27 @@
 name = "morning-sync"
 targets = ["codex"]
 default_entry = "SKILL.md"
+schema_version = 1
+
+[composition]
+parents = []
+children = ["execution-review", "focus", "idea", "spec-new-feature", "excalidraw-diagram"]
+formats = ["excalidraw-diagram"]
+reads = ["state/collab/roadmap.md", "recent Codex/Claude evidence", "optional PR status", "optional Hermes findings"]
+writes = ["state/collab/roadmap.md", "state/collab/morning/"]
+delegates = ["focus"]
+handoffs = ["focus", "idea", "spec-new-feature"]
+
+[contract]
+inputs = ["morning sync request", "what should I work on request", "daily planning request"]
+outputs = ["day-start summary", "recommended focus", "roadmap mutation proposal"]
+scripts = ["scripts/morning-sync-setup.sh", "scripts/recent-work-summary.py"]
+references = ["../references/output-packet.md", "../references/roadmap-and-handoff-surfaces.md"]
+assets = []
+state_reads = ["state/collab/roadmap.md", "state/collab/execution-reviews/"]
+state_writes = ["state/collab/roadmap.md", "state/collab/morning/"]
+tools = ["python3"]
+
+[invoke]
+implicit = true
+explicit = ["morning-sync", "morning sync"]

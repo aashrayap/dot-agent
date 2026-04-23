@@ -1,3 +1,27 @@
 name = "init-epic"
 targets = ["claude", "codex"]
 default_entry = "SKILL.md"
+schema_version = 1
+
+[composition]
+parents = ["idea", "focus", "spec-new-feature"]
+children = ["spec-new-feature", "excalidraw-diagram"]
+formats = ["excalidraw-diagram"]
+reads = ["user-provided repo/workspace context", "existing sibling repos"]
+writes = ["coordination workspace files"]
+delegates = []
+handoffs = ["focus", "spec-new-feature"]
+
+[contract]
+inputs = ["multi-repo coordination workspace request"]
+outputs = ["coordination workspace scaffold", "repo inventory stubs"]
+scripts = ["scripts/init-epic-setup.sh"]
+references = ["../references/roadmap-and-handoff-surfaces.md"]
+assets = []
+state_reads = []
+state_writes = []
+tools = ["git"]
+
+[invoke]
+implicit = true
+explicit = ["init-epic"]

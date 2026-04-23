@@ -7,6 +7,11 @@ feature: harness-reduction
 
 ## Flagged Items
 
+- Current-main recheck before execution: `origin/main` is `7f32f7f` and already
+  contains the planning artifacts. The current instruction-authoring skill is
+  `improve-agents-md`, so implementation must update the older planned
+  instruction-template paths before editing.
+  Confidence: high.
 - `/Users/ash/.dot-codex` is absent on this machine. Evidence:
   `ls /Users/ash/.dot-codex` failed. The active Codex runtime home is
   `/Users/ash/.codex`.
@@ -73,7 +78,7 @@ feature: harness-reduction
 
 5. Root/default instruction duplication hotspots:
    - Human response contract appears in root, Claude entrypoint, skills README,
-     and create-agents-md templates.
+     and improve-agents-md templates.
    - Operating loop appears in root and Claude entrypoint.
    - Source-of-truth/setup guidance appears in README, runtime reference, root
      AGENTS, skills AGENTS, and skills README.

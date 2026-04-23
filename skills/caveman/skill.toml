@@ -1,3 +1,27 @@
 name = "caveman"
 targets = ["codex"]
 default_entry = "SKILL.md"
+schema_version = 1
+
+[composition]
+parents = []
+children = []
+formats = []
+reads = ["current conversation"]
+writes = []
+delegates = []
+handoffs = []
+
+[contract]
+inputs = ["terse communication request", "$caveman invocation"]
+outputs = ["compressed chat response"]
+scripts = []
+references = []
+assets = []
+state_reads = []
+state_writes = []
+tools = []
+
+[invoke]
+implicit = true
+explicit = ["caveman", "$caveman"]

@@ -17,7 +17,8 @@ disable-model-invocation: true
 - Hands off to: `github:gh-address-comments` for unresolved review threads and `github:gh-fix-ci` for failing CI.
 - Receives back from: GitHub plugin context when used.
 
-You are an orchestrator. You never read code or diffs directly — dispatch subagents for all investigation.
+When delegation is explicitly authorized, use subagents for territory, change,
+and verification passes. Otherwise perform the same staged review locally.
 
 For narrow code findings, cite exact files and lines without forcing a diagram.
 For broad contract, workflow, or architecture reviews, add or link a diagram

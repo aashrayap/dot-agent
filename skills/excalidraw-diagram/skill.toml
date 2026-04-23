@@ -1,3 +1,27 @@
 name = "excalidraw-diagram"
 targets = ["claude", "codex"]
 default_entry = "SKILL.md"
+schema_version = 1
+
+[composition]
+parents = ["visual-reasoning"]
+children = []
+formats = []
+reads = ["requested docs", "code", "roadmap/workflow notes", "optional existing .excalidraw files"]
+writes = [".excalidraw source files", "rendered image files"]
+delegates = []
+handoffs = []
+
+[contract]
+inputs = ["diagram request", "workflow or architecture explanation"]
+outputs = ["Excalidraw source", "rendered PNG"]
+scripts = ["scripts/render-excalidraw.sh", "scripts/build-renderer-bundle.sh", "scripts/test-offline-renderer.sh"]
+references = ["references/upstream-renderer.md"]
+assets = []
+state_reads = []
+state_writes = []
+tools = ["node", "npm"]
+
+[invoke]
+implicit = true
+explicit = ["excalidraw-diagram"]
