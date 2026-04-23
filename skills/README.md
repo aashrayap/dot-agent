@@ -136,6 +136,22 @@ Default ownership:
 - `AGENTS.md`/`CLAUDE.md` improvement, creation, or translation: `improve-agents-md`
 - external remote-review packets: `handoff-research-pro`
 
+## Workflow Groups
+
+High-level user workflows should route through a small owner surface, then
+compose narrower skills instead of duplicating their rules.
+
+| Group | Entry Skill | Composes |
+|-------|-------------|----------|
+| Daily loop | `morning-sync` | `focus`, `daily-review`, `idea`, `spec-new-feature` |
+| Idea to PR | `idea` or `spec-new-feature` | `init-epic`, `handoff-research-pro`, `review`, `focus` |
+| Visual reasoning | `visual-reasoning` | `explain`, `compare`, `excalidraw-diagram` |
+
+Use `visual-reasoning` when the user wants a grouped visual thinking workflow:
+explain something, compare it against another shape, and optionally preserve
+the result as a rendered Excalidraw artifact. Use direct child skills when the
+request clearly needs only one move.
+
 ## External Review Gate
 
 ![Research Pro review gate](../docs/diagrams/research-pro-review-gate.png)
@@ -169,9 +185,9 @@ Default ladder:
    drill-down.
 
 This applies most often to `morning-sync`, `focus`, `daily-review`,
-`execution-review`, `spec-new-feature`, `idea`, `compare`, `explain`, and
-`improve-agents-md`. `handoff-research-pro` links an existing visual only when it
-materially helps the remote reviewer understand the change.
+`execution-review`, `spec-new-feature`, `idea`, `visual-reasoning`, `compare`,
+`explain`, and `improve-agents-md`. `handoff-research-pro` links an existing
+visual only when it materially helps the remote reviewer understand the change.
 
 Do not force a new diagram for one-line status updates, direct command output,
 small mechanical edits, narrow line-specific review findings, or transient
@@ -184,19 +200,22 @@ put Excalidraw-specific policy in `skills/AGENTS.md`.
 ## Human Response Contract
 
 The response packet should stay short and readable: `This Session Focus`,
-`Result`, `Visual`, `Gate`, `Ledger`, one or more concrete `Next Actions`, and
-`Details` links.
+`Result`, and one or more concrete `Next Actions`.
 
 `This Session Focus` is the first slot. Keep it to 1-2 short lines that remind
 Ash why the session started and where the work stands.
 
-`Visual` is always a slot. For workflow, architecture, planning, review,
-decision, or multi-artifact work, link an existing diagram or create/render one.
-For narrow mechanical work, say why no visual was useful.
+`Result` carries the useful receipt: what changed, what was verified, what
+remains open, and any useful visual or detail links. For workflow,
+architecture, planning, review, decision, or multi-artifact work, include or
+link the relevant visual inside `Result`.
 
-Use `Ledger` when the session has multiple user requests, corrections, or
-follow-ups. Track `Captured`, `Done`, `Not Done`, and `Parked` so nothing
-disappears into chat.
+Use `Ledger` only when state could otherwise disappear: multiple user requests,
+corrections, follow-ups, parked items, or handoff-heavy work. Track `Captured`,
+`Done`, `Not Done`, and `Parked` when using it.
+
+`Next Actions` should include concrete next steps and, when useful, concise
+user-direction questions that can be answered by number or short phrase.
 
 Durable summary artifacts are conditional: create them only when the skill owns
 a persistent record or the work benefits from one. Before final response, map
@@ -211,6 +230,8 @@ Examples:
   needs a retained record.
 - `daily-review`: response packet plus the drained daily review record in
   `state/collab/daily-reviews/`.
+- `visual-reasoning`: response packet plus linked rendered visual only when the
+  work created or updated a durable diagram.
 - Small or no-artifact work: response packet only.
 
 ## Research And Subagents

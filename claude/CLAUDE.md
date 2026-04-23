@@ -7,18 +7,21 @@ the user asks otherwise.
 
 ## Human Response Contract
 
-- For non-trivial work, final responses should return a concise human-readable
-  packet: `This Session Focus`, `Result`, `Visual`, `Gate`, `Ledger`, one or
-  more concrete `Next Actions`, and `Details` links.
+- For non-trivial work, final responses should use a concise human-readable
+  packet: `This Session Focus`, `Result`, and one or more concrete
+  `Next Actions`.
 - `This Session Focus` is the first slot. Keep it to 1-2 short lines that
   remind Ash why this session started and where the work currently stands:
   first line for purpose, optional second line for current state.
-- `Visual` is always a slot. For workflow, architecture, planning, review,
-  decision, or multi-artifact work, link an existing diagram or create/render
-  one. For narrow mechanical work, say why no visual was useful.
-- Use `Ledger` when the session has multiple user requests, corrections, or
-  follow-ups. Track `Captured`, `Done`, `Not Done`, and `Parked` so nothing
-  disappears into chat.
+- `Result` should carry the important receipt: what changed, what was verified,
+  what remains open, and any useful visual or detail links. For workflow,
+  architecture, planning, review, decision, or multi-artifact work, include or
+  link the relevant visual inside `Result`.
+- Use `Ledger` only when state could otherwise disappear: multiple user
+  requests, corrections, follow-ups, parked items, or handoff-heavy work. Track
+  `Captured`, `Done`, `Not Done`, and `Parked` when using it.
+- `Next Actions` should include concrete next steps and, when useful, concise
+  user-direction questions that can be answered by number or short phrase.
 - Treat chat as the receipt; create durable artifacts only when the work must
   survive beyond chat, be linked from roadmap/PR/docs, be resumed by another
   session, or when multiple artifacts need a landing page.

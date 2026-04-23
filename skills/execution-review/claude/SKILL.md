@@ -29,6 +29,11 @@ Use the shared execution-review workflow from Claude Code.
 3. `scripts/inspect-execution-session.py --runtime <runtime> --session-id <id>`
 4. `scripts/render-execution-review.py --runtime all --window <window> [--save] [--record]`
 
+For the always-on Hermes workflow check, run `scripts/hermes-daily.py --write`.
+It writes the human review synthesis to
+`~/.dot-agent/state/collab/hermes/daily/YYYY-MM-DD.md`; background heartbeats
+should summarize review-worthy findings in the thread inbox.
+
 Then follow the shared evidence-first review contract:
 - inspect only the sessions that matter
 - score response fit, skill leverage, verification, focus, grounding, and efficiency

@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 ## Composes With
 
-- Parent: user comparison request.
+- Parent: user comparison request; `visual-reasoning` when comparison is part of a grouped visual thinking workflow.
 - Children: `excalidraw-diagram` only when the comparison warrants a durable rendered visual.
 - Uses format from: `explain` Compare and Delta visual modes; optionally `excalidraw-diagram` for architecture/workflow diagrams.
 - Reads state from: requested files, skills, codebases, branches, workflows, or configs.

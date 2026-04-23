@@ -501,29 +501,36 @@ function workflows(elements) {
     stroke: colors.grayStroke,
     fontSize: 17,
   });
-  node(elements, 1195, 1235, 205, 62, "create-agents-md", {
+  node(elements, 1185, 1235, 185, 62, "create-agents-md", {
     fill: colors.gray,
     stroke: colors.grayStroke,
     fontSize: 15,
   });
-  node(elements, 1450, 1235, 115, 62, "explain", {
-    fill: colors.gray,
-    stroke: colors.grayStroke,
-    fontSize: 16,
-  });
-  node(elements, 1615, 1235, 125, 62, "compare", {
-    fill: colors.violet,
-    stroke: colors.violetStroke,
-    fontSize: 16,
-  });
-  node(elements, 1790, 1225, 245, 82, "excalidraw-diagram\nPNG + source", {
+  node(elements, 1410, 1225, 165, 82, "visual-\nreasoning", {
     fill: colors.teal,
     stroke: colors.tealStroke,
     fontSize: 15,
     wrap: false,
   });
-  elements.push(arrow(1568, 1266, 1610, 1266, { strokeColor: colors.violetStroke }));
-  elements.push(arrow(1745, 1266, 1785, 1266, { strokeColor: colors.tealStroke }));
+  node(elements, 1620, 1235, 105, 62, "explain", {
+    fill: colors.gray,
+    stroke: colors.grayStroke,
+    fontSize: 16,
+  });
+  node(elements, 1770, 1235, 115, 62, "compare", {
+    fill: colors.violet,
+    stroke: colors.violetStroke,
+    fontSize: 16,
+  });
+  node(elements, 1928, 1225, 110, 82, "diagram\nPNG + src", {
+    fill: colors.teal,
+    stroke: colors.tealStroke,
+    fontSize: 14,
+    wrap: false,
+  });
+  elements.push(arrow(1580, 1266, 1615, 1266, { strokeColor: colors.tealStroke }));
+  elements.push(arrow(1730, 1266, 1765, 1266, { strokeColor: colors.violetStroke }));
+  elements.push(arrow(1890, 1266, 1923, 1266, { strokeColor: colors.tealStroke }));
 
   elements.push(text(760, 1335, 1250, "Boundary: normal daily output uses roadmap rows, not session IDs or hidden project state. Deep implementation uses docs/artifacts/<feature>/; external critique writes docs/handoffs/<slug>-research-pro-review.md.", {
     fontSize: 15,
@@ -675,6 +682,7 @@ function runtimeRoster(elements) {
     "execution-review",
     "compare",
     "explain",
+    "visual-reasoning",
     "create-agents-md",
     "excalidraw-diagram",
     "handoff-research-pro",

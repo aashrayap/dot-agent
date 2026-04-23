@@ -204,3 +204,24 @@ To append Hermes-side findings into the shared state:
 `scripts/write-hermes-findings.py --window <window> --runtime <runtime|all> --title <title> --finding <text> --recommendation <text>`
 
 Then rerun `scripts/render-execution-review.py` for the matching window/runtime to merge those findings into the final markdown review.
+
+## Hermes Daily Producer
+
+For the default always-on workflow check, run:
+
+`scripts/hermes-daily.py --write`
+
+This producer scopes recent Codex/Claude evidence to `dot-agent` and
+`semi-stocks-2`, writes local Hermes state under
+`~/.dot-agent/state/collab/hermes/`, and appends compatibility findings to
+`hermes-findings.jsonl` only when review-worthy loop or gate signals exist.
+
+Human review timing:
+
+- immediate review surface: `~/.dot-agent/state/collab/hermes/daily/YYYY-MM-DD.md`
+- background review surface: the heartbeat should summarize review-worthy findings in the thread inbox
+- morning review surface: `morning-sync` shows the tiny Hermes status line
+- forensic review surface: `render-execution-review.py` shows the full `## Hermes Findings` section for matching window/runtime reviews
+
+Hermes may suggest actions, but roadmap/focus writes still go through `focus`
+and day-end closure still goes through `daily-review`.

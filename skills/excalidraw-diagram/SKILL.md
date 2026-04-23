@@ -9,7 +9,7 @@ disable-model-invocation: true
 
 ## Composes With
 
-- Parent: user request for a diagram or visual documentation artifact.
+- Parent: user request for a diagram or visual documentation artifact; `visual-reasoning` when a grouped visual thinking workflow needs a durable rendered artifact.
 - Children: none by default; Explorer subagents only when the user explicitly authorizes parallel research for diagram content.
 - Uses format from: none.
 - Reads state from: requested docs, code, roadmap/workflow notes, and optional existing `.excalidraw` files.

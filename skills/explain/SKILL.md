@@ -13,7 +13,7 @@ disable-model-invocation: true
 
 ## Composes With
 
-- Parent: user explanation request; `compare` when it needs visual Compare/Delta structure.
+- Parent: user explanation request; `visual-reasoning` when explanation is part of a grouped visual thinking workflow; `compare` when it needs visual Compare/Delta structure.
 - Children: `excalidraw-diagram` when an explanation should become a durable rendered visual artifact.
 - Uses format from: `excalidraw-diagram` for durable workflow, architecture, or before/after diagrams when useful.
 - Reads state from: requested code, docs, files, or provided context.
