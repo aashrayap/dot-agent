@@ -2,3 +2,27 @@ name = "review"
 targets = ["claude", "codex"]
 claude_entry = "SKILL.md"
 codex_entry = "codex/SKILL.md"
+schema_version = 1
+
+[composition]
+parents = []
+children = ["excalidraw-diagram"]
+formats = ["excalidraw-diagram"]
+reads = ["git diff", "changed files", "PR context", "repository tests/docs"]
+writes = ["review comments only when explicitly requested"]
+delegates = []
+handoffs = []
+
+[contract]
+inputs = ["code review request", "PR review request", "diff review request"]
+outputs = ["severity-ordered findings", "reviewer thread verdicts"]
+scripts = ["scripts/review-setup.sh", "scripts/fetch-pr-context.sh"]
+references = ["../references/output-packet.md", "../references/subagent-delegation.md"]
+assets = []
+state_reads = []
+state_writes = []
+tools = ["git", "gh"]
+
+[invoke]
+implicit = true
+explicit = ["review"]

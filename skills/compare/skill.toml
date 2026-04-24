@@ -1,3 +1,27 @@
 name = "compare"
 targets = ["claude", "codex"]
 default_entry = "SKILL.md"
+schema_version = 1
+
+[composition]
+parents = ["visual-reasoning"]
+children = ["excalidraw-diagram"]
+formats = ["explain", "excalidraw-diagram"]
+reads = ["requested files", "skills", "codebases", "branches", "workflows", "configs"]
+writes = ["state/collab/compare-history.md", "optional diagram artifacts"]
+delegates = []
+handoffs = ["excalidraw-diagram"]
+
+[contract]
+inputs = ["comparison request", "two or more structured artifacts"]
+outputs = ["side-by-side comparison", "diff-focused analysis"]
+scripts = []
+references = []
+assets = []
+state_reads = []
+state_writes = ["state/collab/compare-history.md"]
+tools = ["git", "rg"]
+
+[invoke]
+implicit = true
+explicit = ["compare"]

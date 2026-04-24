@@ -8,7 +8,7 @@ description: Human-guided feature workflow — spec, direction Q&A, research, de
 ## Composes With
 
 - Parent: `idea`, `focus`, or `init-epic` when work needs code-grounded planning.
-- Children: `ubiquitous-language` when repo terminology needs creation or refresh before planning; `excalidraw-diagram` when a feature plan needs a durable workflow, architecture, or before/after visual.
+- Children: `ubiquitous-language` when repo terminology needs creation or refresh before planning; `grill-me` for pressure-test checkpoints when research or design still has unresolved branches; `excalidraw-diagram` when a feature plan needs a durable workflow, architecture, or before/after visual.
 - Uses format from: `excalidraw-diagram` for human-facing planning and design visuals when useful.
 - Reads state from: `docs/UBIQUITOUS_LANGUAGE.md` when present, idea `spec.md`/`plan.md`, roadmap rows, repo docs/code, and feature artifacts.
 - Writes through: `docs/artifacts/<feature>/` for feature artifacts; returns PRs/pivots/follow-ups to roadmap rows, handoff docs, or PR descriptions.
@@ -39,9 +39,9 @@ This skill is the code-grounded planning bridge for mature ideas. `/idea` owns p
 - `05_tasks.md` — execution-ready task breakdown
 
 When the feature involves workflow, architecture, state flow, or a before/after
-model that a human needs to understand, add or update a companion Excalidraw
-diagram under `docs/diagrams/` and link it from the relevant artifact. Do not
-force a diagram for small mechanical changes or line-level fixes.
+model that would be hard to follow in prose, consider `excalidraw-diagram` and
+link the result from the relevant artifact. Do not force a companion diagram
+for small mechanical changes or line-level fixes.
 
 Each artifact tracks `status` in YAML frontmatter: `pending` → `draft` → `approved`/`complete`.
 
@@ -79,84 +79,54 @@ Each artifact tracks `status` in YAML frontmatter: `pending` → `draft` → `ap
 
 ## From Idea
 
-When invoked from an idea handoff:
+If this starts from `/idea <slug>`:
 
-1. Read the idea's `idea.md`, `brief.md` when present, `spec.md` when present, and `plan.md` when present.
-2. Treat the idea docs as source material, not as approved implementation direction.
-3. Convert product framing into `01_spec.md`:
-   - users/personas
-   - problem and value
-   - acceptance criteria
-   - explicit non-goals and boundaries
-4. Convert high-level Technical Architecture into research questions and design risks, not code tasks.
-5. If the idea is missing product clarity, stop and send the user back to `/idea <slug>` or `/idea <slug> brief`.
-6. If technical unknowns remain, capture them in `02_questions.md` before design.
-
-The idea handoff should reduce blank-page work, but it does not bypass approvals or research decontamination.
+- read available `idea.md`, `brief.md`, `spec.md`, and `plan.md`
+- treat them as source material, not approved implementation direction
+- move product framing into `01_spec.md`
+- move technical unknowns into `02_questions.md`
+- if product framing is still weak, send the user back to `/idea <slug>` or
+  `/idea <slug> brief`
 
 ## Human Direction Loop
 
-Use this loop before research, between research and design, during design when
-tradeoffs are unresolved, and before execution:
+Use short Q&A at phase boundaries:
 
-1. State the decision or uncertainty in one sentence.
-2. Ask the human 1-5 numbered questions or options that can be answered by
-   number or short phrase.
-3. Update the current artifact with `Human Direction`, `Resolved`, and
-   `Still Open` notes.
-4. Continue only when the next phase has enough direction to be defensible.
+1. State the uncertainty in one sentence.
+2. Ask 1-5 numbered questions.
+3. Record `Human Direction`, `Resolved`, and `Still Open` in the current
+   artifact.
+4. Continue only when the next phase is defensible.
 
-Default Q&A checkpoints:
+Default checkpoints: before research approval, between research and design, and
+before tasks or execution. Use `grill-me` when branches still feel soft. If the
+user wants uninterrupted planning, record assumptions and still stop before
+execution.
 
-- Before `02_questions.md` approval: confirm scope, non-goals, success shape,
-  and what would make the work not worth doing.
-- Before `03_research.md`: confirm the factual research questions are neutral
-  and complete enough.
-- Between `03_research.md` and `04_design.md`: show findings, list viable
-  directions, call out tradeoffs, and ask the human to choose or delegate.
-- Before `05_tasks.md`/execution: confirm delivery slice, risk tolerance, and
-  whether implementation should start now.
+## Questions And Research
 
-If the user asks for uninterrupted planning, make conservative choices, record
-assumptions in the artifact, and still stop before execution.
+In `02_questions.md`, group factual questions by `Human Direction`,
+`Codebase`, `Docs`, `Patterns`, `External`, and `Cross-Ref`. `Human Direction`
+is human-only and never goes to decontaminated research.
 
-## Question Categories
+For each researched question, capture `Answer`, `Confidence`, `Evidence`,
+`Conflicts`, and `Open`. Roll that into `Flagged Items`, `Findings`,
+`Patterns Found`, `Core Docs Summary`, `Direction Options`, and
+`Open Questions`.
 
-Group questions in `02_questions.md` by source: `Human Direction`, `Codebase`,
-`Docs`, `Patterns`, `External`, `Cross-Ref`.
-
-Use `Human Direction` for questions the human must answer. Do not send that
-section to decontaminated research agents or treat it as codebase evidence.
-
-Good question: `Where is the retry policy defined, and which services currently use it?`
-
-Bad question: `Can the current retry policy support our new bulk sync flow?`
-
-## Research Output
-
-For every question, capture: `Answer`, `Confidence`, `Evidence`, `Conflicts`, `Open`.
-
-Merge into: `Flagged Items`, `Findings`, `Patterns Found`, `Core Docs Summary`, `Direction Options`, `Open Questions`.
-
-Before design, convert the research into a short direction packet:
-
-- what the evidence rules out
-- viable options and tradeoffs
-- recommended default, if any
-- questions the human must answer before design
+Before design, return a short direction packet: what the evidence rules out,
+what options remain, the default recommendation if any, and what still needs a
+human call.
 
 ## Design And Plan Boundary
 
-Use the idea-spec / idea-plan separation:
-
-- `01_spec.md` and `04_design.md` explain what should exist and why.
-- `04_design.md` starts from the chosen human direction, not from the researcher's preferred implementation.
-- `05_tasks.md` is the first artifact that becomes code-specific.
-- Tasks should name real files, functions, schemas, API routes, packages, migrations, and tests only after codebase research and design are complete.
-- Each task should be independently handoffable to a coding agent.
-- Acceptance criteria must be testable. Avoid placeholders like "works correctly."
-- Include dependencies, sequencing, and parallelizable groups when they matter.
-- Estimate effort in hours in `05_tasks.md` when the codebase is known; use rough sizes only before codebase grounding.
+- `01_spec.md` and `04_design.md` explain what and why.
+- `05_tasks.md` is the first code-specific artifact.
+- Do not name real files, interfaces, migrations, or verify commands until
+  research and design are done.
+- Each task must be independently handoffable, testable, and sequenced when
+  dependencies matter.
+- Add effort estimates when the codebase is known.
 
 ## Subagent Roles
 
@@ -177,10 +147,9 @@ last.
 
 When `05_tasks.md` is approved:
 
-1. Identify the smallest useful PR or delivery slice.
-2. If delegation is authorized, dispatch file-disjoint tasks to Worker /
-   Implementor roles and run a Gate / Verifier pass over the union of changed
-   files before calling the wave complete.
-3. Hand PRs, pivots, discarded approaches, and follow-ups back to `focus`, `review`, PR descriptions, or the relevant handoff doc.
-4. If execution starts directly here, keep the final response tied to the approved task IDs and name the artifact or roadmap row that should receive follow-ups.
-5. Do not create a parallel idea execution log. Durable delivery reality belongs in feature artifacts, PRs, roadmap rows, or handoff docs.
+- choose the smallest useful delivery slice
+- if delegation is allowed, split only file-disjoint work and run one verifier
+  pass over the changed set
+- send follow-ups to `focus`, `review`, PR text, or handoff docs
+- keep responses tied to task IDs and the owning artifact or roadmap row
+- do not create a parallel execution log

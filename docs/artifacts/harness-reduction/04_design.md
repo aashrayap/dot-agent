@@ -95,8 +95,8 @@ Affected areas:
 
 - `AGENTS.md`
 - `claude/CLAUDE.md`
-- `skills/create-agents-md/assets/AGENTS.template.md`
-- `skills/create-agents-md/assets/CLAUDE.template.md`
+- `skills/improve-agents-md/assets/AGENTS.template.md`
+- `skills/improve-agents-md/assets/CLAUDE.template.md`
 
 Risk:
 
@@ -121,7 +121,7 @@ Affected areas:
 
 - `claude/CLAUDE.md`
 - `claude/settings.json`
-- create-agents-md templates
+- improve-agents-md templates
 
 Risk:
 
@@ -373,6 +373,13 @@ Representative skills for schema adoption:
 - `skills/focus/skill.toml`
 - `skills/spec-new-feature/skill.toml`
 - `skills/execution-review/skill.toml`
+- `skills/idea/skill.toml`
+
+Max-coverage execution update:
+
+- After validating the schema pattern, migrate every current source skill
+  manifest rather than only the representative first set.
+- Use current main's `improve-agents-md` path for instruction-template files.
 
 Validation:
 

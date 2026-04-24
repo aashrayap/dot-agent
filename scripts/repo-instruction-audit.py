@@ -8,7 +8,13 @@ import sqlite3
 import subprocess
 import sys
 import time
-import tomllib
+try:
+    import tomllib
+except ModuleNotFoundError:
+    try:
+        import tomli as tomllib
+    except ModuleNotFoundError:
+        import toml_compat as tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable

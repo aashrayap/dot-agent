@@ -11,13 +11,10 @@ conditionally.
 
 ## Human Response Contract
 
-- Use a concise packet for non-trivial work: `This Session Focus`, `Result`,
-  and one or more concrete `Next Actions`.
-- Keep visuals, verification gates, unknowns, and detail links inside `Result`
-  when they matter.
-- Add `Ledger` only when multiple requests, corrections, parked items, or
-  handoffs need explicit tracking.
-- Put any short user-direction questions inside `Next Actions`.
+- For non-trivial work, use `This Session Focus`, `Result`, and `Next Actions`.
+- Put changes, verification, open risks, and useful links/visuals in `Result`.
+- Add `Ledger` only when requests, corrections, parked items, or handoffs need
+  explicit tracking.
 
 ## Operating Loop
 
@@ -35,6 +32,11 @@ conditionally.
 - [task-specific rule]
 - [runtime-specific caveat]
 </important>
+
+## Review
+
+- Lead with concrete findings and paths.
+- Keep summaries secondary.
 
 ## Anti-Patterns
 

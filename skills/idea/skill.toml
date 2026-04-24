@@ -1,3 +1,27 @@
 name = "idea"
 targets = ["claude", "codex"]
 default_entry = "SKILL.md"
+schema_version = 1
+
+[composition]
+parents = ["morning-sync", "focus"]
+children = ["spec-new-feature", "init-epic", "excalidraw-diagram"]
+formats = ["excalidraw-diagram"]
+reads = ["state/ideas/<slug>/"]
+writes = ["state/ideas/<slug>/idea.md", "state/ideas/<slug>/brief.md", "state/ideas/<slug>/spec.md", "state/ideas/<slug>/plan.md"]
+delegates = []
+handoffs = ["init-epic", "spec-new-feature"]
+
+[contract]
+inputs = ["idea braindump", "idea refinement request", "idea brief/spec/plan/promote command"]
+outputs = ["idea artifact", "brief", "high-level spec", "optional plan", "promotion recommendation"]
+scripts = []
+references = ["../references/roadmap-and-handoff-surfaces.md", "../references/output-packet.md"]
+assets = []
+state_reads = ["state/ideas/<slug>/"]
+state_writes = ["state/ideas/<slug>/"]
+tools = []
+
+[invoke]
+implicit = true
+explicit = ["idea", "/idea"]

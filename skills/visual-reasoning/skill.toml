@@ -1,3 +1,27 @@
 name = "visual-reasoning"
 targets = ["claude", "codex"]
 default_entry = "SKILL.md"
+schema_version = 1
+
+[composition]
+parents = []
+children = ["explain", "compare", "excalidraw-diagram"]
+formats = ["explain", "compare", "excalidraw-diagram"]
+reads = ["requested files", "docs", "code", "workflows", "diagrams", "provided context"]
+writes = ["optional diagram artifacts through excalidraw-diagram"]
+delegates = ["explain", "compare", "excalidraw-diagram"]
+handoffs = ["explain", "compare", "excalidraw-diagram"]
+
+[contract]
+inputs = ["visual reasoning request", "visual explanation request", "visual comparison request"]
+outputs = ["visual-first synthesis", "optional durable diagram"]
+scripts = []
+references = []
+assets = []
+state_reads = []
+state_writes = []
+tools = []
+
+[invoke]
+implicit = true
+explicit = ["visual-reasoning"]

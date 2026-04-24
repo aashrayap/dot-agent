@@ -335,10 +335,11 @@ function authoringContract(elements) {
     stroke: colors.grayStroke,
     fontSize: 22,
   });
-  node(elements, 380, 650, 215, 72, "skill.toml", {
+  node(elements, 380, 650, 215, 72, "skill.toml\nschema v1", {
     fill: colors.amber,
     stroke: colors.amberStroke,
-    fontSize: 22,
+    fontSize: 18,
+    wrap: false,
   });
   elements.push(arrow(333, 686, 375, 686, { strokeColor: colors.amberStroke }));
 
@@ -356,7 +357,7 @@ function authoringContract(elements) {
     fontSize: 17,
     wrap: false,
   });
-  node(elements, 375, 925, 220, 78, "thin runtime\nwrappers only", {
+  node(elements, 375, 925, 220, 78, "generated\nSKILL_INDEX.md", {
     fill: colors.blue,
     stroke: colors.blueStroke,
     fontSize: 17,
@@ -364,7 +365,7 @@ function authoringContract(elements) {
   });
   elements.push(arrow(338, 964, 370, 964, { strokeColor: colors.blueStroke }));
 
-  elements.push(text(115, 1038, 480, "Helpers and durable support live in scripts/, references/, assets/, and shared/. Generated state and caches stay out of tracked source.", {
+  elements.push(text(115, 1038, 480, "Helpers and durable support live in scripts/, references/, assets/, and shared/. Generated routing docs are checked; generated state and caches stay out of tracked source.", {
     fontSize: 15,
     color: colors.muted,
     height: 70,
@@ -438,6 +439,12 @@ function workflows(elements) {
     stroke: colors.blueStroke,
     fontSize: 16,
   });
+  node(elements, 1450, 935, 155, 36, "grill-me checkpoint", {
+    fill: colors.amber,
+    stroke: colors.amberStroke,
+    fontSize: 13,
+    wrap: false,
+  });
   node(elements, 1695, 865, 125, 62, "review", {
     fill: colors.blue,
     stroke: colors.blueStroke,
@@ -453,6 +460,7 @@ function workflows(elements) {
   elements.push(arrow(1365, 896, 1415, 896, { strokeColor: colors.blueStroke }));
   elements.push(arrow(1640, 896, 1690, 896, { strokeColor: colors.blueStroke }));
   elements.push(arrow(1825, 896, 1875, 896, { strokeColor: colors.blueStroke }));
+  elements.push(arrow(1528, 930, 1528, 935, { strokeColor: colors.amberStroke }));
 
   lane(elements, 750, 1020, 1325, 150, "Review and external gates", "Local diff checks, portable packets, and evidence loops.", {
     fill: "#fbf9ff",
@@ -501,7 +509,7 @@ function workflows(elements) {
     stroke: colors.grayStroke,
     fontSize: 17,
   });
-  node(elements, 1185, 1235, 185, 62, "create-agents-md", {
+  node(elements, 1185, 1235, 185, 62, "improve-agents-md", {
     fill: colors.gray,
     stroke: colors.grayStroke,
     fontSize: 15,
@@ -680,12 +688,16 @@ function runtimeRoster(elements) {
     "spec-new-feature",
     "review",
     "execution-review",
+    "handoff-research-pro",
+    "ubiquitous-language",
     "compare",
     "explain",
     "visual-reasoning",
-    "create-agents-md",
     "excalidraw-diagram",
-    "handoff-research-pro",
+    "improve-agents-md",
+    "context-surface-audit",
+    "grill-me",
+    "devon-branding",
   ];
   let x = 360;
   let y = 1516;

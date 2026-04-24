@@ -3,3 +3,27 @@ targets = ["claude", "codex"]
 default_entry = "SKILL.md"
 claude_entry = "claude/SKILL.md"
 codex_entry = "codex/SKILL.md"
+schema_version = 1
+
+[composition]
+parents = ["context-surface-audit"]
+children = ["excalidraw-diagram"]
+formats = ["excalidraw-diagram"]
+reads = ["Codex/Claude session logs", "execution-review evidence/history", "PR signals", "roadmap rows", "Hermes findings"]
+writes = ["state/collab/execution-reviews/"]
+delegates = []
+handoffs = ["morning-sync", "daily-review", "spec-new-feature", "focus", "review"]
+
+[contract]
+inputs = ["forensic execution review", "workflow diagnosis", "weekly retrospective"]
+outputs = ["execution review report", "session-quality findings", "workflow recommendations"]
+scripts = ["scripts/execution-review-setup.py", "scripts/fetch-execution-sessions.py", "scripts/inspect-execution-session.py", "scripts/render-execution-review.py"]
+references = ["../references/output-packet.md", "../references/roadmap-and-handoff-surfaces.md"]
+assets = []
+state_reads = ["state/collab/execution-reviews/"]
+state_writes = ["state/collab/execution-reviews/"]
+tools = ["python3"]
+
+[invoke]
+implicit = true
+explicit = ["execution-review", "execution review"]

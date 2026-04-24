@@ -3,3 +3,27 @@ targets = ["claude", "codex"]
 default_entry = "SKILL.md"
 claude_entry = "claude/SKILL.md"
 codex_entry = "codex/SKILL.md"
+schema_version = 1
+
+[composition]
+parents = []
+children = ["excalidraw-diagram"]
+formats = ["excalidraw-diagram"]
+reads = ["repo docs", "scripts", "manifests", "existing AGENTS.md/CLAUDE.md"]
+writes = ["target instruction markdown files"]
+delegates = []
+handoffs = []
+
+[contract]
+inputs = ["create AGENTS.md request", "improve CLAUDE.md request", "translate agent instructions request"]
+outputs = ["updated AGENTS.md or CLAUDE.md", "instruction review notes"]
+scripts = []
+references = ["references/progressive-disclosure.md", "../references/output-packet.md"]
+assets = ["assets/AGENTS.template.md", "assets/CLAUDE.template.md"]
+state_reads = []
+state_writes = []
+tools = ["rg"]
+
+[invoke]
+implicit = true
+explicit = ["improve-agents-md"]

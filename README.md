@@ -6,6 +6,9 @@ Ash's personal agent harness for Claude Code and Codex.
 
 `~/.dot-agent/` is the versioned source of truth. Runtime homes are install
 targets. Machine-local state stays under the gitignored `state/` tree.
+The diagram above reflects the current install and audit stack: setup sync,
+generated skill index, instruction drift checks, schema validation, and
+context-surface audit.
 
 ## Architecture
 
@@ -55,7 +58,8 @@ git -C ~/.dot-agent pull --ff-only
 ~/.dot-agent/setup.sh
 ```
 
-To run only instruction drift checks without reinstalling runtime files:
+To verify generated skill index and instruction drift without reinstalling
+runtime files:
 
 ```bash
 ~/.dot-agent/setup.sh --check-instructions
@@ -63,15 +67,34 @@ To run only instruction drift checks without reinstalling runtime files:
 
 `setup.sh`:
 
+- regenerates `skills/SKILL_INDEX.md` from skill manifests and frontmatter
 - symlinks Claude config into `~/.claude/`
 - symlinks root `AGENTS.md` into `~/.codex/AGENTS.md`
-- symlinks Codex config, hooks, and rules into `~/.codex/`
+- symlinks Codex config and hooks into `~/.codex/`
+- syncs Codex rules into `~/.codex/rules/`
 - installs skills into both runtimes based on `skill.toml`
 - creates `state/{collab,ideas}`
 - backs up conflicting legacy runtime files under `state/backups/setup/`
 - runs read-only skill and repo instruction audits
 - reports drift, but does not patch project-local instruction files
-- supports `--check-instructions` for audit-only verification
+- supports `--check-instructions` for index and audit verification
+
+`--check-instructions` fails when `skills/SKILL_INDEX.md` is stale.
+
+Additional read-only checks:
+
+```bash
+python3 ~/.dot-agent/scripts/validate-skill-manifests.py
+python3 ~/.dot-agent/scripts/validate-skill-manifests.py --format json
+python3 ~/.dot-agent/scripts/generate-skill-index.py --check
+python3 ~/.dot-agent/skills/context-surface-audit/scripts/context-surface-audit.py --format text
+python3 ~/.dot-agent/skills/context-surface-audit/scripts/context-surface-audit.py --format json
+```
+
+The manifest validator checks local `skill.toml` schema and selected entries.
+The skill index check verifies that generated agent routing docs are current.
+The context audit reports word counts, duplicate anchors, runtime install
+shape, and schema coverage without reading transcript content.
 
 ## Versioned Vs Local
 
@@ -111,17 +134,16 @@ forensic execution artifacts, not in the daily board.
 
 Review the contract layer first:
 
-1. diagrams for workflow and architecture shape
-2. `README.md` and `AGENTS.md` for repo/runtime intent
-3. `skills/README.md`, `skills/AGENTS.md`, `SKILL.md`, and `skill.toml` for
+1. `README.md` and `AGENTS.md` for repo/runtime intent
+2. `skills/README.md`, `skills/AGENTS.md`, `SKILL.md`, and `skill.toml` for
    skill behavior
-4. code sampling when setup, runtime, state mutation, renderers, adapters, or
+3. code sampling when setup, runtime, state mutation, renderers, adapters, or
    generated outputs change
+4. existing diagrams only when they materially clarify workflow or architecture
 
-Human-presenting skills should point to an existing Excalidraw diagram or create
-one when they explain non-trivial workflow, architecture, planning, review, or
-decision state. Text should deepen the drawing rather than make the human infer
-the shape from prose first.
+Human-presenting skills may reuse or create a diagram when workflow,
+architecture, planning, review, or decision state is hard to follow in prose.
+Do not treat a fresh diagram as the default cost of every non-trivial change.
 
 `handoff-research-pro` is the external critique gate for expensive-to-unwind
 decisions. It packages repo context, review target, source policy, assumptions
@@ -135,3 +157,8 @@ Skills live under `skills/` and install through `setup.sh`. Use
 `skills/AGENTS.md` for the strict agent-facing authoring contract, and
 `skills/README.md` for the human-facing skill architecture, setup, and
 composability guide.
+
+`SKILL.md` stays runtime-readable. Local `skill.toml` carries schema v1 for
+composition, contract, path, and invocation validation; see
+`skills/references/skill-manifest-schema.md`.
+Agents use `skills/SKILL_INDEX.md` as the generated routing index.

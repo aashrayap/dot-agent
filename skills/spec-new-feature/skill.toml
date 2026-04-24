@@ -3,3 +3,27 @@ targets = ["claude", "codex"]
 default_entry = "SKILL.md"
 claude_entry = "claude/SKILL.md"
 codex_entry = "codex/SKILL.md"
+schema_version = 1
+
+[composition]
+parents = ["idea", "focus", "init-epic"]
+children = ["ubiquitous-language", "grill-me", "excalidraw-diagram"]
+formats = ["excalidraw-diagram"]
+reads = ["docs/UBIQUITOUS_LANGUAGE.md", "idea spec/plan", "roadmap rows", "repo docs/code", "feature artifacts"]
+writes = ["docs/artifacts/<feature>/"]
+delegates = []
+handoffs = ["focus", "review", "daily-review"]
+
+[contract]
+inputs = ["feature request", "approved feature artifacts", "execution request"]
+outputs = ["spec artifacts", "design/tasks", "implementation PR"]
+scripts = ["scripts/init-feature-artifacts.sh", "scripts/new-feature-setup.sh"]
+references = ["../references/output-packet.md", "../references/subagent-delegation.md", "../references/roadmap-and-handoff-surfaces.md"]
+assets = []
+state_reads = ["docs/UBIQUITOUS_LANGUAGE.md", "state/ideas/<slug>/", "state/collab/roadmap.md"]
+state_writes = ["docs/artifacts/<feature>/"]
+tools = ["git", "rg"]
+
+[invoke]
+implicit = true
+explicit = ["spec-new-feature", "/spec-new-feature"]

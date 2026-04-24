@@ -1,3 +1,27 @@
 name = "focus"
 targets = ["codex"]
 default_entry = "SKILL.md"
+schema_version = 1
+
+[composition]
+parents = ["morning-sync"]
+children = ["idea", "spec-new-feature", "excalidraw-diagram"]
+formats = ["excalidraw-diagram"]
+reads = ["state/collab/roadmap.md"]
+writes = ["state/collab/roadmap.md", "state/collab/morning/"]
+delegates = []
+handoffs = ["morning-sync", "daily-review", "spec-new-feature"]
+
+[contract]
+inputs = ["roadmap mutation request", "focus review request", "next control surface decision"]
+outputs = ["roadmap summary", "roadmap mutation", "control surface recommendation"]
+scripts = ["scripts/focus-setup.sh", "scripts/roadmap.py", "scripts/focus-update.py", "scripts/focus-handoff.py", "scripts/morning-working-doc.py"]
+references = ["../references/roadmap-and-handoff-surfaces.md", "../references/output-packet.md"]
+assets = []
+state_reads = ["state/collab/roadmap.md"]
+state_writes = ["state/collab/roadmap.md", "state/collab/morning/"]
+tools = ["python3"]
+
+[invoke]
+implicit = true
+explicit = ["focus"]
