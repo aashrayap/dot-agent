@@ -3,7 +3,7 @@
 Read this when creating or materially rewriting a skill, changing skill runtime
 entrypoints, auditing skill installation, or delegating skill implementation.
 
-## Composes With Schema
+## Composition Layers
 
 Every retained skill must declare how it composes with the harness. Add this
 section near the top of each `SKILL.md`:
@@ -20,8 +20,38 @@ section near the top of each `SKILL.md`:
 - Receives back from:
 ```
 
+Read the rows in three layers:
+
+- Routing layer: `Parent`, `Children`, `Hands off to`, `Receives back from`
+- Borrowed-shape layer: `Uses format from`
+- State/control layer: `Reads state from`, `Writes through`
+
 Fill unused rows with `none`. Keep entries concrete: skill names, helper
-scripts, state files, artifact directories, or runtime surfaces.
+scripts, canonical state files, artifact directories, or runtime surfaces.
+
+Pattern notes:
+
+- `Children` can be a narrower owner skill or a checkpoint helper. Example:
+  `spec-new-feature` can compose `grill-me` as a pressure-test child without
+  changing feature-artifact ownership.
+- `Writes through` should name the canonical owner path only. Keep migration or
+  compatibility paths in the workflow body, not in composition metadata.
+- `Receives back from` is optional bookkeeping for child or downstream outputs
+  that meaningfully return structured state. Do not invent it for every child.
+
+Example:
+
+```markdown
+## Composes With
+
+- Parent: `idea`, `focus`, or `init-epic` when work needs code-grounded planning.
+- Children: `grill-me` for pressure-test checkpoints; `excalidraw-diagram` when a feature plan needs a durable visual.
+- Uses format from: `excalidraw-diagram` for human-facing planning visuals when useful.
+- Reads state from: idea `spec.md`/`plan.md`, roadmap rows, repo docs/code, and feature artifacts.
+- Writes through: `docs/artifacts/<feature>/` for feature artifacts.
+- Hands off to: `focus`, `review`, or `daily-review`.
+- Receives back from: `focus`, `review`, PR refs, and prior feature artifacts.
+```
 
 ## Source-Only Policy
 
@@ -30,6 +60,13 @@ installed as runtime context for individual skills. Any rule needed while a
 skill is being used must live in that skill's selected entrypoint, or in an
 installed `scripts/`, `references/`, `assets/`, or `shared/` file that the
 entrypoint explicitly tells the runtime to read.
+
+## Manifest Schema
+
+`skill.toml` may also carry local schema v1 fields for validation and audit.
+Runtime-visible behavior still belongs in `SKILL.md`. Keep the root install
+keys stable and use schema v1 as the machine-checkable mirror of composition
+and contract metadata. See `skills/references/skill-manifest-schema.md`.
 
 ## Minimum Shape
 
@@ -75,6 +112,8 @@ skill edits that should affect Codex.
   recommendations.
 - Durable delivery state belongs in roadmap rows, feature artifacts, PRs, or
   explicit handoff docs. Do not recreate a hidden project/session service layer.
+- Legacy surfaces such as `focus.md` or `state/projects/*` are compatibility or
+  history, not new composition targets.
 
 ## Subagent Roles
 

@@ -111,17 +111,16 @@ forensic execution artifacts, not in the daily board.
 
 Review the contract layer first:
 
-1. diagrams for workflow and architecture shape
-2. `README.md` and `AGENTS.md` for repo/runtime intent
-3. `skills/README.md`, `skills/AGENTS.md`, `SKILL.md`, and `skill.toml` for
+1. `README.md` and `AGENTS.md` for repo/runtime intent
+2. `skills/README.md`, `skills/AGENTS.md`, `SKILL.md`, and `skill.toml` for
    skill behavior
-4. code sampling when setup, runtime, state mutation, renderers, adapters, or
+3. code sampling when setup, runtime, state mutation, renderers, adapters, or
    generated outputs change
+4. existing diagrams only when they materially clarify workflow or architecture
 
-Human-presenting skills should point to an existing Excalidraw diagram or create
-one when they explain non-trivial workflow, architecture, planning, review, or
-decision state. Text should deepen the drawing rather than make the human infer
-the shape from prose first.
+Human-presenting skills may reuse or create a diagram when workflow,
+architecture, planning, review, or decision state is hard to follow in prose.
+Do not treat a fresh diagram as the default cost of every non-trivial change.
 
 `handoff-research-pro` is the external critique gate for expensive-to-unwind
 decisions. It packages repo context, review target, source policy, assumptions

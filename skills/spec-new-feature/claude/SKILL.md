@@ -9,7 +9,7 @@ disable-model-invocation: true
 ## Composes With
 
 - Parent: `idea`, `focus`, or `init-epic` when work needs code-grounded planning.
-- Children: `ubiquitous-language` when repo terminology needs creation or refresh before planning; `excalidraw-diagram` when a feature plan needs a durable workflow, architecture, or before/after visual.
+- Children: `ubiquitous-language` when repo terminology needs creation or refresh before planning; `grill-me` for pressure-test checkpoints when research or design still has unresolved branches; `excalidraw-diagram` when a feature plan needs a durable workflow, architecture, or before/after visual.
 - Uses format from: `excalidraw-diagram` for human-facing planning and design visuals when useful.
 - Reads state from: `docs/UBIQUITOUS_LANGUAGE.md` when present, idea `spec.md`/`plan.md`, roadmap rows, repo docs/code, and feature artifacts.
 - Writes through: `docs/artifacts/<feature>/` for feature artifacts; returns PRs/pivots/follow-ups to roadmap rows, handoff docs, or PR descriptions.
@@ -68,13 +68,14 @@ Track progress via `status` frontmatter: `pending` → `draft` → `approved`/`c
 - Code-specific files, functions, schemas, API routes, packages, migrations, and verify commands belong in L4 task specs, not in earlier artifacts, unless they are evidence found during research.
 - Read CLAUDE.md and README.md files before L3 — only from the working directory and its subdirectories. NEVER traverse parent directories to find these files.
 - When the feature involves workflow, architecture, state flow, or a before/after
-  model that a human needs to understand, add or update a companion Excalidraw
-  diagram and link it from the relevant artifact.
+  model that would be hard to follow in prose, consider `excalidraw-diagram`
+  and link the result from the relevant artifact.
 - Questions must be specific and falsifiable.
 - The question list is a checkpoint. Stop for approval before research unless the user clearly asks to continue without pausing.
 - Research-to-design is a checkpoint. Present findings, viable directions, tradeoffs, and blocking questions; get human direction before drafting `04_design.md` unless the human explicitly delegates the choice.
 - Execution requires approved tasks plus explicit human go-ahead.
 - Keep uncertainty visible. Low-confidence findings, conflicting evidence, or unknown execution paths stay open until resolved.
+- Use `grill-me` at the research-to-design checkpoint or before tasking/execution when major branches or failure modes still feel unresolved. Record the resolved answers back into the active artifact instead of creating a new phase.
 - **Tooling:** Include the Subagent Tooling Block (below) verbatim at the TOP of every subagent prompt that interacts with the filesystem. Omit it for pure-synthesis subagents whose inputs are inlined.
 - **Model override:** All Explore subagents MUST use `model: "sonnet"`. Haiku does not reliably follow tool-usage instructions and falls back to Bash for file operations, causing permission spam.
 
@@ -118,7 +119,10 @@ MANDATORY TOOL USAGE — Read this first:
 5. **Devil's Advocate** — Every AC testable without human judgment? Third-party behaviors documented? Failure mode per external dep? Security explicit? Migration/backward-compat addressed?
 6. **Gate** — Human must approve. Update `status: approved`. Do NOT proceed to L2 until approved.
 
-If the input references an idea under `~/.dot-agent/state/ideas/<slug>/`, read `idea.md`, `brief.md`, `spec.md`, and `plan.md` when present. Convert the idea into users, acceptance criteria, boundaries, and open questions. If the idea is still missing product clarity, stop and route back to `/idea <slug>`.
+If the input references an idea under `~/.dot-agent/state/ideas/<slug>/`, read
+the available idea docs, treat them as source material, move product framing
+into `01_spec.md`, move technical unknowns into `02_questions.md`, and route
+back to `/idea <slug>` if product clarity is still weak.
 
 ---
 
@@ -128,14 +132,11 @@ If the input references an idea under `~/.dot-agent/state/ideas/<slug>/`, read `
 
 ### Draft Questions
 
-Read `01_spec.md` and generate neutral, factual questions about the codebase. Strip all feature intent from research questions — they must be answerable without knowing what is being built.
-
-Group questions into: `Human Direction`, `Codebase`, `Docs`, `Patterns`, `External`, `Cross-Ref`.
-
-Good question: "How does the notifications service dispatch messages? What transports exist?"
-Bad question: "Can the notifications service support our new bulk-alert feature?" ← leaks intent
-
-Each question must be specific and falsifiable — answerable by reading 1-3 files with a concrete answer. If a question requires "read everything and summarize," split it.
+Read `01_spec.md` and generate neutral, factual questions about the codebase.
+Group them into `Human Direction`, `Codebase`, `Docs`, `Patterns`,
+`External`, and `Cross-Ref`. `Human Direction` is human-only and never goes to
+decontaminated research. Keep questions narrow enough to answer from a small
+set of files or docs.
 
 Stop for approval before proceeding to research. Use the checkpoint to ask whether the human wants to add, remove, or reframe questions before decontaminated research starts.
 
@@ -194,15 +195,9 @@ Rules: Only verified info from official docs. Flag UNVERIFIED claims. Include so
 
 ### Synthesize
 
-Fill `03_research.md` with: `Flagged Items`, `Findings` (per-question Q&A with file paths), `Patterns Found`, `Core Docs Summary`, `Direction Options`, `Open Questions`.
-
-**Confidence check** — For every finding: *"Do we know the exact path, or are we assuming?"* If a finding says "may exist", "should work", or "needs verification" — it is **unresolved**. Flag for further investigation or human input.
-
-**Check gaps:**
-- Spec gaps → loop to L1
-- Unresolved questions needing human → pause and flag
-- Uncertain execution paths → pause and flag to human
-- Clean findings → prepare direction checkpoint before L3
+Fill `03_research.md` with `Flagged Items`, `Findings`, `Patterns Found`,
+`Core Docs Summary`, `Direction Options`, and `Open Questions`. Keep low
+confidence items unresolved instead of smoothing them into decisions.
 
 ### Direction Checkpoint
 
@@ -236,24 +231,16 @@ explicitly delegates the choice.
 
 **Owner:** AI (orchestrator directly) | **Output:** `05_tasks.md`
 
-The orchestrator performs decomposition directly — do NOT delegate to a subagent. The orchestrator has accumulated context through L1–L3 that cannot be faithfully serialized into a subagent prompt.
+The orchestrator performs decomposition directly. Do not delegate this phase.
 
 1. Read `04_design.md`, `01_spec.md`, `03_research.md`.
-2. **Extract shared dependencies** — Identify utilities, mocks, helpers, or types that multiple tasks need. These go in Wave 1. Every downstream task must reference them by exact import path.
-3. **Verify paths** — For uncertain file paths, dispatch a quick Explore subagent (`model: "sonnet"`) to confirm before including in a task spec.
-4. Group work into parallel waves. Minimize waves respecting dependencies.
-5. Write task specs. Each task gets:
-   - **Implement:** files to create/modify, behavior to add
-   - **Relevant Decisions:** inlined from `04_design.md`
-   - **Interface Contract:** what downstream tasks consume (file paths, function signatures, types)
-   - **Acceptance Criteria:** subset from `01_spec.md` mapped to this task
-   - **Verify:** copy-pasteable commands
-   - **Boundaries:** Always / Ask first / Never
-   - **Effort:** hour estimate once the codebase is known
-   - **Tracking ID:** stable task ID that can be cited from PRs, handoff docs, or roadmap follow-ups
-6. **Self-containment test:** Could an agent implement each task with ONLY the task spec + CLAUDE.md? If not, inline missing context.
-7. If a task needs an unresolved design decision → loop to L3.
-8. Present to human. Execute only on explicit approval.
+2. Extract shared dependencies first.
+3. Verify uncertain file paths before writing them into tasks.
+4. Group work into parallel-safe waves.
+5. Make each task self-contained: exact files, relevant decisions, acceptance
+   criteria, verify commands, boundaries, effort, and stable task ID.
+6. If a task depends on an unresolved design question, loop back to L3.
+7. Present to the human. Execute only on explicit approval.
 
 ---
 
@@ -266,7 +253,8 @@ Verifier for post-wave validation. In Claude Code, these may map to named agents
 such as Sushant's `task-implementor` and `gating-agent`; in Codex, use the
 available worker/explorer roles only when delegation is authorized.
 
-1. **Per wave** — One agent per task, parallel. Do NOT use `isolation: "worktree"`. Task decomposition guarantees no file conflicts, so worktrees add cherry-pick overhead without benefit.
+1. **Per wave** — One agent per task, parallel. Do not use worktrees for
+   file-disjoint tasks.
 2. **Agent prompt:**
    ```
    {Subagent Tooling Block}
@@ -274,10 +262,13 @@ available worker/explorer roles only when delegation is authorized.
    Task spec: {full task content from 05_tasks.md}
    Rules: Implement exactly what spec describes. Follow CLAUDE.md conventions. Run verify commands via Bash. Fix failures and re-verify. If spec doesn't cover something, STOP and report. Do NOT modify files outside task scope.
    ```
-3. **Gate** — Run one Gate / Verifier pass over the union of changed files before calling the wave complete.
-4. **Between waves** — Full type-check + lint + test across affected areas.
-5. **Retries** — Agent fails after 2-3 attempts → escalate to human (usually a spec gap).
-6. **Track** — Update checkboxes in `05_tasks.md`.
-7. **Execution memory** — Hand PRs, pivots, discarded approaches, and follow-ups back to `focus`, `review`, PR descriptions, or the relevant handoff doc instead of creating a parallel idea execution log.
+3. **Gate** — Run one verifier pass over the changed set before calling the
+   wave complete.
+4. **Between waves** — Run the shared checks for affected areas.
+5. **Retries** — After a few failed attempts, escalate to the human.
+6. **Track** — Update `05_tasks.md`.
+7. **Execution memory** — Hand PRs, pivots, and follow-ups back to `focus`,
+   `review`, PR text, or the relevant handoff doc instead of creating a
+   parallel execution log.
 
 ---

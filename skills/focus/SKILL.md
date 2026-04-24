@@ -16,7 +16,7 @@ disable-model-invocation: true
 - Parent: `morning-sync` for day-start orchestration.
 - Children: `idea` when a row is still conceptual; `spec-new-feature` when a row needs deep planning; `excalidraw-diagram` when a roadmap change needs a durable visual; `morning-working-doc.py` for approved one-day focus packets.
 - Uses format from: `excalidraw-diagram` for human-facing roadmap, workflow, or before/after visuals when useful.
-- Reads state from: `~/.dot-agent/state/collab/roadmap.md` by default; legacy `focus.md` only for compatibility or migration.
+- Reads state from: `~/.dot-agent/state/collab/roadmap.md`.
 - Writes through: `skills/focus/scripts/roadmap.py` for roadmap mutations and daily-review drainage; `skills/focus/scripts/morning-working-doc.py` for approved morning working docs.
 - Hands off to: `morning-sync` for first morning call; `daily-review` for completed-row drainage; `spec-new-feature` for deep planning.
 - Receives back from: `daily-review` when completed rows were drained or left ambiguous.
@@ -32,11 +32,11 @@ Deterministic helpers:
 - `~/.dot-agent/skills/focus/scripts/focus-handoff.py`
 - `~/.dot-agent/skills/focus/scripts/morning-working-doc.py`
 
-Read `~/.dot-agent/state/collab/roadmap.md` every time. Keep
-`~/.dot-agent/state/collab/focus.md` as a legacy compatibility file, not the
-primary operating board. When the user wants help deciding what should happen
-next, stay on the human roadmap by default. Do not inspect legacy
-project/session state unless the user points to a specific historical artifact.
+Read `~/.dot-agent/state/collab/roadmap.md` every time. `focus.md` is a legacy
+compatibility file, not the primary operating board. When the user wants help
+deciding what should happen next, stay on the human roadmap by default. Do not
+inspect legacy project/session state unless the user points to a specific
+historical artifact.
 
 This skill is the active control surface for:
 
@@ -168,7 +168,8 @@ Use this only after Ash approves carrying a selected focus stream forward.
 
 Use this when the user asks what they should work on now, what matters next, or wants a focus review.
 
-1. Read legacy `focus.md` only for compatibility context when it exists.
+1. Read legacy `focus.md` only if `roadmap.md` is missing or the user points to
+   it explicitly.
 2. Read `roadmap.md`.
 3. Do not inspect legacy project/session state unless the user points to a specific historical artifact.
 4. Treat this review as read-only. Do not rewrite `roadmap.md` unless the user explicitly asks.

@@ -8,7 +8,7 @@ description: Plan and optionally execute non-trivial feature work using human di
 ## Composes With
 
 - Parent: `idea`, `focus`, or `init-epic` when work needs code-grounded planning.
-- Children: `ubiquitous-language` when repo terminology needs creation or refresh before planning; `excalidraw-diagram` when a feature plan needs a durable workflow, architecture, or before/after visual.
+- Children: `ubiquitous-language` when repo terminology needs creation or refresh before planning; `grill-me` for pressure-test checkpoints when research or design still has unresolved branches; `excalidraw-diagram` when a feature plan needs a durable workflow, architecture, or before/after visual.
 - Uses format from: `excalidraw-diagram` for human-facing planning and design visuals when useful.
 - Reads state from: `docs/UBIQUITOUS_LANGUAGE.md` when present, idea `spec.md`/`plan.md`, roadmap rows, repo docs/code, and feature artifacts.
 - Writes through: `docs/artifacts/<feature>/` for feature artifacts; returns PRs/pivots/follow-ups to roadmap rows, handoff docs, or PR descriptions.
@@ -59,12 +59,16 @@ If the feature already exists, resume from the first incomplete phase instead of
 - Default checkpoints: ask for approval on the question list before research and on the design before execution. If the user explicitly asks for uninterrupted planning, continue and record assumptions clearly.
 - Research-to-design is a checkpoint: present findings, viable directions, tradeoffs, and blocking questions; get human direction before drafting `04_design.md` unless the user explicitly delegates the choice.
 - Execution requires approved tasks plus explicit human go-ahead.
+- Use `grill-me` at the research-to-design checkpoint or before tasking/execution when major branches or failure modes still feel unresolved. Record the resolved answers back into the active artifact instead of creating a new phase.
 - Only parallelize research with subagents if the user explicitly asks for delegated or parallel agent work.
 - Code-specific files, function names, schemas, API routes, packages, migrations, and verify commands belong in `05_tasks.md`, not in earlier artifacts, unless they are evidence found during research.
-- When this starts from an idea handoff, preserve the product framing but do not treat the idea's technical architecture as implementation authority until research/design verifies it.
+- When this starts from an idea handoff, read the available idea docs, treat
+  them as source material, move product framing into `01_spec.md`, move
+  technical unknowns into `02_questions.md`, and route back to `/idea` if
+  product clarity is still weak.
 - When the feature involves workflow, architecture, state flow, or a before/after
-  model that a human needs to understand, add or update a companion Excalidraw
-  diagram and link it from the relevant artifact.
+  model that would be hard to follow in prose, consider `excalidraw-diagram`
+  and link the result from the relevant artifact.
 
 ## Workflow
 
@@ -91,28 +95,11 @@ If the input references an idea under `~/.dot-agent/state/ideas/<slug>/`, also r
 
 ### 3. Draft `02_questions.md`
 
-Write factual questions that must be answered before design:
-
-- human direction questions that still need answers before research or design
-- existing code paths
-- data model constraints
-- documented conventions
-- relevant patterns
-- external API or library questions
-- questions that depend on combining multiple findings (`cross-ref`)
-
-Bad question: "Can we build this quickly?"
-
-Good question: "Where is the existing job retry policy defined, and which services already consume it?"
-
-Organize the file into:
-
-- `Human Direction`
-- `Codebase`
-- `Docs`
-- `Patterns`
-- `External`
-- `Cross-Ref`
+Write factual, decontaminated questions that must be answered before design.
+Group them into `Human Direction`, `Codebase`, `Docs`, `Patterns`,
+`External`, and `Cross-Ref`. `Human Direction` is human-only and never goes to
+research. Keep questions narrow enough to answer from a small set of files or
+docs.
 
 Pause for approval after drafting the questions unless the user asked you not to.
 
@@ -121,31 +108,15 @@ Pause for approval after drafting the questions unless the user asked you not to
 Research from the approved factual sections of the questions artifact. Do not
 send `Human Direction` notes into decontaminated research.
 
-Work question-by-question. For each question, capture:
+For each question, capture `answer`, `evidence`, `confidence`, `conflicts`,
+and `open items`. Merge that into `Flagged Items`, `Findings`,
+`Patterns Found`, `Core Docs Summary`, `Direction Options`, and
+`Open Questions`. Keep low-confidence items unresolved. Do not suggest
+implementations in this phase.
 
-- answer
-- evidence
-- confidence
-- conflicts
-- open items
-
-Then merge the results into:
-
-- `Flagged Items` for low-confidence or conflicting findings
-- `Findings` for per-question answers
-- `Patterns Found`
-- `Core Docs Summary`
-- `Direction Options` for viable choices, tradeoffs, and evidence boundaries
-- `Open Questions`
-
-Do not suggest implementations in this phase.
-
-After research, pause with a short direction packet:
-
-- what the evidence rules out
-- viable directions and tradeoffs
-- recommended default, if any
-- numbered questions for the human
+After research, pause with a short direction packet: what the evidence rules
+out, what options remain, the default recommendation if any, and what still
+needs a human choice.
 
 Record the human answer in `03_research.md` or `04_design.md`. Continue to design only after the direction is clear or explicitly delegated.
 
@@ -168,34 +139,21 @@ If the design still depends on unknowns, stop and ask concise numbered questions
 
 ### 6. Draft `05_tasks.md`
 
-Break the work into file-scoped tasks with:
-
-- exact files to create or modify
-- dependency order
-- parallel-safe groupings
-- acceptance criteria
-- verify commands
-- boundaries and out-of-scope notes
-- effort estimates in hours when the codebase is known
-- task IDs that can be referenced from PRs, handoff docs, or roadmap follow-ups
-
-Tasks should be self-contained enough to execute without re-reading the entire design.
+Break the work into file-scoped, self-contained tasks with exact file targets,
+dependencies, acceptance criteria, verify commands, boundaries, effort
+estimates when possible, and stable task IDs.
 
 ### 7. Optional Execution
 
 If the user asks to execute:
 
-- use portable roles when delegation is authorized: Explorer for factual
-  investigation, Worker / Implementor for file-scoped edits, and Gate / Verifier
-  for post-wave validation
+- choose the smallest useful delivery slice
 - follow task dependency order
-- parallelize only file-disjoint tasks
-- run the verify commands after each task or task wave
-- when using workers, run one Gate / Verifier pass over the union of changed
-  files before calling a wave complete
-- stop if execution uncovers a design gap that the plan did not resolve
-- stop if execution uncovers a direction gap that needs human judgment
-- hand PRs, pivots, discarded approaches, and follow-ups back to `focus`, `review`, PR descriptions, or the relevant handoff doc instead of creating a parallel idea execution log
+- parallelize only file-disjoint work
+- verify after each task or wave
+- stop on design gaps or direction gaps
+- hand follow-ups back to `focus`, `review`, PR text, or the relevant handoff
+  doc instead of creating a parallel execution log
 
 ## Non-Goals
 

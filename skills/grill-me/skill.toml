@@ -1,0 +1,27 @@
+name = "grill-me"
+targets = ["claude", "codex"]
+default_entry = "SKILL.md"
+schema_version = 1
+
+[composition]
+parents = ["spec-new-feature"]
+children = []
+formats = []
+reads = ["current plan", "design notes", "feature artifacts", "repo docs/code"]
+writes = []
+delegates = []
+handoffs = []
+
+[contract]
+inputs = ["plan stress-test request", "design stress-test request", "checkpoint pressure-test request"]
+outputs = ["pressure-test questions", "resolved risky branches", "recommended answers"]
+scripts = []
+references = []
+assets = []
+state_reads = ["docs/artifacts/<feature>/"]
+state_writes = []
+tools = []
+
+[invoke]
+implicit = true
+explicit = ["grill-me"]
