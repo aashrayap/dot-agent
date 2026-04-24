@@ -123,8 +123,6 @@ Install behavior:
 
 ## Agent Routing Index
 
-![Skill schema and audit flow](../docs/diagrams/harness-reduction-skill-schema.png)
-
 `skills/SKILL_INDEX.md` is generated from manifests and frontmatter. It carries
 the lookup table, state surfaces, composition edges, and per-skill details that
 agents need for routing. Do not edit it directly.
