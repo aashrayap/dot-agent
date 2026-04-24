@@ -1,8 +1,9 @@
 # dot-agent Instructions
 
-This repo is Ash's personal agent harness for Claude Code and Codex. Codex is
-the preferred day-to-day runtime; keep the harness portable unless Ash asks for
-a runtime-specific choice.
+This repo is Ash's personal agent harness for Claude Code and Codex.
+Codex is Ash's strongly preferred runtime right now; keep the harness portable,
+but bias day-to-day workflow and setup decisions toward Codex unless Ash asks
+otherwise.
 
 `~/.dot-agent` is source of truth. Runtime homes such as `~/.codex` and
 `~/.claude` are install targets. Do not put private context, risky local

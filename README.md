@@ -6,6 +6,8 @@ Ash's personal agent harness for Claude Code and Codex.
 
 `~/.dot-agent/` is the versioned source of truth. Runtime homes are install
 targets. Machine-local state stays under the gitignored `state/` tree.
+The diagram above reflects the current install and audit stack: setup sync,
+instruction drift checks, schema validation, and context-surface audit.
 
 ## Architecture
 
@@ -78,7 +80,9 @@ Additional read-only checks:
 
 ```bash
 python3 ~/.dot-agent/scripts/validate-skill-manifests.py
+python3 ~/.dot-agent/scripts/validate-skill-manifests.py --format json
 python3 ~/.dot-agent/skills/context-surface-audit/scripts/context-surface-audit.py --format text
+python3 ~/.dot-agent/skills/context-surface-audit/scripts/context-surface-audit.py --format json
 ```
 
 The manifest validator checks local `skill.toml` schema and selected entries.

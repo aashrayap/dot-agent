@@ -1,3 +1,27 @@
 name = "ubiquitous-language"
 targets = ["claude", "codex"]
 default_entry = "SKILL.md"
+schema_version = 1
+
+[composition]
+parents = []
+children = ["spec-new-feature", "review", "improve-agents-md"]
+formats = []
+reads = ["active repo docs", "AGENTS.md", "README.md", "domain schemas", "docs/UBIQUITOUS_LANGUAGE.md", "helper inventory output"]
+writes = ["docs/UBIQUITOUS_LANGUAGE.md"]
+delegates = []
+handoffs = ["spec-new-feature", "review"]
+
+[contract]
+inputs = ["ubiquitous language request", "terminology alignment request", "terminology lint request"]
+outputs = ["docs/UBIQUITOUS_LANGUAGE.md", "terminology lint findings", "AGENTS.md pointer suggestion"]
+scripts = ["scripts/ubiquitous-language.py"]
+references = []
+assets = []
+state_reads = ["docs/UBIQUITOUS_LANGUAGE.md"]
+state_writes = ["docs/UBIQUITOUS_LANGUAGE.md"]
+tools = ["python3"]
+
+[invoke]
+implicit = true
+explicit = ["ubiquitous-language"]

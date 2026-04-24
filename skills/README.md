@@ -4,6 +4,10 @@
 
 ![Current skills setup and workflows](../docs/diagrams/skills-current-state-workflows.png)
 
+The diagram tracks the current schema-reset model: owner skills stay small,
+`spec-new-feature` composes `ubiquitous-language`, `grill-me`, and
+`excalidraw-diagram`, and schema/context audits verify the source surface.
+
 ## At A Glance
 
 Every retained skill needs:
