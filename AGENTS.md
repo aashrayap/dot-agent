@@ -13,6 +13,8 @@ permission bypasses, or one-off machine overrides in tracked config.
 
 - Read only the layer needed for the task. Keep root context small and pull
   deeper harness facts through the references below.
+- For skill-shaped work, consult `~/.dot-agent/skills/SKILL_INDEX.md`, then
+  read only the specific `SKILL.md` files needed.
 - Prefer Codex-first ergonomics, durable planning quality, and portable setup
   behavior in that order.
 - Preserve existing user or concurrent changes. Do not revert unrelated dirty
@@ -59,6 +61,8 @@ contradictions between Claude and Codex surfaces. Keep summaries secondary.
   `~/.dot-agent/docs/UBIQUITOUS_LANGUAGE.md`
 - Skill authoring policy:
   `~/.dot-agent/skills/AGENTS.md`
+- Agent-readable skill routing and composition index:
+  `~/.dot-agent/skills/SKILL_INDEX.md`
 - Skill catalog, install model, and workflow diagrams:
   `~/.dot-agent/skills/README.md`
 - Machine-local roadmap, ideas, reviews, and caches:

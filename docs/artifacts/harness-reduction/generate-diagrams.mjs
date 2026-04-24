@@ -243,7 +243,7 @@ function sourceRuntimeDiagram() {
 
 function skillSchemaDiagram() {
   const e = [];
-  panel(e, 20, 20, 1540, 850, "Skill Definition After Foundation Reset", "Portable SKILL.md stays readable; schema v1 makes composition and ownership auditable.");
+  panel(e, 20, 20, 1540, 850, "Skill Schema And Agent Routing", "Portable SKILL.md stays readable; skill.toml and generated SKILL_INDEX keep composition auditable.");
 
   node(e, 80, 150, 300, 190, "SKILL.md\n\nfrontmatter:\nname + description\n\nbody:\nworkflow + judgment", {
     fill: colors.blue,
@@ -271,10 +271,10 @@ function skillSchemaDiagram() {
     stroke: colors.greenStroke,
     fontSize: 17,
   });
-  node(e, 525, 640, 300, 115, "Local validator\nchecks 20/20 manifests\nTOML + Markdown", {
+  node(e, 525, 640, 300, 115, "Local validator\nchecks 20/20 manifests\nTOML + Markdown\nindex freshness", {
     fill: colors.violet,
     stroke: colors.violetStroke,
-    fontSize: 17,
+    fontSize: 16,
   });
 
   node(e, 970, 135, 250, 135, "references/\nshared contracts\noutput packet\nsubagent delegation\nroadmap ownership", {
@@ -282,20 +282,20 @@ function skillSchemaDiagram() {
     stroke: colors.tealStroke,
     fontSize: 16,
   });
-  node(e, 970, 330, 250, 135, "scripts/\ndeterministic helpers\ncontext audit\nmanifest validation", {
+  node(e, 970, 330, 250, 135, "scripts/\ndeterministic helpers\ncontext audit\nmanifest validation\nskill index generation", {
     fill: colors.teal,
     stroke: colors.tealStroke,
-    fontSize: 16,
+    fontSize: 14,
   });
   node(e, 970, 525, 250, 135, "assets/\ntemplates\ndiagram sources\nstatic examples", {
     fill: colors.teal,
     stroke: colors.tealStroke,
     fontSize: 16,
   });
-  node(e, 1290, 325, 190, 160, "Result\nless drift\nsame semantics\ngrill gate\nmore checks", {
+  node(e, 1290, 325, 190, 160, "Result\nless drift\nrouting index\nsame semantics\ngrill gate\nmore checks", {
     fill: colors.violet,
     stroke: colors.violetStroke,
-    fontSize: 17,
+    fontSize: 15,
   });
 
   e.push(arrow(380, 245, 525, 245));
@@ -377,20 +377,20 @@ function runtimeArchitectureDiagram() {
     stroke: colors.blueStroke,
     fontSize: 18,
   });
-  node(e, 510, 130, 290, 135, "setup.sh\ninstall target sync\nbackup conflicts", {
+  node(e, 510, 130, 290, 135, "setup.sh\nskill index\ninstall target sync\nbackup conflicts", {
     fill: colors.amber,
     stroke: colors.amberStroke,
-    fontSize: 20,
+    fontSize: 18,
   });
   node(e, 510, 330, 290, 145, "instruction audits\nskill payload drift\nrepo contract drift", {
     fill: colors.violet,
     stroke: colors.violetStroke,
     fontSize: 18,
   });
-  node(e, 510, 550, 290, 145, "schema/context audits\n20 skill manifests\ncontext surface shape", {
+  node(e, 510, 550, 290, 145, "schema/index/context audits\n20 skill manifests\nrouting index\ncontext surface shape", {
     fill: colors.violet,
     stroke: colors.violetStroke,
-    fontSize: 18,
+    fontSize: 16,
   });
   node(e, 940, 125, 265, 190, "Codex runtime\n\nAGENTS/config/hooks symlinked\nrules copied\nskills copied", {
     fill: colors.green,
@@ -509,4 +509,5 @@ write("harness-reduction-source-runtime", sourceRuntimeDiagram());
 write("harness-reduction-skill-schema", skillSchemaDiagram());
 write("harness-reduction-iteration-loop", iterationLoopDiagram());
 write("dot-agent-runtime-architecture", runtimeArchitectureDiagram());
-write("skills-current-state-workflows", skillsWorkflowDiagram());
+// skills-current-state-workflows is owned by
+// docs/artifacts/skills-readme-current-state-diagram/generate-diagram.mjs.

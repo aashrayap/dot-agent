@@ -4,9 +4,10 @@
 
 ![Current skills setup and workflows](../docs/diagrams/skills-current-state-workflows.png)
 
-The diagram tracks the current schema-reset model: owner skills stay small,
-`spec-new-feature` composes `ubiquitous-language`, `grill-me`, and
-`excalidraw-diagram`, and schema/context audits verify the source surface.
+This README is the human guide to the skill system. The diagram above
+optimizes for orientation: daily loop, planning and delivery, review, and
+knowledge/docs/visual reasoning. Agents should use [SKILL_INDEX.md](SKILL_INDEX.md)
+as the generated routing index before choosing or composing skills.
 
 ## At A Glance
 
@@ -24,6 +25,8 @@ Use:
   for detailed examples and source-only policy
 - [skills/references/skill-manifest-schema.md](/Users/ash/.dot-agent/skills/references/skill-manifest-schema.md)
   for local `skill.toml` schema v1 and validation
+- [SKILL_INDEX.md](/Users/ash/.dot-agent/skills/SKILL_INDEX.md) for generated
+  agent routing from `skill.toml` and `SKILL.md` frontmatter
 - [README.md](/Users/ash/.dot-agent/README.md) plus `setup.sh` for runtime
   install behavior
 
@@ -118,21 +121,24 @@ Install behavior:
 | Claude | Symlinks selected entrypoint and shared dirs | Source edits are visible immediately |
 | Codex | Copies selected skill payloads | Rerun `setup.sh` after skill edits |
 
-## Default Owners
+## Agent Routing Index
 
-Default ownership lives in
-[roadmap-and-handoff-surfaces.md](references/roadmap-and-handoff-surfaces.md).
+![Skill schema and audit flow](../docs/diagrams/harness-reduction-skill-schema.png)
 
-| Surface | Owner |
-| --- | --- |
-| `state/collab/roadmap.md` | `focus` |
-| `state/ideas/<slug>/` | `idea` |
-| `docs/artifacts/<feature>/` | `spec-new-feature` |
-| `docs/UBIQUITOUS_LANGUAGE.md` | `ubiquitous-language` |
-| `state/collab/daily-reviews/` | `daily-review` |
-| forensic session reports | `execution-review` |
-| `AGENTS.md` / `CLAUDE.md` creation or improvement | `improve-agents-md` |
-| external remote-review packets | `handoff-research-pro` |
+`skills/SKILL_INDEX.md` is generated from manifests and frontmatter. It carries
+the lookup table, state surfaces, composition edges, and per-skill details that
+agents need for routing. Do not edit it directly.
+
+Regenerate or verify it with:
+
+```bash
+python3 scripts/generate-skill-index.py
+python3 scripts/generate-skill-index.py --check
+```
+
+Default state ownership lives in
+[roadmap-and-handoff-surfaces.md](references/roadmap-and-handoff-surfaces.md);
+agent routing lives in [SKILL_INDEX.md](SKILL_INDEX.md).
 
 ## Workflow Groups
 
@@ -173,10 +179,12 @@ skills instead of duplicating their workflows.
 ```bash
 python3 scripts/validate-skill-manifests.py
 python3 scripts/validate-skill-manifests.py --format json
+python3 scripts/generate-skill-index.py --check
 python3 skills/context-surface-audit/scripts/context-surface-audit.py --format text
 python3 skills/context-surface-audit/scripts/context-surface-audit.py --format json
 ./setup.sh --check-instructions
 ```
 
-Use manifest validation for schema drift, context audit for context-surface
-shape, and setup audit for installed runtime payload drift.
+Use manifest validation for schema drift, skill-index checks for routing-index
+drift, context audit for context-surface shape, and setup audit for installed
+runtime payload drift.

@@ -27,6 +27,8 @@ packaging, repo layout, or migration-sensitive behavior.
 
 - Clone this repo at `~/.dot-agent/`.
 - Run `~/.dot-agent/setup.sh` after pulling or changing skills/config.
+- `setup.sh` refreshes `skills/SKILL_INDEX.md` in normal mode and verifies it
+  in `--check-instructions` mode.
 - Do not manually copy tracked skill/config files into runtime homes except
   when debugging setup.
 - Keep project-specific instructions in the active project repo, not in this
@@ -46,6 +48,8 @@ packaging, repo layout, or migration-sensitive behavior.
 ## Deterministic Checks
 
 - `./setup.sh --check-instructions`: installed skill and repo instruction drift.
+- `python3 scripts/generate-skill-index.py --check`: generated skill routing
+  index freshness.
 - `python3 scripts/validate-skill-manifests.py`: local skill manifest schema,
   entrypoint, composition, and dependency-path validation.
 - `python3 skills/context-surface-audit/scripts/context-surface-audit.py --format text`:

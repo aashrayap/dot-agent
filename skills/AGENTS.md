@@ -60,6 +60,8 @@ lives in `skill.toml` using schema v1 from
   `skills/references/skill-authoring-contract.md`
 - Manifest schema:
   `skills/references/skill-manifest-schema.md`
+- Agent-readable routing and composition index:
+  `skills/SKILL_INDEX.md`
 - Output packet:
   `skills/references/output-packet.md`
 - Delegation roles:

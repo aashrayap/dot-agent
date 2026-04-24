@@ -7,9 +7,9 @@ usage() {
   echo "Usage: ./setup.sh [--check-instructions]"
   echo
   echo "Modes:"
-  echo "  ./setup.sh                 Install runtime config, then run instruction audits."
+  echo "  ./setup.sh                 Refresh skill index, install runtime config, then run instruction audits."
   echo "  ./setup.sh --check-instructions"
-  echo "                             Run instruction audits only; do not install or patch."
+  echo "                             Verify skill index and run instruction audits; do not install or patch."
 }
 
 if [[ $# -gt 1 ]]; then
@@ -350,6 +350,40 @@ run_python_audit() {
   echo "WARN: Skipping audit script because Python is unavailable: $script"
 }
 
+run_skill_index_generator() {
+  local mode="${1:-write}"
+  local script="$DOT_AGENT_SOURCE_ROOT/scripts/generate-skill-index.py"
+  local args=()
+
+  if [[ "$mode" == "check" ]]; then
+    args=(--check)
+  fi
+
+  if [[ ! -f "$script" ]]; then
+    echo "ERROR: Missing skill index generator: $script"
+    exit 1
+  fi
+
+  if command -v python3 >/dev/null 2>&1; then
+    (
+      cd "$DOT_AGENT_SOURCE_ROOT"
+      python3 "$script" "${args[@]}"
+    )
+    return
+  fi
+
+  if command -v uv >/dev/null 2>&1; then
+    (
+      cd "$DOT_AGENT_SOURCE_ROOT"
+      uv run python "$script" "${args[@]}"
+    )
+    return
+  fi
+
+  echo "ERROR: Python is required to generate skills/SKILL_INDEX.md"
+  exit 1
+}
+
 run_instruction_audits() {
   echo
   run_python_audit "$DOT_AGENT_SOURCE_ROOT/scripts/skill-instruction-audit.py"
@@ -358,10 +392,12 @@ run_instruction_audits() {
 }
 
 if [[ "$MODE" == "check-instructions" ]]; then
+  run_skill_index_generator "check"
   run_instruction_audits
   exit 0
 fi
 
+run_skill_index_generator "write"
 cleanup_legacy_paths
 link_claude_payload
 link_codex_payload

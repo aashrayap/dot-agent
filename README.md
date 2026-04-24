@@ -7,7 +7,8 @@ Ash's personal agent harness for Claude Code and Codex.
 `~/.dot-agent/` is the versioned source of truth. Runtime homes are install
 targets. Machine-local state stays under the gitignored `state/` tree.
 The diagram above reflects the current install and audit stack: setup sync,
-instruction drift checks, schema validation, and context-surface audit.
+generated skill index, instruction drift checks, schema validation, and
+context-surface audit.
 
 ## Architecture
 
@@ -57,7 +58,8 @@ git -C ~/.dot-agent pull --ff-only
 ~/.dot-agent/setup.sh
 ```
 
-To run only instruction drift checks without reinstalling runtime files:
+To verify generated skill index and instruction drift without reinstalling
+runtime files:
 
 ```bash
 ~/.dot-agent/setup.sh --check-instructions
@@ -65,6 +67,7 @@ To run only instruction drift checks without reinstalling runtime files:
 
 `setup.sh`:
 
+- regenerates `skills/SKILL_INDEX.md` from skill manifests and frontmatter
 - symlinks Claude config into `~/.claude/`
 - symlinks root `AGENTS.md` into `~/.codex/AGENTS.md`
 - symlinks Codex config and hooks into `~/.codex/`
@@ -74,18 +77,22 @@ To run only instruction drift checks without reinstalling runtime files:
 - backs up conflicting legacy runtime files under `state/backups/setup/`
 - runs read-only skill and repo instruction audits
 - reports drift, but does not patch project-local instruction files
-- supports `--check-instructions` for audit-only verification
+- supports `--check-instructions` for index and audit verification
+
+`--check-instructions` fails when `skills/SKILL_INDEX.md` is stale.
 
 Additional read-only checks:
 
 ```bash
 python3 ~/.dot-agent/scripts/validate-skill-manifests.py
 python3 ~/.dot-agent/scripts/validate-skill-manifests.py --format json
+python3 ~/.dot-agent/scripts/generate-skill-index.py --check
 python3 ~/.dot-agent/skills/context-surface-audit/scripts/context-surface-audit.py --format text
 python3 ~/.dot-agent/skills/context-surface-audit/scripts/context-surface-audit.py --format json
 ```
 
 The manifest validator checks local `skill.toml` schema and selected entries.
+The skill index check verifies that generated agent routing docs are current.
 The context audit reports word counts, duplicate anchors, runtime install
 shape, and schema coverage without reading transcript content.
 
@@ -154,3 +161,4 @@ composability guide.
 `SKILL.md` stays runtime-readable. Local `skill.toml` carries schema v1 for
 composition, contract, path, and invocation validation; see
 `skills/references/skill-manifest-schema.md`.
+Agents use `skills/SKILL_INDEX.md` as the generated routing index.
