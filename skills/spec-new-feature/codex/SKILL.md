@@ -8,9 +8,9 @@ description: Plan and optionally execute non-trivial feature work using human di
 ## Composes With
 
 - Parent: `idea`, `focus`, or `init-epic` when work needs code-grounded planning.
-- Children: `excalidraw-diagram` when a feature plan needs a durable workflow, architecture, or before/after visual.
+- Children: `ubiquitous-language` when repo terminology needs creation or refresh before planning; `excalidraw-diagram` when a feature plan needs a durable workflow, architecture, or before/after visual.
 - Uses format from: `excalidraw-diagram` for human-facing planning and design visuals when useful.
-- Reads state from: idea `spec.md`/`plan.md`, roadmap rows, repo docs/code, and feature artifacts.
+- Reads state from: `docs/UBIQUITOUS_LANGUAGE.md` when present, idea `spec.md`/`plan.md`, roadmap rows, repo docs/code, and feature artifacts.
 - Writes through: `docs/artifacts/<feature>/` for feature artifacts; returns PRs/pivots/follow-ups to roadmap rows, handoff docs, or PR descriptions.
 - Hands off to: `focus` for roadmap follow-ups, `review` for PR review, or `daily-review` for day-end closure.
 - Receives back from: `focus`, `review`, PR refs, and prior feature artifacts as curated workstream context.
@@ -42,6 +42,10 @@ If the feature already exists, resume from the first incomplete phase instead of
 
 ## Rules
 
+- Before drafting `01_spec.md`, check for `docs/UBIQUITOUS_LANGUAGE.md` in the
+  active repo. If present, read it and use its preferred terms in every feature
+  artifact. If absent, continue without creating it unless the user invokes
+  `ubiquitous-language`.
 - Do not explore the codebase before drafting the initial research questions.
 - Use human Q&A to resolve direction before research, between research and design, and before execution.
 - Questions must be specific and falsifiable.

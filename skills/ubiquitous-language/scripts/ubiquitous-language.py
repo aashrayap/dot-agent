@@ -1,0 +1,329 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import os
+import subprocess
+import sys
+from datetime import date
+from pathlib import Path
+
+
+LANGUAGE_DOC = Path("docs") / "UBIQUITOUS_LANGUAGE.md"
+AGENTS_FILE = Path("AGENTS.md")
+POINTER = "- Shared language: read `docs/UBIQUITOUS_LANGUAGE.md` when planning, implementing, or reviewing domain terminology."
+REQUIRED_HEADINGS = (
+    "# Ubiquitous Language",
+    "## Purpose",
+    "## Terms",
+    "## Open Language Questions",
+    "## Refresh Notes",
+)
+DOC_EXTENSIONS = {".md", ".mdx", ".txt", ".toml", ".yaml", ".yml"}
+PRUNE_DIRS = {
+    ".git",
+    ".hg",
+    ".svn",
+    ".venv",
+    "venv",
+    "node_modules",
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    "dist",
+    "build",
+    "coverage",
+    "test-results",
+    "tmp",
+    ".next",
+    ".turbo",
+    ".obsidian",
+}
+PRUNE_PARTS = {
+    ("state", "tools"),
+    ("state", "backups"),
+    ("canonical", "site-data"),
+    ("canonical", "10-wiki", "raw"),
+}
+
+
+def run_git_root(path: Path) -> Path | None:
+    try:
+        completed = subprocess.run(
+            ["git", "-C", str(path), "rev-parse", "--show-toplevel"],
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+        )
+    except OSError:
+        return None
+    if completed.returncode != 0:
+        return None
+    output = completed.stdout.strip()
+    return Path(output).resolve() if output else None
+
+
+def similar_paths(path: Path) -> list[Path]:
+    parent = path.expanduser().parent
+    if not parent.exists():
+        return []
+    needle = path.name.lower().replace("-", "")
+    matches: list[Path] = []
+    for child in sorted(parent.iterdir()):
+        if not child.is_dir():
+            continue
+        name = child.name.lower().replace("-", "")
+        if needle in name or name in needle or path.name.lower().split("-")[0] in child.name.lower():
+            matches.append(child)
+    return matches[:8]
+
+
+def resolve_repo(raw: str | None) -> Path:
+    candidate = Path(raw).expanduser() if raw else Path.cwd()
+    if not candidate.exists():
+        print(f"ERROR: repo path does not exist: {candidate}", file=sys.stderr)
+        suggestions = similar_paths(candidate)
+        if suggestions:
+            print("SUGGESTIONS:", file=sys.stderr)
+            for item in suggestions:
+                print(f"- {item}", file=sys.stderr)
+        raise SystemExit(2)
+    if candidate.is_file():
+        candidate = candidate.parent
+    root = run_git_root(candidate)
+    return root or candidate.resolve()
+
+
+def read_text(path: Path) -> str:
+    try:
+        return path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return ""
+    except OSError as exc:
+        raise SystemExit(f"ERROR: failed to read {path}: {exc}") from exc
+
+
+def write_text(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        path.write_text(text.rstrip() + "\n", encoding="utf-8")
+    except OSError as exc:
+        raise SystemExit(f"ERROR: failed to write {path}: {exc}") from exc
+
+
+def rel(path: Path, root: Path) -> str:
+    try:
+        return str(path.relative_to(root))
+    except ValueError:
+        return str(path)
+
+
+def doc_path(root: Path) -> Path:
+    return root / LANGUAGE_DOC
+
+
+def agents_path(root: Path) -> Path:
+    return root / AGENTS_FILE
+
+
+def has_pointer(root: Path) -> bool:
+    text = read_text(agents_path(root))
+    return POINTER in text or "docs/UBIQUITOUS_LANGUAGE.md" in text
+
+
+def status(value: bool) -> str:
+    return "present" if value else "missing"
+
+
+def print_locate(root: Path) -> None:
+    language = doc_path(root)
+    agents = agents_path(root)
+    print(f"REPO_ROOT={root}")
+    print(f"LANGUAGE_DOC={language}")
+    print(f"LANGUAGE_DOC_STATUS={status(language.is_file())}")
+    print(f"AGENTS_FILE={agents}")
+    print(f"AGENTS_FILE_STATUS={status(agents.is_file())}")
+    print(f"AGENTS_POINTER_STATUS={status(has_pointer(root))}")
+
+
+def scaffold(root: Path) -> str:
+    today = date.today().isoformat()
+    inventory_hint = "Run `scripts/ubiquitous-language.py inventory` from the dot-agent skill payload, or use the installed runtime copy."
+    return f"""# Ubiquitous Language
+
+## Purpose
+
+Keep humans, agents, docs, and implementation aligned on this repo's domain terms.
+
+## Terms
+
+| Term | Definition | Use When | Compress / Aliases | Avoid | Evidence |
+|------|------------|----------|--------------------|-------|----------|
+| _Add repo domain term_ | _Short definition_ | _When to use this term_ | _Aliases to compress into this term_ | _Terms to avoid_ | _Repo path or heading_ |
+
+## Open Language Questions
+
+| Question | Why It Matters | Evidence Needed |
+|----------|----------------|-----------------|
+| _Add unresolved term question_ | _Impact on planning or implementation_ | _Source needed_ |
+
+## Refresh Notes
+
+- Generated by: `ubiquitous-language`
+- Last refreshed: {today}
+- Default artifact path: `{LANGUAGE_DOC}`
+- Source inventory: {inventory_hint}
+- Repo root at generation: `{root}`
+"""
+
+
+def inject_pointer(text: str) -> str:
+    if POINTER in text:
+        return text
+    lines = text.rstrip().splitlines()
+    heading = "## Progressive Disclosure"
+    if heading in lines:
+        idx = lines.index(heading)
+        insert_at = idx + 1
+        while insert_at < len(lines) and lines[insert_at].strip() == "":
+            insert_at += 1
+        lines.insert(insert_at, POINTER)
+        return "\n".join(lines).rstrip() + "\n"
+    if lines:
+        lines.extend(["", "## Progressive Disclosure", "", POINTER])
+        return "\n".join(lines).rstrip() + "\n"
+    return f"# Agent Instructions\n\n## Progressive Disclosure\n\n{POINTER}\n"
+
+
+def command_init(args: argparse.Namespace) -> int:
+    root = resolve_repo(args.repo)
+    language = doc_path(root)
+    agents = agents_path(root)
+    will_write_doc = not language.exists() or args.force
+    will_write_pointer = agents.exists() and not has_pointer(root)
+
+    print_locate(root)
+    print(f"WRITE_MODE={args.write}")
+    print(f"WOULD_WRITE_LANGUAGE_DOC={will_write_doc}")
+    print(f"WOULD_UPDATE_AGENTS_POINTER={will_write_pointer}")
+
+    if not args.write:
+        return 0
+    if will_write_doc:
+        write_text(language, scaffold(root))
+        print(f"WROTE={language}")
+    if agents.exists() and will_write_pointer:
+        write_text(agents, inject_pointer(read_text(agents)))
+        print(f"UPDATED={agents}")
+    elif not agents.exists():
+        print(f"WARN: no AGENTS.md found at {agents}; pointer not written")
+    return 0
+
+
+def should_prune(path: Path, root: Path) -> bool:
+    parts = rel(path, root).split(os.sep)
+    if path.name in PRUNE_DIRS:
+        return True
+    for prune in PRUNE_PARTS:
+        if len(parts) >= len(prune) and tuple(parts[: len(prune)]) == prune:
+            return True
+    return False
+
+
+def candidate_sources(root: Path) -> list[Path]:
+    out: list[Path] = []
+    for current, dirs, files in os.walk(root):
+        current_path = Path(current)
+        dirs[:] = [name for name in dirs if not should_prune(current_path / name, root)]
+        if should_prune(current_path, root):
+            continue
+        for name in files:
+            path = current_path / name
+            if path.suffix.lower() not in DOC_EXTENSIONS:
+                continue
+            if path.name.startswith("."):
+                continue
+            if path.stat().st_size > 200_000:
+                continue
+            out.append(path)
+    return sorted(out, key=lambda item: rel(item, root))
+
+
+def command_inventory(args: argparse.Namespace) -> int:
+    root = resolve_repo(args.repo)
+    print(f"REPO_ROOT={root}")
+    print("CANDIDATE_SOURCES:")
+    for path in candidate_sources(root):
+        print(f"- {rel(path, root)}")
+    return 0
+
+
+def lint_findings(root: Path) -> list[str]:
+    findings: list[str] = []
+    language = doc_path(root)
+    agents = agents_path(root)
+    if not language.is_file():
+        findings.append(f"missing language doc: {language}")
+    else:
+        text = read_text(language)
+        for heading in REQUIRED_HEADINGS:
+            if heading not in text:
+                findings.append(f"language doc missing heading: {heading}")
+    if not agents.is_file():
+        findings.append(f"missing AGENTS.md: {agents}")
+    elif not has_pointer(root):
+        findings.append("AGENTS.md missing shared-language pointer")
+    return findings
+
+
+def command_lint(args: argparse.Namespace) -> int:
+    root = resolve_repo(args.repo)
+    findings = lint_findings(root)
+    print_locate(root)
+    if not findings:
+        print("OK: no ubiquitous-language issues found.")
+        return 0
+    for finding in findings:
+        print(f"WARN: {finding}")
+    return 1 if args.strict else 0
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Manage repo-level ubiquitous-language artifacts.")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    locate = sub.add_parser("locate", help="Show target paths and status.")
+    locate.add_argument("--repo")
+
+    init = sub.add_parser("init", help="Create language doc scaffold and optional AGENTS pointer.")
+    init.add_argument("--repo")
+    init.add_argument("--write", action="store_true")
+    init.add_argument("--force", action="store_true")
+
+    inventory = sub.add_parser("inventory", help="List candidate source files for language curation.")
+    inventory.add_argument("--repo")
+
+    lint = sub.add_parser("lint", help="Check language doc and AGENTS pointer.")
+    lint.add_argument("--repo")
+    lint.add_argument("--strict", action="store_true")
+
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    if args.command == "locate":
+        print_locate(resolve_repo(args.repo))
+        return 0
+    if args.command == "init":
+        return command_init(args)
+    if args.command == "inventory":
+        return command_inventory(args)
+    if args.command == "lint":
+        return command_lint(args)
+    raise SystemExit(f"ERROR: unknown command {args.command!r}")
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

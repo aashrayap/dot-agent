@@ -8,9 +8,9 @@ description: Human-guided feature workflow — spec, direction Q&A, research, de
 ## Composes With
 
 - Parent: `idea`, `focus`, or `init-epic` when work needs code-grounded planning.
-- Children: `excalidraw-diagram` when a feature plan needs a durable workflow, architecture, or before/after visual.
+- Children: `ubiquitous-language` when repo terminology needs creation or refresh before planning; `excalidraw-diagram` when a feature plan needs a durable workflow, architecture, or before/after visual.
 - Uses format from: `excalidraw-diagram` for human-facing planning and design visuals when useful.
-- Reads state from: idea `spec.md`/`plan.md`, roadmap rows, repo docs/code, and feature artifacts.
+- Reads state from: `docs/UBIQUITOUS_LANGUAGE.md` when present, idea `spec.md`/`plan.md`, roadmap rows, repo docs/code, and feature artifacts.
 - Writes through: `docs/artifacts/<feature>/` for feature artifacts; returns PRs/pivots/follow-ups to roadmap rows, handoff docs, or PR descriptions.
 - Hands off to: `focus` for roadmap follow-ups, `review` for PR review, or `daily-review` for day-end closure.
 - Receives back from: `focus`, `review`, PR refs, and prior feature artifacts as curated workstream context.
@@ -61,6 +61,10 @@ Each artifact tracks `status` in YAML frontmatter: `pending` → `draft` → `ap
 
 ## Invariants
 
+- Before drafting `01_spec.md`, check for `docs/UBIQUITOUS_LANGUAGE.md` in the
+  active repo. If present, read it and use its preferred terms in every feature
+  artifact. If absent, continue without creating it unless the user invokes
+  `ubiquitous-language`.
 - Research decontamination: investigation receives only approved factual research questions, never the spec, feature name, desired solution, or `Human Direction` notes.
 - Human direction is the center of the workflow. Use short back-and-forth Q&A to resolve goals, priorities, tradeoffs, and uncertain direction before committing to design, tasks, or execution.
 - Questions must be specific and falsifiable.

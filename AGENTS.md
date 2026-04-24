@@ -47,6 +47,8 @@ Read these only when the task needs that layer:
 
 - Harness layout, runtime install targets, setup rules, and skill packaging:
   `~/.dot-agent/docs/harness-runtime-reference.md`
+- Shared harness language for planning, implementation, and review:
+  `~/.dot-agent/docs/UBIQUITOUS_LANGUAGE.md`
 - Skill authoring policy while creating or materially rewriting skills:
   `~/.dot-agent/skills/AGENTS.md`
 - Skill catalog, install model, and current workflow diagrams:
