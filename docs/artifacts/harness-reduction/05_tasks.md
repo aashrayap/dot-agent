@@ -157,8 +157,8 @@ Files:
 - `claude/CLAUDE.md`
 - `README.md`
 - `docs/harness-runtime-reference.md`
-- `skills/create-agents-md/assets/AGENTS.template.md`
-- `skills/create-agents-md/assets/CLAUDE.template.md`
+- `skills/improve-agents-md/assets/AGENTS.template.md`
+- `skills/improve-agents-md/assets/CLAUDE.template.md`
 
 Work:
 
@@ -198,13 +198,14 @@ Files:
 - `skills/spec-new-feature/skill.toml`
 - `skills/execution-review/skill.toml`
 - selected `SKILL.md` files only if references need narrow links
+- all current `skills/*/skill.toml` files once the validator pattern is stable
 
 Work:
 
 - Add `schema_version = 1` and v1 TOML sections to representative skills.
 - Keep existing root manifest keys unchanged.
-- Do not migrate every skill in this wave unless validator + pattern are stable
-  and time remains.
+- Because Ash requested max coverage, migrate every current source skill once
+  validator + pattern are stable.
 - Add narrow Markdown links to shared references where they replace repeated
   prose.
 
@@ -218,6 +219,12 @@ Verify:
 
 - `python3 scripts/validate-skill-manifests.py`
 - `./setup.sh --check-instructions`
+
+Max-coverage execution note:
+
+- Include `idea` in the first pass.
+- Include the new `context-surface-audit` skill.
+- Prefer all-manifest migration if the validator stays clean.
 
 Estimate:
 
@@ -329,3 +336,45 @@ Parallel safety:
 - Representative skill migration shows TOML/Markdown drift that cannot be
   linted cleanly.
 - `setup.sh --check-instructions` fails in a way related to harness edits.
+
+## Execution Results - 2026-04-23
+
+Done:
+
+- HR-01: Added shared references for output packets, delegation, roadmap/handoff
+  ownership, and manifest schema.
+- HR-02: Added `scripts/validate-skill-manifests.py` and a local TOML
+  compatibility helper so audits work under Python 3.10+ without relying on
+  user-site packages.
+- HR-03: Added standalone `context-surface-audit` skill and deterministic
+  structural audit script.
+- HR-04: Reduced root, Claude, skill authoring, and skills README surfaces;
+  fixed README wording for Codex rules sync/copy behavior.
+- HR-05: Migrated every current source skill manifest to schema v1, including
+  `idea` and `context-surface-audit`.
+- HR-06: Kept existing rendered harness-reduction diagrams wired from design;
+  no diagram source changes were needed.
+- HR-07: Ran North Star verification against current main and adjusted stale
+  instruction-template paths to `improve-agents-md`.
+
+Verification:
+
+- `python3 -m py_compile scripts/toml_compat.py scripts/validate-skill-manifests.py scripts/skill-instruction-audit.py scripts/repo-instruction-audit.py skills/context-surface-audit/scripts/context-surface-audit.py`: passed.
+- `python3 scripts/validate-skill-manifests.py`: passed, 18/18 skills on schema v1.
+- `python3 scripts/validate-skill-manifests.py --format json`: passed.
+- `python3 skills/context-surface-audit/scripts/context-surface-audit.py --format text`: passed.
+- `python3 skills/context-surface-audit/scripts/context-surface-audit.py --format json`: passed and parsed as JSON.
+- `node --check docs/artifacts/harness-reduction/generate-diagrams.mjs`: passed.
+- Rendered all three harness-reduction Excalidraw diagrams with
+  `skills/excalidraw-diagram/scripts/render-excalidraw.sh`: passed with no
+  diagram diffs.
+- Temp-home setup E2E install plus `./setup.sh --check-instructions`: passed
+  without touching live `~/.codex` or `~/.claude`; skill audit checked 18
+  skills and 32 runtime payloads.
+- `rg -n "symlink.*rules|rules.*symlink" README.md docs/harness-runtime-reference.md setup.sh`: no stale README/runtime-reference wording.
+- `git diff --check`: passed.
+
+Open:
+
+- `context-surface-audit` still identifies `skills/idea/SKILL.md` as the
+  highest-context skill. That is now measured, not solved in this PR.

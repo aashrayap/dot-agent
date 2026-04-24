@@ -5,8 +5,8 @@ entrypoints, auditing skill installation, or delegating skill implementation.
 
 ## Composition Layers
 
-Every retained skill must declare how it composes with the harness. Add this
-section near the top of each `SKILL.md`:
+Every retained skill must declare how it composes with the harness. Keep this
+section near the top of each `SKILL.md` so the runtime can read it:
 
 ```markdown
 ## Composes With
@@ -53,6 +53,9 @@ Example:
 - Receives back from: `focus`, `review`, PR refs, and prior feature artifacts.
 ```
 
+`skill.toml` carries the machine-checkable version of the same structure. See
+`skills/references/skill-manifest-schema.md`.
+
 ## Source-Only Policy
 
 `skills/AGENTS.md` is author-time policy for the source tree. It is not
@@ -82,6 +85,7 @@ Manifest baseline:
 name = "<name>"
 targets = ["claude", "codex"]
 default_entry = "SKILL.md"
+schema_version = 1
 ```
 
 Use `claude_entry` or `codex_entry` only for thin runtime wrappers. Keep shared

@@ -67,3 +67,16 @@ explicit = []
 - `contract.tools`: required external tools or runtime connectors.
 - `invoke.implicit`: whether matching user language may trigger the skill.
 - `invoke.explicit`: explicit invocation names or command phrases.
+
+## Validation
+
+Run:
+
+```bash
+python3 scripts/validate-skill-manifests.py
+python3 scripts/validate-skill-manifests.py --format json
+```
+
+The validator checks manifest shape, selected entrypoints, `SKILL.md`
+frontmatter names, declared dependency paths, local composed skill names, and
+presence of `## Composes With`.

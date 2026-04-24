@@ -1,3 +1,27 @@
 name = "wiki"
 targets = ["claude", "codex"]
 default_entry = "SKILL.md"
+schema_version = 1
+
+[composition]
+parents = []
+children = ["excalidraw-diagram"]
+formats = ["excalidraw-diagram"]
+reads = ["detected wiki directory", "schema.md", "index.md", "log.md", "raw sources", "compiled pages"]
+writes = ["wiki files under selected wiki root"]
+delegates = []
+handoffs = []
+
+[contract]
+inputs = ["wiki init request", "wiki ingest request", "wiki query request", "wiki lint request"]
+outputs = ["compiled wiki pages", "query answer", "lint findings"]
+scripts = ["scripts/lint_wiki.py", "scripts/query_wiki.py", "scripts/rebuild_index.py"]
+references = []
+assets = []
+state_reads = []
+state_writes = []
+tools = ["python3"]
+
+[invoke]
+implicit = true
+explicit = ["wiki"]

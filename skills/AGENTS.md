@@ -1,26 +1,34 @@
 # Skills Instructions
 
-This directory is the source of truth for shared Claude and Codex skills.
+This directory is source for shared Claude and Codex skills. `setup.sh`
+installs selected payloads into runtime homes; do not treat runtime copies as
+source.
 
-Use this file as the always-on skill authoring contract. Pull the detailed
-schema and setup rules only when the current edit needs them.
+## Authoring Loop
 
-## Skill Work Loop
+- Keep `SKILL.md` lean: trigger, `## Composes With`, core workflow, and narrow
+  links to deeper files.
+- Put schemas, setup notes, examples, provider/runtime variants, and long
+  patterns in `references/`, `scripts/`, `assets/`, or `shared/`.
+- Preserve portability unless `skill.toml` targets only one runtime.
+- Prefer composing an existing owner over adding a new top-level skill.
+- Verify source entries and installed payloads after edits that should
+  propagate.
 
-- Keep `SKILL.md` lean: trigger, composition, core workflow, and direct links to
-  deeper files.
-- Move setup notes, schemas, examples, and provider/runtime variants into
-  `references/`, `scripts/`, `assets/`, or `shared/`.
-- Preserve runtime portability unless a skill's `skill.toml` targets only one
-  runtime.
-- Use existing skill owners before adding a new top-level skill.
-- Verify source entries and installed payloads with setup/audit commands when
-  skill edits should propagate.
+## Required Shape
+
+Every retained skill needs:
+
+- `SKILL.md`
+- `skill.toml`
+- `## Composes With` near the top of `SKILL.md`
+
+Runtime-readable composition stays in Markdown. Machine-checkable structure
+lives in `skill.toml` using schema v1 from
+`skills/references/skill-manifest-schema.md`.
 
 ## Composition Layers
 
-- Every retained skill needs a strict `## Composes With` section near the top of
-  `SKILL.md` when creating or materially rewriting it.
 - Think in three layers:
   - Routing: `Parent`, `Children`, `Hands off to`, `Receives back from`
   - Borrowed shape: `Uses format from`
@@ -39,8 +47,8 @@ schema and setup rules only when the current edit needs them.
 ## Runtime Packaging
 
 - Each skill should install through `~/.dot-agent/setup.sh`.
-- Use `skill.toml` to declare targets, selected entrypoints, and machine-checkable
-  schema v1 fields when present.
+- Use `skill.toml` to declare targets, selected entrypoints, and
+  machine-checkable schema v1 fields.
 - Keep shared workflow logic at the skill root; use thin `claude/` or `codex/`
   wrappers only when runtime-specific syntax is necessary.
 - Claude receives symlinks. Codex receives copied payloads, so rerun setup after
@@ -48,10 +56,17 @@ schema and setup rules only when the current edit needs them.
 
 ## Read When Needed
 
-- Detailed composition examples, manifest baseline, source-only policy, skill
-  ownership map, and subagent role contracts:
+- Detailed authoring and source-only policy:
   `skills/references/skill-authoring-contract.md`
-- Local `skill.toml` schema v1:
+- Manifest schema:
   `skills/references/skill-manifest-schema.md`
-- Human-facing catalog and workflow map: `skills/README.md`
-- Runtime install mechanics: `../setup.sh`
+- Output packet:
+  `skills/references/output-packet.md`
+- Delegation roles:
+  `skills/references/subagent-delegation.md`
+- Roadmap, handoff, and shared-language ownership:
+  `skills/references/roadmap-and-handoff-surfaces.md`
+- Human-facing catalog and diagrams:
+  `skills/README.md`
+- Runtime install mechanics:
+  `../setup.sh`
