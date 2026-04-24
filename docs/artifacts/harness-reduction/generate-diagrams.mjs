@@ -370,57 +370,87 @@ function iterationLoopDiagram() {
 
 function runtimeArchitectureDiagram() {
   const e = [];
-  panel(e, 20, 20, 1540, 820, "dot-agent Runtime Architecture", "Tracked source feeds Claude/Codex runtimes; audits prove installed payloads and schema stay aligned.");
+  panel(e, 20, 20, 1760, 920, "dot-agent Harness Layers", "Tracked source, runtime installs, local state, and audits stay separate. Codex is preferred; Claude remains portable.");
 
-  node(e, 70, 150, 320, 455, ".dot-agent\ntracked source\n\nAGENTS.md\nclaude/CLAUDE.md\ncodex/config + hooks + rules\nskills/*\ndocs + diagrams\nscripts", {
+  node(e, 80, 140, 295, 170, "Layer 1\nagent contract\n\nAGENTS.md\nREADME.md\nruntime docs", {
     fill: colors.blue,
     stroke: colors.blueStroke,
     fontSize: 18,
   });
-  node(e, 510, 130, 290, 135, "setup.sh\nskill index\ninstall target sync\nbackup conflicts", {
+  node(e, 80, 350, 295, 170, "Layer 2\nskill source\n\nskills/*\nSKILL.md\nskill.toml", {
+    fill: colors.blue,
+    stroke: colors.blueStroke,
+    fontSize: 18,
+  });
+  node(e, 80, 570, 295, 170, "Layer 3\ndocs + helpers\n\ndocs/\nscripts/\nsetup.sh", {
+    fill: colors.blue,
+    stroke: colors.blueStroke,
+    fontSize: 18,
+  });
+
+  node(e, 495, 145, 305, 145, "agent skill choice\nruntime metadata first\nSKILL_INDEX fallback only", {
     fill: colors.amber,
     stroke: colors.amberStroke,
     fontSize: 18,
   });
-  node(e, 510, 330, 290, 145, "instruction audits\nskill payload drift\nrepo contract drift", {
-    fill: colors.violet,
-    stroke: colors.violetStroke,
+  node(e, 495, 365, 305, 155, "setup.sh materializes\nClaude symlinks\nCodex copies + symlinks\nbacks up conflicts", {
+    fill: colors.amber,
+    stroke: colors.amberStroke,
     fontSize: 18,
   });
-  node(e, 510, 550, 290, 145, "schema/index/context audits\n20 skill manifests\nrouting index\ncontext surface shape", {
-    fill: colors.violet,
-    stroke: colors.violetStroke,
-    fontSize: 16,
-  });
-  node(e, 940, 125, 265, 190, "Codex runtime\n\nAGENTS/config/hooks symlinked\nrules copied\nskills copied", {
-    fill: colors.green,
-    stroke: colors.greenStroke,
-    fontSize: 17,
-  });
-  node(e, 940, 405, 265, 170, "Claude runtime\n\nCLAUDE/settings/statusline symlinked\nskills symlinked", {
-    fill: colors.teal,
-    stroke: colors.tealStroke,
-    fontSize: 17,
-  });
-  node(e, 1270, 270, 220, 170, "Local state\nroadmap\nideas\nbackups\ntool caches\nnot PR source", {
+  node(e, 495, 605, 305, 145, "tracked repo is source\nruntime homes are outputs\nstate is gitignored", {
     fill: colors.gray,
     stroke: colors.grayStroke,
     fontSize: 17,
   });
 
-  e.push(arrow(390, 315, 510, 195));
-  e.push(arrow(390, 330, 510, 402));
-  e.push(arrow(390, 350, 510, 622));
-  e.push(arrow(800, 195, 940, 220));
-  e.push(arrow(800, 402, 940, 490));
-  e.push(arrow(800, 622, 940, 545));
-  e.push(arrow(1205, 220, 1270, 315));
-  e.push(arrow(1205, 490, 1270, 390));
+  node(e, 920, 135, 305, 175, "Codex runtime\npreferred daily path\n\nAGENTS/config/hooks symlinked\nrules copied\nskills copied", {
+    fill: colors.green,
+    stroke: colors.greenStroke,
+    fontSize: 17,
+  });
+  node(e, 920, 375, 305, 175, "Claude runtime\nportable second path\n\nCLAUDE/settings/statusline symlinked\nskills symlinked", {
+    fill: colors.teal,
+    stroke: colors.tealStroke,
+    fontSize: 17,
+  });
+  node(e, 920, 625, 305, 145, "Local state\nroadmap\nideas\nreviews\nbackups/tool caches", {
+    fill: colors.gray,
+    stroke: colors.grayStroke,
+    fontSize: 17,
+  });
 
-  label(e, 410, 160, "source of truth", { width: 160 });
-  label(e, 815, 140, "Codex-first path", { width: 150 });
-  label(e, 815, 475, "portable second runtime", { width: 180 });
-  label(e, 1260, 465, "durable local memory stays gitignored", { width: 250 });
+  node(e, 1350, 135, 315, 150, "instruction drift audit\nsetup --check-instructions\ninstalled payloads\nrepo contracts", {
+    fill: colors.violet,
+    stroke: colors.violetStroke,
+    fontSize: 17,
+  });
+  node(e, 1350, 355, 315, 150, "manifest + index gates\nvalidate-skill-manifests\ngenerate-skill-index --check\n20 skill.toml entries", {
+    fill: colors.violet,
+    stroke: colors.violetStroke,
+    fontSize: 16,
+  });
+  node(e, 1350, 575, 315, 150, "context-surface audit\nword counts\nduplicate anchors\nschema coverage\nruntime shape", {
+    fill: colors.violet,
+    stroke: colors.violetStroke,
+    fontSize: 16,
+  });
+  node(e, 1350, 785, 315, 90, "check failures\nfix source\nrerun setup/audits", {
+    fill: "#ffffff",
+    stroke: colors.violetStroke,
+    fontSize: 16,
+  });
+
+  e.push(arrow(375, 225, 490, 217));
+  e.push(arrow(375, 430, 490, 432));
+  e.push(arrow(375, 655, 490, 678));
+  e.push(arrow(800, 217, 915, 222));
+  e.push(arrow(800, 442, 915, 462));
+  e.push(arrow(800, 678, 915, 698));
+  e.push(arrow(1225, 222, 1345, 210));
+  e.push(arrow(1225, 462, 1345, 430));
+  e.push(arrow(1225, 698, 1345, 650));
+  e.push(arrow(1508, 728, 1508, 780));
   return e;
 }
 
@@ -508,6 +538,8 @@ function skillsWorkflowDiagram() {
 write("harness-reduction-source-runtime", sourceRuntimeDiagram());
 write("harness-reduction-skill-schema", skillSchemaDiagram());
 write("harness-reduction-iteration-loop", iterationLoopDiagram());
-write("dot-agent-runtime-architecture", runtimeArchitectureDiagram());
+// dot-agent-runtime-architecture is now maintained directly as an Excalidraw
+// source under docs/diagrams after external diagram review. Do not regenerate it
+// here unless that manual source is ported back into this generator.
 // skills-current-state-workflows is owned by
 // docs/artifacts/skills-readme-current-state-diagram/generate-diagram.mjs.

@@ -222,12 +222,12 @@ function doc(elements) {
 }
 
 function header(elements) {
-  elements.push(text(70, 42, 1600, "dot-agent skills: current setup and workflows", {
+  elements.push(text(70, 42, 1600, "dot-agent skill workflow layers", {
     fontSize: 38,
     color: colors.ink,
     height: 70,
   }));
-  elements.push(text(72, 104, 1540, "~/.dot-agent/skills is source of truth. setup.sh installs selected skill payloads into Claude and Codex. Workflows compose through explicit owners and handoffs.", {
+  elements.push(text(72, 104, 1540, "Skill use starts with runtime metadata, then reads the target SKILL.md. Owner skills mutate canonical state; helper skills add checkpoints, review, and visuals.", {
     fontSize: 18,
     color: colors.muted,
     height: 58,
@@ -247,72 +247,62 @@ function installPipeline(elements) {
     160,
     2060,
     325,
-    "1. Runtime install path",
-    "Tracked source stays in ~/.dot-agent. Runtime homes are outputs, not sources of truth.",
+    "1. Skill resolution layer",
+    "Agents use installed skill metadata first. SKILL_INDEX is a small fallback for ambiguous routing or state ownership.",
   );
 
-  node(elements, 120, 295, 270, 92, "skills/<name>/\nSKILL.md + skill.toml", {
+  node(elements, 120, 280, 220, 92, "user request\nor $skill invoke", {
     fill: colors.gray,
     stroke: colors.grayStroke,
     fontSize: 17,
     wrap: false,
   });
-  node(elements, 460, 290, 280, 102, "skill.toml\nname, targets,\nentrypoints", {
+  node(elements, 420, 265, 275, 122, "runtime skill metadata\ntrigger + description\ninstalled payload path", {
     fill: colors.amber,
     stroke: colors.amberStroke,
     fontSize: 16,
     wrap: false,
   });
-  elements.push(arrow(394, 341, 455, 341, { strokeColor: colors.amberStroke }));
+  elements.push(arrow(345, 326, 415, 326, { strokeColor: colors.amberStroke }));
 
-  elements.push(diamond(825, 285, 170, 115, {
-    fill: colors.teal,
-    stroke: colors.tealStroke,
+  elements.push(diamond(780, 272, 185, 110, {
+    backgroundColor: colors.teal,
+    strokeColor: colors.tealStroke,
   }));
-  elements.push(text(848, 323, 122, "setup.sh", {
-    fontSize: 21,
+  elements.push(text(810, 307, 125, "read\nSKILL.md", {
+    fontSize: 18,
     color: colors.ink,
     align: "center",
-    height: 48,
+    height: 60,
     wrap: false,
   }));
-  elements.push(arrow(742, 341, 820, 341, { strokeColor: colors.tealStroke }));
+  elements.push(arrow(700, 326, 775, 326, { strokeColor: colors.tealStroke }));
 
-  node(elements, 1090, 258, 320, 92, "~/.claude/skills/\nsymlink selected entrypoint\n+ shared dirs", {
-    fill: colors.green,
-    stroke: colors.greenStroke,
-    fontSize: 15,
-    wrap: false,
-  });
-  node(elements, 1090, 372, 320, 60, "claude/ config symlinked", {
-    fill: "#ffffff",
-    stroke: colors.greenStroke,
-    fontSize: 14,
-  });
-  elements.push(arrow(1000, 322, 1085, 304, { strokeColor: colors.greenStroke }));
-
-  node(elements, 1510, 258, 330, 92, "~/.codex/skills/\ncopied payload\nrerun setup after edits", {
+  node(elements, 1060, 268, 290, 118, "optional fallback\nSKILL_INDEX.md\nambiguous routing\nstate ownership", {
     fill: colors.blue,
     stroke: colors.blueStroke,
     fontSize: 15,
     wrap: false,
   });
-  node(elements, 1510, 372, 330, 60, "AGENTS.md + codex/ config/rules", {
-    fill: "#ffffff",
-    stroke: colors.blueStroke,
-    fontSize: 14,
-  });
-  elements.push(arrow(1000, 365, 1505, 304, { strokeColor: colors.blueStroke }));
+  elements.push(arrow(970, 326, 1055, 326, { strokeColor: colors.blueStroke }));
 
-  node(elements, 1880, 288, 200, 112, "state/\nlocal memory,\nbackups, caches", {
-    fill: colors.violet,
-    stroke: colors.violetStroke,
-    fontSize: 15,
+  node(elements, 1435, 265, 305, 122, "owner skill selected\nreads needed layer\nmay compose child\nor hand off", {
+    fill: colors.green,
+    stroke: colors.greenStroke,
+    fontSize: 16,
     wrap: false,
   });
-  elements.push(arrow(995, 360, 1875, 344, { strokeColor: colors.violetStroke }));
+  elements.push(arrow(1355, 326, 1430, 326, { strokeColor: colors.greenStroke }));
 
-  elements.push(text(120, 420, 850, "Installed shared dirs: scripts/ assets/ references/ shared/. Thin runtime wrappers are allowed; shared behavior stays at skill root.", {
+  node(elements, 1815, 272, 250, 108, "receipt\nstate change\nartifact\nhandoff", {
+    fill: "#ffffff",
+    stroke: colors.greenStroke,
+    fontSize: 16,
+    wrap: false,
+  });
+  elements.push(arrow(1745, 326, 1810, 326, { strokeColor: colors.greenStroke }));
+
+  elements.push(text(120, 420, 1560, "Install still matters: skill.toml declares targets and entrypoints; setup.sh symlinks Claude payloads, copies Codex payloads, and leaves runtime homes as outputs rather than source of truth.", {
     fontSize: 15,
     color: colors.muted,
     height: 44,
@@ -326,8 +316,8 @@ function authoringContract(elements) {
     525,
     580,
     600,
-    "2. Authoring contract",
-    "Every retained skill declares ownership and install shape.",
+    "2. Skill artifact contract",
+    "Every retained skill declares trigger, ownership, composition, and install shape.",
   );
 
   node(elements, 115, 650, 215, 72, "SKILL.md", {
@@ -357,7 +347,7 @@ function authoringContract(elements) {
     fontSize: 17,
     wrap: false,
   });
-  node(elements, 375, 925, 220, 78, "generated\nSKILL_INDEX.md", {
+  node(elements, 375, 925, 220, 78, "generated\nfallback index", {
     fill: colors.blue,
     stroke: colors.blueStroke,
     fontSize: 17,
@@ -365,7 +355,7 @@ function authoringContract(elements) {
   });
   elements.push(arrow(338, 964, 370, 964, { strokeColor: colors.blueStroke }));
 
-  elements.push(text(115, 1038, 480, "Helpers and durable support live in scripts/, references/, assets/, and shared/. Generated routing docs are checked; generated state and caches stay out of tracked source.", {
+  elements.push(text(115, 1038, 480, "Helpers and durable support live in scripts/, references/, assets/, and shared/. Generated fallback docs are checked; generated state and caches stay out of tracked source.", {
     fontSize: 15,
     color: colors.muted,
     height: 70,
@@ -378,173 +368,167 @@ function workflows(elements) {
     700,
     525,
     1430,
-    850,
-    "3. High-level workflows",
-    "One owner per surface; handoffs keep daily work, planning, delivery, forensics, docs, and visuals separate.",
+    840,
+    "3. Owner workflows",
+    "Each lane names the skill that owns judgment and the state or artifact that should survive the session.",
   );
 
-  lane(elements, 750, 650, 1325, 150, "Daily human loop", "Day-start, board edits, closure.", {
+  lane(elements, 750, 650, 1325, 150, "Daily human loop", "Human-scannable board, not transcript memory.", {
     fill: "#f7fff8",
     stroke: colors.greenStroke,
   });
-  node(elements, 1040, 680, 165, 62, "morning-sync", {
+  node(elements, 1020, 680, 165, 62, "morning-sync", {
     fill: colors.green,
     stroke: colors.greenStroke,
     fontSize: 16,
   });
-  node(elements, 1265, 666, 220, 90, "state/collab/\nroadmap.md", {
+  node(elements, 1240, 666, 220, 90, "state/collab/\nroadmap.md", {
     fill: colors.green,
     stroke: colors.greenStroke,
     fontSize: 17,
     wrap: false,
   });
-  node(elements, 1545, 680, 120, 62, "focus", {
+  node(elements, 1510, 680, 120, 62, "focus", {
     fill: colors.green,
     stroke: colors.greenStroke,
     fontSize: 17,
   });
-  node(elements, 1725, 680, 165, 62, "daily-review", {
+  node(elements, 1685, 680, 165, 62, "daily-review", {
     fill: colors.green,
     stroke: colors.greenStroke,
     fontSize: 16,
   });
-  node(elements, 1928, 670, 110, 82, "dated\nrecap", {
+  node(elements, 1910, 670, 120, 82, "daily\nrecap", {
     fill: "#ffffff",
     stroke: colors.greenStroke,
     fontSize: 15,
     wrap: false,
   });
-  elements.push(arrow(1210, 711, 1260, 711, { strokeColor: colors.greenStroke }));
-  elements.push(arrow(1490, 711, 1540, 711, { strokeColor: colors.greenStroke, startArrowhead: "arrow" }));
-  elements.push(arrow(1670, 711, 1720, 711, { strokeColor: colors.greenStroke }));
-  elements.push(arrow(1895, 711, 1923, 711, { strokeColor: colors.greenStroke }));
+  elements.push(arrow(1190, 711, 1235, 711, { strokeColor: colors.greenStroke }));
+  elements.push(arrow(1465, 711, 1505, 711, { strokeColor: colors.greenStroke, startArrowhead: "arrow" }));
+  elements.push(arrow(1635, 711, 1680, 711, { strokeColor: colors.greenStroke }));
+  elements.push(arrow(1855, 711, 1905, 711, { strokeColor: colors.greenStroke }));
 
-  lane(elements, 750, 835, 1325, 150, "Idea to PR", "Incubate, bootstrap, plan, ship.", {
+  lane(elements, 750, 835, 1325, 150, "Idea to PR", "Idea memory, optional multi-repo workspace, deep spec artifacts, review.", {
     fill: "#fffdf5",
     stroke: colors.amberStroke,
   });
-  node(elements, 1040, 865, 115, 62, "idea", {
+  node(elements, 1015, 865, 115, 62, "idea", {
     fill: colors.amber,
     stroke: colors.amberStroke,
     fontSize: 18,
   });
-  node(elements, 1210, 855, 150, 82, "init-epic\nif multi-repo", {
+  node(elements, 1185, 855, 150, 82, "init-epic\nif multi-repo", {
     fill: colors.amber,
     stroke: colors.amberStroke,
     fontSize: 15,
     wrap: false,
   });
-  node(elements, 1420, 865, 215, 62, "spec-new-feature", {
+  node(elements, 1390, 865, 215, 62, "spec-new-feature", {
     fill: colors.blue,
     stroke: colors.blueStroke,
     fontSize: 16,
   });
-  node(elements, 1450, 935, 155, 36, "grill-me checkpoint", {
+  node(elements, 1418, 935, 170, 36, "grill-me checkpoint", {
     fill: colors.amber,
     stroke: colors.amberStroke,
     fontSize: 13,
     wrap: false,
   });
-  node(elements, 1695, 865, 125, 62, "review", {
+  node(elements, 1670, 865, 125, 62, "review", {
     fill: colors.blue,
     stroke: colors.blueStroke,
     fontSize: 17,
   });
-  node(elements, 1880, 855, 155, 82, "PR / focus /\nhandoff", {
+  node(elements, 1855, 855, 175, 82, "PR / focus /\ndaily-review", {
     fill: "#ffffff",
     stroke: colors.blueStroke,
     fontSize: 15,
     wrap: false,
   });
-  elements.push(arrow(1160, 896, 1205, 896, { strokeColor: colors.amberStroke }));
-  elements.push(arrow(1365, 896, 1415, 896, { strokeColor: colors.blueStroke }));
-  elements.push(arrow(1640, 896, 1690, 896, { strokeColor: colors.blueStroke }));
-  elements.push(arrow(1825, 896, 1875, 896, { strokeColor: colors.blueStroke }));
-  elements.push(arrow(1528, 930, 1528, 935, { strokeColor: colors.amberStroke }));
+  elements.push(arrow(1135, 896, 1180, 896, { strokeColor: colors.amberStroke }));
+  elements.push(arrow(1340, 896, 1385, 896, { strokeColor: colors.blueStroke }));
+  elements.push(arrow(1610, 896, 1665, 896, { strokeColor: colors.blueStroke }));
+  elements.push(arrow(1800, 896, 1850, 896, { strokeColor: colors.blueStroke }));
+  elements.push(arrow(1504, 930, 1504, 935, { strokeColor: colors.amberStroke }));
 
-  lane(elements, 750, 1020, 1325, 150, "Review and external gates", "Local diff checks, portable packets, and evidence loops.", {
+  lane(elements, 750, 1020, 1325, 150, "Review and external gates", "Local review stays repo-grounded; Research Pro receives a portable packet.", {
     fill: "#fbf9ff",
     stroke: colors.violetStroke,
   });
-  node(elements, 1010, 1048, 150, 66, "git diff\nPR context", {
+  node(elements, 990, 1048, 150, 66, "git diff\nPR context", {
     fill: colors.gray,
     stroke: colors.grayStroke,
     fontSize: 15,
     wrap: false,
   });
-  node(elements, 1210, 1048, 125, 66, "review", {
+  node(elements, 1188, 1048, 125, 66, "review", {
     fill: colors.blue,
     stroke: colors.blueStroke,
     fontSize: 17,
   });
-  node(elements, 1385, 1038, 235, 86, "handoff-\nresearch-pro", {
+  node(elements, 1360, 1038, 235, 86, "handoff-\nresearch-pro", {
     fill: colors.violet,
     stroke: colors.violetStroke,
     fontSize: 16,
     wrap: false,
   });
-  node(elements, 1670, 1048, 150, 66, "external\nreviewer", {
+  node(elements, 1645, 1048, 150, 66, "Research Pro", {
     fill: colors.violet,
     stroke: colors.violetStroke,
-    fontSize: 15,
-    wrap: false,
+    fontSize: 16,
   });
-  node(elements, 1870, 1038, 170, 86, "findings\nintake", {
+  node(elements, 1850, 1038, 180, 86, "findings\nintake", {
     fill: "#ffffff",
     stroke: colors.violetStroke,
     fontSize: 14,
     wrap: false,
   });
-  elements.push(arrow(1165, 1081, 1205, 1081, { strokeColor: colors.blueStroke }));
-  elements.push(arrow(1340, 1081, 1380, 1081, { strokeColor: colors.violetStroke }));
-  elements.push(arrow(1625, 1081, 1665, 1081, { strokeColor: colors.violetStroke }));
-  elements.push(arrow(1825, 1081, 1865, 1081, { strokeColor: colors.violetStroke }));
+  elements.push(arrow(1145, 1081, 1183, 1081, { strokeColor: colors.blueStroke }));
+  elements.push(arrow(1318, 1081, 1355, 1081, { strokeColor: colors.violetStroke }));
+  elements.push(arrow(1600, 1081, 1640, 1081, { strokeColor: colors.violetStroke }));
+  elements.push(arrow(1800, 1081, 1845, 1081, { strokeColor: colors.violetStroke }));
 
-  lane(elements, 750, 1205, 1325, 150, "Docs, knowledge, visuals", "Reusable human-facing artifacts.", {
+  lane(elements, 750, 1205, 1325, 150, "Knowledge, docs, visuals", "Feed specs, reviews, handoffs, and docs.", {
     fill: "#f8fbff",
     stroke: colors.grayStroke,
   });
-  node(elements, 1040, 1235, 105, 62, "wiki", {
+  node(elements, 985, 1235, 105, 62, "wiki", {
     fill: colors.gray,
     stroke: colors.grayStroke,
     fontSize: 17,
   });
-  node(elements, 1185, 1235, 185, 62, "improve-agents-md", {
+  node(elements, 1130, 1235, 170, 62, "ubiquitous-\nlanguage", {
+    fill: colors.gray,
+    stroke: colors.grayStroke,
+    fontSize: 14,
+    wrap: false,
+  });
+  node(elements, 1340, 1235, 185, 62, "improve-agents-md", {
     fill: colors.gray,
     stroke: colors.grayStroke,
     fontSize: 15,
   });
-  node(elements, 1410, 1225, 165, 82, "visual-\nreasoning", {
+  node(elements, 1565, 1225, 165, 82, "visual-\nreasoning", {
     fill: colors.teal,
     stroke: colors.tealStroke,
     fontSize: 15,
     wrap: false,
   });
-  node(elements, 1620, 1235, 105, 62, "explain", {
-    fill: colors.gray,
-    stroke: colors.grayStroke,
-    fontSize: 16,
-  });
-  node(elements, 1770, 1235, 115, 62, "compare", {
+  node(elements, 1775, 1235, 115, 62, "compare", {
     fill: colors.violet,
     stroke: colors.violetStroke,
     fontSize: 16,
   });
-  node(elements, 1928, 1225, 110, 82, "diagram\nPNG + src", {
+  node(elements, 1925, 1225, 110, 82, "diagram\nPNG + src", {
     fill: colors.teal,
     stroke: colors.tealStroke,
     fontSize: 14,
     wrap: false,
   });
-  elements.push(arrow(1580, 1266, 1615, 1266, { strokeColor: colors.tealStroke }));
-  elements.push(arrow(1730, 1266, 1765, 1266, { strokeColor: colors.violetStroke }));
-  elements.push(arrow(1890, 1266, 1923, 1266, { strokeColor: colors.tealStroke }));
+  elements.push(arrow(1735, 1266, 1770, 1266, { strokeColor: colors.tealStroke }));
+  elements.push(arrow(1895, 1266, 1920, 1266, { strokeColor: colors.tealStroke }));
 
-  elements.push(text(760, 1335, 1250, "Boundary: normal daily output uses roadmap rows, not session IDs or hidden project state. Deep implementation uses docs/artifacts/<feature>/; external critique writes docs/handoffs/<slug>-research-pro-review.md.", {
-    fontSize: 15,
-    color: colors.muted,
-    height: 40,
-  }));
 }
 
 function researchProGate() {
@@ -672,7 +656,7 @@ function runtimeRoster(elements) {
     1420,
     2060,
     330,
-    "4. Runtime targets today",
+    "4. Installed runtime targets today",
     "skill.toml decides whether a skill installs into Claude, Codex, or both.",
   );
 
@@ -741,9 +725,9 @@ function render() {
   return doc(elements);
 }
 
-const fullPath = path.join(outDir, "skills-current-state-workflows.excalidraw");
-fs.writeFileSync(fullPath, `${JSON.stringify(render(), null, 2)}\n`);
-console.log(fullPath);
+// skills-current-state-workflows is now maintained directly as an Excalidraw
+// source under docs/diagrams after external diagram review. Do not regenerate it
+// here unless that manual source is ported back into this generator.
 
 const researchProPath = path.join(outDir, "research-pro-review-gate.excalidraw");
 fs.writeFileSync(researchProPath, `${JSON.stringify(researchProGate(), null, 2)}\n`);
