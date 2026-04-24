@@ -9,9 +9,9 @@ disable-model-invocation: true
 ## Composes With
 
 - Parent: `idea`, `focus`, or `init-epic` when work needs code-grounded planning.
-- Children: `excalidraw-diagram` when a feature plan needs a durable workflow, architecture, or before/after visual.
+- Children: `ubiquitous-language` when repo terminology needs creation or refresh before planning; `excalidraw-diagram` when a feature plan needs a durable workflow, architecture, or before/after visual.
 - Uses format from: `excalidraw-diagram` for human-facing planning and design visuals when useful.
-- Reads state from: idea `spec.md`/`plan.md`, roadmap rows, repo docs/code, and feature artifacts.
+- Reads state from: `docs/UBIQUITOUS_LANGUAGE.md` when present, idea `spec.md`/`plan.md`, roadmap rows, repo docs/code, and feature artifacts.
 - Writes through: `docs/artifacts/<feature>/` for feature artifacts; returns PRs/pivots/follow-ups to roadmap rows, handoff docs, or PR descriptions.
 - Hands off to: `focus` for roadmap follow-ups, `review` for PR review, or `daily-review` for day-end closure.
 - Receives back from: `focus`, `review`, PR refs, and prior feature artifacts as curated workstream context.
@@ -60,6 +60,10 @@ Track progress via `status` frontmatter: `pending` → `draft` → `approved`/`c
 - You are an orchestrator. NEVER read code or explore the codebase directly — dispatch subagents for ALL investigation, even follow-up questions from human feedback, verifying assumptions mid-conversation, or resolving disagreements. If the human challenges a decision and you need evidence, dispatch a subagent to gather it.
 - Feature directory and templates are pre-created. Do NOT create them manually.
 - On startup, read artifact files to determine current phase. Tell the human which phase you're starting and why.
+- Before drafting `01_spec.md`, check for `docs/UBIQUITOUS_LANGUAGE.md` in the
+  active repo. If present, read it and use its preferred terms in every feature
+  artifact. If absent, continue without creating it unless the user invokes
+  `ubiquitous-language`.
 - No code in L1–L3. Implementation details belong in L4 task specs only.
 - Code-specific files, functions, schemas, API routes, packages, migrations, and verify commands belong in L4 task specs, not in earlier artifacts, unless they are evidence found during research.
 - Read CLAUDE.md and README.md files before L3 — only from the working directory and its subdirectories. NEVER traverse parent directories to find these files.

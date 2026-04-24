@@ -131,6 +131,7 @@ Default ownership:
 - `roadmap.md`: `focus`
 - `state/ideas/<slug>/`: `idea`
 - `docs/artifacts/<feature>/`: `spec-new-feature`
+- `docs/UBIQUITOUS_LANGUAGE.md`: `ubiquitous-language`
 - `state/collab/daily-reviews/`: `daily-review`
 - forensic session reports: `execution-review`
 - `AGENTS.md`/`CLAUDE.md` improvement, creation, or translation: `improve-agents-md`
@@ -145,6 +146,7 @@ compose narrower skills instead of duplicating their rules.
 |-------|-------------|----------|
 | Daily loop | `morning-sync` | `focus`, `daily-review`, `idea`, `spec-new-feature` |
 | Idea to PR | `idea` or `spec-new-feature` | `init-epic`, `handoff-research-pro`, `review`, `focus` |
+| Shared language | `ubiquitous-language` | `spec-new-feature`, `review`, `improve-agents-md` |
 | Visual reasoning | `visual-reasoning` | `explain`, `compare`, `excalidraw-diagram` |
 
 Use `visual-reasoning` when the user wants a grouped visual thinking workflow:
